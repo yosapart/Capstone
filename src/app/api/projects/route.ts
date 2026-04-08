@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../lib/db";
+import { supabase } from "../../../lib/db";
 import { z } from "zod";
 
 
@@ -13,7 +13,8 @@ const projectSchema = z.object({
 // GET → ดึง project ทั้งหมด
 export async function GET() {
     try {
-        const [rows]: any = await db.query("SELECT * FROM Projects");
+        const { data: rows, error: supabaseError } = await supabase.from("projects").select("*");
+        if (supabaseError) throw supabaseError;
         return NextResponse.json(rows);
     } catch (error) {
         console.error(error);
@@ -35,16 +36,18 @@ export async function POST(req: Request) {
         const { user_id, name, description } = parsed.data;
 
         // เช็คว่า user_id มีอยู่จริงใน Users
-        const [user]: any = await db.query("SELECT * FROM Users WHERE user_id = ?", [user_id]);
-        if (user.length === 0) {
+        const { data: user, error: userError } = await supabase.from("users").select("*").eq("user_id", user_id);
+        if (userError) throw userError;
+        
+        if (!user || user.length === 0) {
             return NextResponse.json({ message: "User ไม่พบในระบบ" }, { status: 400 });
         }
 
         // Insert
-        await db.query(
-            "INSERT INTO Projects (user_id, name, description) VALUES (?, ?, ?)",
-            [user_id, name, description || ""]
-        );
+        const { error: insertError } = await supabase.from("projects").insert([
+            { user_id, name, description: description || "" }
+        ]);
+        if (insertError) throw insertError;
 
         return NextResponse.json({ message: "สร้าง Project สำเร็จ" });
     } catch (error) {

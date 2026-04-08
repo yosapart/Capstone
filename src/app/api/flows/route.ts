@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../lib/db";
+import { supabase } from "../../../lib/db";
 import { z } from "zod";
 
 // Schema สำหรับ POST
@@ -13,7 +13,8 @@ const flowSchema = z.object({
 // GET → ดึง flow ทั้งหมด
 export async function GET() {
   try {
-    const [rows]: any = await db.query("SELECT * FROM Flows");
+    const { data: rows, error: supabaseError } = await supabase.from("flows").select("*");
+    if (supabaseError) throw supabaseError;
     return NextResponse.json(rows);
   } catch (error) {
     console.error(error);
@@ -35,16 +36,18 @@ export async function POST(req: Request) {
     const { project_id, name } = parsed.data;
 
     // เช็คว่า project_id มีอยู่จริงใน Projects
-    const [project]: any = await db.query("SELECT * FROM Projects WHERE project_id = ?", [project_id]);
-    if (project.length === 0) {
+    const { data: project, error: projectError } = await supabase.from("projects").select("*").eq("project_id", project_id);
+    if (projectError) throw projectError;
+
+    if (!project || project.length === 0) {
       return NextResponse.json({ message: "Project ไม่พบในระบบ" }, { status: 400 });
     }
 
     // Insert
-    await db.query(
-      "INSERT INTO Flows (project_id, name) VALUES (?, ?)",
-      [project_id, name]
-    );
+    const { error: insertError } = await supabase.from("flows").insert([
+      { project_id, name }
+    ]);
+    if (insertError) throw insertError;
 
     return NextResponse.json({ message: "สร้าง Flow สำเร็จ" });
   } catch (error) {

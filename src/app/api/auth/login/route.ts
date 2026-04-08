@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../../lib/db";
+import { supabase } from "../../../../lib/db";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
@@ -7,12 +7,10 @@ export async function POST(req: Request) {
         const { email, password } = await req.json();
 
         // หา user
-        const [rows]: any = await db.query(
-            "SELECT * FROM Users WHERE email = ?",
-            [email]
-        );
+        const { data: rows, error: userError } = await supabase.from("users").select("*").eq("email", email);
+        if (userError) throw userError;
 
-        if (rows.length === 0) {
+        if (!rows || rows.length === 0) {
             return NextResponse.json(
                 { message: "ไม่พบ user" },
                 { status: 404 }

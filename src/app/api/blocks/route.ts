@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../lib/db";
+import { supabase } from "../../../lib/db";
 import { blockSchema } from "../../../lib/validators/block";
 
 // POST → สร้าง Block
@@ -19,33 +19,29 @@ export async function POST(req: Request) {
     } = parsed.data;
 
     // ตรวจสอบว่า flow_id มีอยู่จริง
-    const [flow]: any = await db.query(
-      "SELECT * FROM Flows WHERE flow_id = ?",
-      [flow_id]
-    );
+    const { data: flow, error: flowError } = await supabase.from("flows").select("*").eq("flow_id", flow_id);
+    if (flowError) throw flowError;
 
-    if (flow.length === 0) {
+    if (!flow || flow.length === 0) {
       return NextResponse.json({ message: "Flow ไม่พบ" }, { status: 400 });
     }
 
     // Insert Block
-    await db.query(
-      `INSERT INTO Blocks 
-        (flow_id, step_order, type, name, description, cost_per_unit, electricity_per_unit, people, cost_per_person, duration)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
+    const { error: insertError } = await supabase.from("blocks").insert([
+      {
         flow_id,
         step_order,
         type,
         name,
-        description || "",
-        cost_per_unit || 0,
-        electricity_per_unit || 0,
-        people || 0,
-        cost_per_person || 0,
-        duration || 0
-      ]
-    );
+        description: description || "",
+        cost_per_unit: cost_per_unit || 0,
+        electricity_per_unit: electricity_per_unit || 0,
+        people: people || 0,
+        cost_per_person: cost_per_person || 0,
+        duration: duration || 0
+      }
+    ]);
+    if (insertError) throw insertError;
 
     return NextResponse.json({ message: "สร้าง Block สำเร็จ" });
 
@@ -65,10 +61,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: "กรุณาระบุ flow_id" }, { status: 400 });
     }
 
-    const [blocks]: any = await db.query(
-      "SELECT * FROM Blocks WHERE flow_id = ? ORDER BY step_order ASC",
-      [flow_id]
-    );
+    const { data: blocks, error: blocksError } = await supabase
+      .from("blocks")
+      .select("*")
+      .eq("flow_id", flow_id)
+      .order("step_order", { ascending: true });
+
+    if (blocksError) throw blocksError;
 
     return NextResponse.json(blocks);
 

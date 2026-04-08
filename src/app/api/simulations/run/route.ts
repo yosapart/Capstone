@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../../lib/db";
+import { supabase } from "../../../../lib/db";
 import { z } from "zod";
 
 // ✅ Zod validate
 const simulationSchema = z.object({
   flow_id: z.number(),
   target_output: z.number().min(1, "target_output ต้องมากกว่า 0"),
+  testcase_ids: z.array(z.number()).optional(),
 });
 
 export async function POST(req: Request) {
@@ -21,28 +22,41 @@ export async function POST(req: Request) {
       );
     }
 
-    const { flow_id, target_output } = parsed.data;
+    const { flow_id, target_output, testcase_ids } = parsed.data;
 
     // 2️⃣ เช็ค Flow
-    const [flow]: any = await db.query(
-      "SELECT * FROM Flows WHERE flow_id = ?",
-      [flow_id]
-    );
+    const { data: flow, error: flowError } = await supabase.from("flows").select("*").eq("flow_id", flow_id);
+    if (flowError) throw flowError;
 
-    if (flow.length === 0) {
+    if (!flow || flow.length === 0) {
       return NextResponse.json(
         { message: "Flow ไม่พบ" },
         { status: 400 }
       );
     }
 
-    // 3️⃣ ดึง Blocks
-    const [blocks]: any = await db.query(
-      "SELECT * FROM Blocks WHERE flow_id = ? ORDER BY step_order ASC",
-      [flow_id]
-    );
+    let testcases: any[] = [];
 
-    if (blocks.length === 0) {
+    if (testcase_ids && testcase_ids.length > 0) {
+      const { data: rows, error: testcasesError } = await supabase.from("testcases").select("*").in("tc_id", testcase_ids);
+      if (testcasesError) throw testcasesError;
+
+      testcases = rows;
+    }
+
+    // 🔥 debug
+    console.log("TESTCASES:", testcases);
+
+    // 3️⃣ ดึง Blocks
+    const { data: blocks, error: blocksError } = await supabase
+      .from("blocks")
+      .select("*")
+      .eq("flow_id", flow_id)
+      .order("step_order", { ascending: true });
+
+    if (blocksError) throw blocksError;
+
+    if (!blocks || blocks.length === 0) {
       return NextResponse.json(
         { message: "Flow นี้ไม่มี Block" },
         { status: 400 }
@@ -110,12 +124,14 @@ export async function POST(req: Request) {
     }
 
     // 6️⃣ สร้าง Simulation
-    const [simuResult]: any = await db.query(
-      "INSERT INTO Simulations (flow_id, target_output) VALUES (?, ?)",
-      [flow_id, target_output]
-    );
+    const { data: simuResult, error: simuError } = await supabase
+      .from("simulations")
+      .insert([{ flow_id, target_output }])
+      .select();
+    
+    if (simuError) throw simuError;
 
-    const simu_id = simuResult.insertId;
+    const simu_id = simuResult[0].simu_id;
 
     // 7️⃣ รวม output
     const output = {
@@ -127,20 +143,21 @@ export async function POST(req: Request) {
     };
 
     // 8️⃣ เก็บ Results
-    await db.query(
-      "INSERT INTO Results (simu_id, output) VALUES (?, ?)",
-      [simu_id, JSON.stringify(output)]
-    );
+    const { error: resultError } = await supabase
+      .from("results")
+      .insert([{ simu_id, output: JSON.stringify(output) }]);
+      
+    if (resultError) throw resultError;
 
     return NextResponse.json({
       message: "Simulation สำเร็จ",
       data: output,
     });
 
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+    console.error("Simulation Error: ", error);
     return NextResponse.json(
-      { message: "เกิดข้อผิดพลาด" },
+      { message: "เกิดข้อผิดพลาด", error: error.message || error },
       { status: 500 }
     );
   }

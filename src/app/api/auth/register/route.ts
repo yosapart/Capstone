@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../../lib/db";
+import { supabase } from "../../../../lib/db";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
@@ -33,12 +33,10 @@ export async function POST(req: Request) {
     const { name, email, password } = parsed.data;
 
     // 3️⃣ เช็ค email ซ้ำใน DB
-    const [existing]: any = await db.query(
-      "SELECT * FROM Users WHERE email = ?",
-      [email]
-    );
+    const { data: existing, error: existingError } = await supabase.from("users").select("*").eq("email", email);
+    if (existingError) throw existingError;
 
-    if (existing.length > 0) {
+    if (existing && existing.length > 0) {
       return NextResponse.json(
         { message: "Email นี้ถูกใช้แล้ว" },
         { status: 400 }
@@ -49,10 +47,10 @@ export async function POST(req: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // 5️⃣ Insert user
-    await db.query(
-      "INSERT INTO Users (name, email, password) VALUES (?, ?, ?)",
-      [name, email, hashedPassword]
-    );
+    const { error: insertError } = await supabase.from("users").insert([
+      { name, email, password: hashedPassword }
+    ]);
+    if (insertError) throw insertError;
 
     return NextResponse.json({ message: "สมัครสำเร็จ" });
 
