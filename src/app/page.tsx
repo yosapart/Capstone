@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Navbar } from "./_components/landingPage";
 
 export default function Home() {
   const router = useRouter();
@@ -22,53 +23,13 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen flex flex-col">
-
-      {/* 🔝 Navbar */}
-      <div className="flex justify-between items-center p-4 border-b">
-        <h1 className="font-bold text-lg">Factory Simulation</h1>
-
-        <div className="space-x-2">
-          <button
-            className="px-4 py-2 border rounded"
-            onClick={() => {
-              setMode("login");
-              setShowAuth(true);
-            }}
-          >
-            Login
-          </button>
-
-          <button
-            className="px-4 py-2 bg-black text-white rounded"
-            onClick={() => {
-              setMode("register");
-              setShowAuth(true);
-            }}
-          >
-            Sign up
-          </button>
-        </div>
-      </div>
-
-      {/* 🔥 Center */}
-      <div className="flex flex-1 items-center justify-center">
-        <button
-          onClick={handleCreate}
-          className="px-6 py-3 bg-blue-500 text-white rounded text-lg"
-        >
-          + Create Project
-        </button>
-      </div>
-
-      {/* 🔥 Modal */}
-      {showAuth && (
-        <AuthModal
-          mode={mode}
-          onClose={() => setShowAuth(false)}
-        />
-      )}
-    </div>
+    <main>
+      <Navbar />
+      <h1 className="font-bold">
+        Factory Sim
+      </h1>
+      <p>App is running.</p>
+    </main>
   );
 }
 
