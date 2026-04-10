@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import { supabase } from "../../../../lib/db";
 import { z } from "zod";
 
-// ✅ Zod validate
+// ✅ Zod validate (เลือกได้ 1 testcase)
 const simulationSchema = z.object({
   flow_id: z.number(),
   target_output: z.number().min(1, "target_output ต้องมากกว่า 0"),
-  testcase_ids: z.array(z.number()).optional(),
+  testcase_id: z.number().optional(), // 🔥 เปลี่ยนตรงนี้
 });
 
 export async function POST(req: Request) {
@@ -22,10 +22,14 @@ export async function POST(req: Request) {
       );
     }
 
-    const { flow_id, target_output, testcase_ids } = parsed.data;
+    const { flow_id, target_output, testcase_id } = parsed.data;
 
     // 2️⃣ เช็ค Flow
-    const { data: flow, error: flowError } = await supabase.from("flows").select("*").eq("flow_id", flow_id);
+    const { data: flow, error: flowError } = await supabase
+      .from("flows")
+      .select("*")
+      .eq("flow_id", flow_id);
+
     if (flowError) throw flowError;
 
     if (!flow || flow.length === 0) {
@@ -35,19 +39,24 @@ export async function POST(req: Request) {
       );
     }
 
-    let testcases: any[] = [];
+    // 3️⃣ ดึง testcase (ตัวเดียว)
+    let testcase: any = null;
 
-    if (testcase_ids && testcase_ids.length > 0) {
-      const { data: rows, error: testcasesError } = await supabase.from("testcases").select("*").in("tc_id", testcase_ids);
-      if (testcasesError) throw testcasesError;
+    if (testcase_id) {
+      const { data, error } = await supabase
+        .from("testcases")
+        .select("*")
+        .eq("tc_id", testcase_id)
+        .single();
 
-      testcases = rows;
+      if (error) throw error;
+
+      testcase = data;
     }
 
-    // 🔥 debug
-    console.log("TESTCASES:", testcases);
+    console.log("TESTCASE:", testcase);
 
-    // 3️⃣ ดึง Blocks
+    // 4️⃣ ดึง Blocks
     const { data: blocks, error: blocksError } = await supabase
       .from("blocks")
       .select("*")
@@ -63,7 +72,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // 4️⃣ เช็ค step_order ต่อเนื่อง
+    // 5️⃣ เช็ค step_order
     const orders = blocks.map((b: any) => b.step_order).sort((a: number, b: number) => a - b);
 
     for (let i = 0; i < orders.length; i++) {
@@ -75,19 +84,71 @@ export async function POST(req: Request) {
       }
     }
 
-    // 5️⃣ Logic คำนวณ + breakdown
+    // 6️⃣ สร้าง Simulation
+    const { data: simuResult, error: simuError } = await supabase
+      .from("simulations")
+      .insert([{ flow_id, target_output }])
+      .select();
+
+    if (simuError) throw simuError;
+
+    const simu_id = simuResult[0].simu_id;
+
+    // 7️⃣ random testcase
+    let appliedTestcase: any = null;
+
+    if (testcase) {
+      const isApplied = Math.random() < Number(testcase.probability);
+
+      await supabase.from("event").insert([
+        {
+          simu_id,
+          tc_id: testcase.tc_id,
+          applied: isApplied,
+        },
+      ]);
+
+      if (isApplied) {
+        appliedTestcase = testcase;
+      }
+    }
+
+    console.log("APPLIED:", appliedTestcase);
+
+    // 8️⃣ Logic คำนวณ
     let total_cost = 0;
     let total_electricity = 0;
     let total_duration = 0;
 
     const steps: any[] = [];
 
+
+
     for (const block of blocks) {
-      const cost_per_unit = Number(block.cost_per_unit) || 0;
-      const electricity_per_unit = Number(block.electricity_per_unit) || 0;
-      const people = Number(block.people) || 0;
-      const cost_per_person = Number(block.cost_per_person) || 0;
-      const duration = Number(block.duration) || 0;
+      // 🔥 START block
+      if (block.type === "start") {
+        steps.push({
+          step_order: block.step_order,
+          name: block.name,
+          type: "start",
+        });
+        continue;
+      }
+
+      // 🔥 END block
+      if (block.type === "end") {
+        steps.push({
+          step_order: block.step_order,
+          name: block.name,
+          type: "end",
+        });
+        break; // จบ flow
+      }
+      let cost_per_unit = Number(block.cost_per_unit) || 0;
+      let electricity_per_unit = Number(block.electricity_per_unit) || 0;
+      let people = Number(block.people) || 0;
+      let cost_per_person = Number(block.cost_per_person) || 0;
+      let duration = Number(block.duration) || 0;
 
       // ❗ กันค่าติดลบ
       if (
@@ -103,6 +164,44 @@ export async function POST(req: Request) {
         );
       }
 
+      let skipBlock = false;
+
+      // 🔥 apply testcase
+      if (appliedTestcase) {
+        const tc = appliedTestcase;
+
+        if (tc.type === "labor") {
+          people = people * (1 - Number(tc.value));
+        }
+
+        if (tc.type === "electricity") {
+          electricity_per_unit = electricity_per_unit * (1 + Number(tc.value));
+        }
+
+        if (tc.type === "material") {
+          cost_per_unit = cost_per_unit * (1 + Number(tc.value));
+        }
+
+        if (tc.type === "machine") {
+          skipBlock = true;
+          duration += 10; // เพิ่มเวลา
+        }
+      }
+
+      // 🔥 skip block ถ้าเครื่องเสีย
+      if (skipBlock) {
+        total_duration += duration;
+
+        steps.push({
+          step_order: block.step_order,
+          name: block.name,
+          skipped: true,
+          duration,
+        });
+
+        continue;
+      }
+
       const block_cost =
         cost_per_unit * target_output + people * cost_per_person;
 
@@ -113,40 +212,30 @@ export async function POST(req: Request) {
       total_electricity += block_electricity;
       total_duration += duration;
 
-      // 🔥 เก็บรายละเอียดแต่ละ step
       steps.push({
         step_order: block.step_order,
         name: block.name,
         cost: block_cost,
         electricity: block_electricity,
-        duration: duration,
+        duration,
       });
     }
 
-    // 6️⃣ สร้าง Simulation
-    const { data: simuResult, error: simuError } = await supabase
-      .from("simulations")
-      .insert([{ flow_id, target_output }])
-      .select();
-    
-    if (simuError) throw simuError;
-
-    const simu_id = simuResult[0].simu_id;
-
-    // 7️⃣ รวม output
+    // 9️⃣ รวม output
     const output = {
       total_cost,
       total_electricity,
       total_duration,
       target_output,
-      steps, // 🔥 เพิ่ม breakdown
+      testcase: appliedTestcase?.name || "none",
+      steps,
     };
 
-    // 8️⃣ เก็บ Results
+    // 🔟 เก็บ Results
     const { error: resultError } = await supabase
       .from("results")
       .insert([{ simu_id, output: JSON.stringify(output) }]);
-      
+
     if (resultError) throw resultError;
 
     return NextResponse.json({
