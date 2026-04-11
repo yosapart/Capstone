@@ -30,7 +30,7 @@ export default function Home() {
 
   return (
     <>
-      <Navbar />
+      <Navbar onLoginClick={() => { setMode("login"); setShowAuth(true); }}/>
       
       <main>
         <HeroSection onCreateClick={handleCreate} />
@@ -45,9 +45,10 @@ export default function Home() {
       {showAuth && (
         <AuthModal 
           mode={mode} 
-          onClose={() => setShowAuth(false)
-       }
-    </>
+          onClose={() => setShowAuth(false)} 
+        />
+      )}
+      </>
   );
 }
 
