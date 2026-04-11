@@ -1,6 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../../../lib/db";
 import { blockSchema } from "../../../lib/validators/block";
+
+export const dynamic = "force-dynamic";
 
 // POST → สร้าง Block
 export async function POST(req: Request) {
@@ -52,10 +54,9 @@ export async function POST(req: Request) {
 }
 
 // GET → ดึง Block ของ Flow หนึ่ง
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const url = new URL(req.url);
-    const flow_id = Number(url.searchParams.get("flow_id"));
+    const flow_id = Number(req.nextUrl.searchParams.get("flow_id"));
 
     if (!flow_id) {
       return NextResponse.json({ message: "กรุณาระบุ flow_id" }, { status: 400 });
@@ -74,5 +75,56 @@ export async function GET(req: Request) {
   } catch (error) {
     console.error(error);
     return NextResponse.json({ message: "เกิดข้อผิดพลาด" }, { status: 500 });
+  }
+}
+
+// PUT → อัปเดตข้อมูล Block
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json();
+    const { block_id, type, name, description, cost_per_unit, electricity_per_unit, people, cost_per_person, duration } = body;
+
+    if (!block_id) {
+      return NextResponse.json({ message: "กรุณาระบุ block_id" }, { status: 400 });
+    }
+
+    const { error: updateError } = await supabase.from("blocks").update({
+      name,
+      description: description || "",
+      cost_per_unit: cost_per_unit || 0,
+      electricity_per_unit: electricity_per_unit || 0,
+      people: people || 0,
+      cost_per_person: cost_per_person || 0,
+      duration: duration || 0
+    }).eq("block_id", block_id);
+
+    if (updateError) throw updateError;
+
+    return NextResponse.json({ message: "อัปเดต Block สำเร็จ" });
+
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ message: "เกิดข้อผิดพลาดในการอัปเดต" }, { status: 500 });
+  }
+}
+
+// DELETE → ลบ Block
+export async function DELETE(req: NextRequest) {
+  try {
+    const block_id = Number(req.nextUrl.searchParams.get("block_id"));
+
+    if (!block_id) {
+      return NextResponse.json({ message: "กรุณาระบุ block_id" }, { status: 400 });
+    }
+
+    const { error: deleteError } = await supabase.from("blocks").delete().eq("block_id", block_id);
+
+    if (deleteError) throw deleteError;
+
+    return NextResponse.json({ message: "ลบ Block สำเร็จ" });
+
+  } catch (error: any) {
+    console.error("DELETE Error:", error);
+    return NextResponse.json({ message: "เกิดข้อผิดพลาดในการลบ", error: error.message }, { status: 500 });
   }
 }
