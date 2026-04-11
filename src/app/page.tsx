@@ -1,8 +1,14 @@
 "use client";
+import { Navbar } from "./_components/Navbar";
+import { HeroSection } from "./_components/Hero";
+import { DesignSection } from "./_components/Design";
+import { AnalyzeSection } from "./_components/Analyze";
+import { PDFSection } from "./_components/Pdf";
+import { CloseSection } from "./_components/Close";
+import { Footer } from "./_components/Footer";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Navbar } from "./_components/landingPage";
 
 export default function Home() {
   const router = useRouter();
@@ -23,13 +29,25 @@ export default function Home() {
   };
 
   return (
-    <main>
+    <>
       <Navbar />
-      <h1 className="font-bold">
-        Factory Sim
-      </h1>
-      <p>App is running.</p>
-    </main>
+      
+      <main>
+        <HeroSection onCreateClick={handleCreate} />
+        <DesignSection />
+        <AnalyzeSection />
+        <PDFSection />
+        <CloseSection />
+      </main>
+      
+      <Footer />
+      
+      {showAuth && (
+        <AuthModal 
+          mode={mode} 
+          onClose={() => setShowAuth(false)
+       }
+    </>
   );
 }
 

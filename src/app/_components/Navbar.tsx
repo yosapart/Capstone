@@ -6,9 +6,9 @@ export function Navbar(){
         <nav className='flex items-center text-[16px] font-bold max-w-full h-[65px] bg-[#34495e] sticky top-0 z-[1000]'>
             <Link href="/" className='block ml-[50px]'>
                 <Image 
-                    src="/vercel.svg" 
+                    src="/FacSimLogo.png" 
                     alt="FacSim Logo" 
-                    width={45}
+                    width={200}
                     height={18}
                     priority
                 />
