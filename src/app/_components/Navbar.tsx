@@ -56,7 +56,7 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps){
                 <Image 
                     src="/FacSimLogo.png" 
                     alt="FacSim Logo" 
-                    width={200}
+                    width={175}
                     height={18}
                     priority
                 />
