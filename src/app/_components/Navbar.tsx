@@ -52,7 +52,7 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps){
 
     return (
         <nav className='flex items-center text-[16px] font-bold max-w-full h-[65px] bg-[#34495e] sticky top-0 z-[1000]'>
-            <Link href="/" className='block ml-[50px]'>
+            <Link href="/" className='block ml-[100px]'>
                 <Image 
                     src="/FacSimLogo.png" 
                     alt="FacSim Logo" 
@@ -116,7 +116,7 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps){
                 </div>
             ) : (
                 /* ❌ ยังไม่ login → แสดง Sign up / Login */
-                <ul className='flex items-center ml-[40px] mr-[60px] gap-[30px]'>
+                <ul className='flex items-center ml-[40px] mr-[100px] gap-[30px]'>
                     <li>
                         <button onClick={onSignUpClick} className='text-lg text-white hover:underline hover:underline-offset-3 hover:decoration-2'>
                             Sign up
