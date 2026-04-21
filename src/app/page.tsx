@@ -140,7 +140,7 @@ function AuthModal({
     }
 
     // 🔥 VERIFY OTP (ขั้นสอง)
-    if (mode === "login" && showOtp) {
+    if (showOtp) {
       const res = await fetch("/api/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -162,7 +162,7 @@ function AuthModal({
     }
 
     // 🔥 REGISTER
-    if (mode === "register") {
+    if (mode === "register" && !showOtp) {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -180,24 +180,9 @@ function AuthModal({
         return;
       }
 
-      // สมัครสำเร็จ → ส่ง OTP อัตโนมัติผ่าน login API
-      alert("สมัครสำเร็จ 🎉 กำลังส่ง OTP ไปที่อีเมลของคุณ...");
-
-      const otpRes = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const otpData = await otpRes.json();
-
-      if (!otpRes.ok) {
-        alert(otpData.message);
-        return;
-      }
-
-      if (otpData.requiresOtp) {
-        setShowOtp(true); // เปิดหน้ากรอก OTP เลย
+      if (data.requiresOtp) {
+        alert("กรุณาตรวจสอบ OTP ในอีเมลของคุณเพื่อยืนยันการสมัคร");
+        setShowOtp(true);
       }
     }
   };
