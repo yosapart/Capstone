@@ -35,6 +35,19 @@ export function AddBlockModal({
       return;
     }
 
+    if (blockType.type === "process") {
+      if (
+        costPerUnit === "" ||
+        electricityPerUnit === "" ||
+        people === "" ||
+        costPerPerson === "" ||
+        duration === ""
+      ) {
+        alert("กรุณากรอกข้อมูลให้ครบทุกช่อง (ยกเว้น Description)");
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const payload: any = {
@@ -110,148 +123,152 @@ export function AddBlockModal({
     }
   };
 
+  const inputClassName = "w-full bg-[#fbfbf9] border border-[#e8e8e3] rounded-xl px-4 py-2.5 text-[15px] text-gray-800 outline-none focus:bg-white focus:ring-4 focus:ring-[#8F9E8B]/15 focus:border-[#8F9E8B] transition-all duration-300";
+  const labelClassName = "block text-[13px] font-medium text-gray-500 mb-1.5";
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000]" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-[2000]" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl w-[480px] shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-white rounded-[24px] w-[520px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
-        style={{ animation: "modalIn 0.2s ease" }}
+        style={{ animation: "modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)" }}
       >
         {loading && (
-          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-10">
-            <div className="w-8 h-8 rounded-full border-4 border-gray-200 border-t-[#1594dd] animate-spin" />
-            <p className="text-sm text-gray-500 mt-2 font-medium">กำลังดำเนินการ...</p>
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-md flex flex-col items-center justify-center z-10">
+            <div className="w-8 h-8 rounded-full border-4 border-gray-100 border-t-[#8F9E8B] animate-spin" />
+            <p className="text-sm text-gray-500 mt-3 font-medium">กำลังดำเนินการ...</p>
           </div>
         )}
 
-        <div className="bg-[#34495e] px-5 py-4 shrink-0 flex justify-between items-center">
+        <div className="px-8 pt-8 pb-2 shrink-0 flex justify-between items-start">
           <div>
-            <h2 className="text-base font-bold text-white">
-              {isEditMode ? "Edit Block" : "Add Block"}: {blockType.label}
+            <h2 className="text-[22px] font-medium text-gray-800 tracking-tight">
+              {isEditMode ? "Edit Block" : "Add Block"}<span className="text-gray-400 font-light ml-2">/ {blockType.label}</span>
             </h2>
-            <p className="text-xs text-gray-300 mt-1">
-              {isEditMode ? "แก้ไขรายละเอียด Block ด้านล่าง" : `กรอกข้อมูลสำหรับ Block รูปแบบ ${blockType.label}`}
+            <p className="text-[14px] text-gray-400 mt-1 font-light">
+              {isEditMode ? "แก้ไขรายละเอียดสำหรับกระบวนการนี้" : `กำหนดรายละเอียดสำหรับกระบวนการ ${blockType.label}`}
             </p>
           </div>
-          {isEditMode && (
-            <button 
-              onClick={handleDelete}
-              className="px-3 py-1.5 text-xs font-bold text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors"
-            >
-              Delete
-            </button>
-          )}
         </div>
 
-        <div className="p-5 overflow-y-auto space-y-4">
+        <div className="px-8 py-6 overflow-y-auto space-y-5">
           <div>
-            <label className="block text-sm font-semibold text-[#34495e] mb-1.5">
-              Block Name <span className="text-red-500">*</span>
+            <label className={labelClassName}>
+              Block Name <span className="text-[#d97777]">*</span>
             </label>
             <input
               type="text"
               placeholder="เช่น หม้อต้มใบที่ 1"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1594dd] transition-all"
+              className={inputClassName}
               autoFocus
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#34495e] mb-1.5">
-              Description
-            </label>
+            <label className={labelClassName}>Description</label>
             <textarea
               placeholder="รายละเอียดเพิ่มเติม..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1594dd] transition-all resize-none"
+              className={`${inputClassName} resize-none`}
             />
           </div>
 
-          {/* Show full form only for "process" block */}
           {blockType.type === "process" && (
             <>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-semibold text-[#34495e] mb-1.5">Cost per Unit</label>
+                  <label className={labelClassName}>Cost per Unit <span className="text-[#d97777]">*</span></label>
                   <input
                     type="number"
                     min="0"
                     placeholder="เช่น 150"
                     value={costPerUnit}
                     onChange={(e) => setCostPerUnit(e.target.valueAsNumber || (e.target.value === "" ? "" : 0))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1594dd] transition-all"
+                    className={inputClassName}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-[#34495e] mb-1.5">Electricity / Unit</label>
+                  <label className={labelClassName}>Electricity / Unit <span className="text-[#d97777]">*</span></label>
                   <input
                     type="number"
                     min="0"
                     placeholder="เช่น 10.5"
                     value={electricityPerUnit}
                     onChange={(e) => setElectricityPerUnit(e.target.valueAsNumber || (e.target.value === "" ? "" : 0))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1594dd] transition-all"
+                    className={inputClassName}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-semibold text-[#34495e] mb-1.5">Number of People</label>
+                  <label className={labelClassName}>Number of People <span className="text-[#d97777]">*</span></label>
                   <input
                     type="number"
                     min="0"
                     placeholder="จำนวนคน"
                     value={people}
                     onChange={(e) => setPeople(e.target.valueAsNumber || (e.target.value === "" ? "" : 0))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1594dd] transition-all"
+                    className={inputClassName}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-[#34495e] mb-1.5">Cost per Person</label>
+                  <label className={labelClassName}>Cost per Person <span className="text-[#d97777]">*</span></label>
                   <input
                     type="number"
                     min="0"
-                    placeholder="ค่าใช้จ่ายต่อคน"
+                    placeholder="ค่าใช้จ่าย/คน"
                     value={costPerPerson}
                     onChange={(e) => setCostPerPerson(e.target.valueAsNumber || (e.target.value === "" ? "" : 0))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1594dd] transition-all"
+                    className={inputClassName}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-[#34495e] mb-1.5">Duration (minutes/hours)</label>
+                <label className={labelClassName}>Duration (minutes) <span className="text-[#d97777]">*</span></label>
                 <input
                   type="number"
                   min="0"
-                  placeholder="ระยะเวลา"
+                  placeholder="เวลาที่ใช้ในการผลิต"
                   value={duration}
                   onChange={(e) => setDuration(e.target.valueAsNumber || (e.target.value === "" ? "" : 0))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1594dd] transition-all"
+                  className={inputClassName}
                 />
               </div>
             </>
           )}
         </div>
 
-        <div className="px-5 py-4 border-t border-gray-100 flex gap-3 bg-gray-50 shrink-0">
-          <button
-            onClick={onClose}
-            className="flex-1 py-2 text-sm font-semibold text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-all"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="flex-1 py-2 text-sm font-bold text-white bg-[#1594dd] hover:bg-[#1277b5] rounded-lg transition-all"
-          >
-            {isEditMode ? "Save Changes" : "Save Block"}
-          </button>
+        <div className="px-8 py-5 flex items-center justify-between shrink-0 bg-white border-t border-[#f4f4f4]">
+          <div>
+            {isEditMode && (
+              <button 
+                onClick={handleDelete}
+                className="px-4 py-2 text-[14px] font-semibold text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+              >
+                Delete block
+              </button>
+            )}
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              className="px-5 py-2.5 text-[14px] font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-xl transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              className="px-7 py-2.5 text-[14px] font-semibold text-white bg-[#4CAF50] hover:bg-[#43A047] rounded-xl shadow-[0_4px_12px_rgba(76,175,80,0.3)] transition-all"
+            >
+              {isEditMode ? "Save Changes" : "Save Block"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

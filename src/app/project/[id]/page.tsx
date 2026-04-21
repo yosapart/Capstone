@@ -3,15 +3,22 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 
 // Components & Types
-import { FlowData, BlockData, ProjectData } from "./_components/editorTypes";
+import { BlockData } from "./_components/editorTypes";
 import { EditorToolbar } from "./_components/EditorToolbar";
 import { EditorLeftPanel } from "./_components/EditorLeftPanel";
 import { EditorRightPanel } from "./_components/EditorRightPanel";
 import { EditorCanvas } from "./_components/EditorCanvas";
 import { AddBlockModal } from "./_components/AddBlockModal";
+import { SimulateModal } from "./_components/SimulateModal";
+import { ReportModal } from "./_components/ReportModal";
+import { AutoOptimizeModal } from "./_components/AutoOptimizeModal";
+
+// Custom Hooks
+import { useFlowApi } from "./_components/useFlowApi";
+import { useSimulation } from "./_components/useSimulation";
 
 /* ───── Main Page ───── */
 export default function FlowEditorPage() {
@@ -19,12 +26,7 @@ export default function FlowEditorPage() {
   const params = useParams();
   const projectId = Number(params.id);
 
-  const [project, setProject] = useState<ProjectData | null>(null);
-  const [flows, setFlows] = useState<FlowData[]>([]);
-  const [selectedFlowId, setSelectedFlowId] = useState<number | null>(null);
-  const [blocks, setBlocks] = useState<BlockData[]>([]);
   const [speed, setSpeed] = useState(1);
-  const [loading, setLoading] = useState(true);
 
   // Flow creation modal state
   const [showCreateFlow, setShowCreateFlow] = useState(false);
@@ -33,144 +35,87 @@ export default function FlowEditorPage() {
 
   // Add Block modal state
   const [blockTypeToAdd, setBlockTypeToAdd] = useState<{ type: string; label: string } | null>(null);
-  
+
   // Edit Block state
   const [blockToEdit, setBlockToEdit] = useState<BlockData | null>(null);
 
-  // Fetch project info
-  useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const res = await fetch("/api/projects");
-        if (res.ok) {
-          const data: ProjectData[] = await res.json();
-          const p = data.find((x) => x.project_id === projectId);
-          if (p) setProject(p);
-          else router.push("/home");
-        }
-      } catch {
-        router.push("/home");
-      }
-    };
-    if (projectId) fetchProject();
-  }, [projectId, router]);
+  // Simulation modal
+  const [showSimulateModal, setShowSimulateModal] = useState(false);
 
-  // Fetch flows for this project
-  const fetchFlows = useCallback(async (autoSelectNewest = false) => {
-    try {
-      const res = await fetch("/api/flows");
-      if (res.ok) {
-        const data: FlowData[] = await res.json();
-        const projectFlows = data.filter((f) => f.project_id === projectId);
-        setFlows(projectFlows);
-        
-        if (projectFlows.length > 0) {
-          if (autoSelectNewest) {
-             // Select the last created one
-             setSelectedFlowId(projectFlows[projectFlows.length - 1].flow_id);
-          } else if (!selectedFlowId) {
-             setSelectedFlowId(projectFlows[0].flow_id);
-          }
-        }
-      }
-    } catch (err) {
-      console.error("Failed to fetch flows:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId, selectedFlowId]);
+  // Report modal
+  const [showReport, setShowReport] = useState(false);
 
-  useEffect(() => {
-    if (projectId) fetchFlows();
-  }, [projectId]);
+  // Auto-Optimize modal
+  const [showOptimize, setShowOptimize] = useState(false);
 
-  // Fetch blocks for selected flow
-  const fetchBlocks = useCallback(async () => {
-    if (!selectedFlowId) {
-      setBlocks([]);
-      return;
-    }
-    try {
-      const res = await fetch(`/api/blocks?flow_id=${selectedFlowId}&t=${Date.now()}`, { cache: 'no-store' });
-      if (res.ok) {
-        const data: BlockData[] = await res.json();
-        setBlocks(data);
-      }
-    } catch (err) {
-      console.error("Failed to fetch blocks:", err);
-    }
-  }, [selectedFlowId]);
+  // Toast Alert state
+  const [toastError, setToastError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchBlocks();
-  }, [fetchBlocks]);
-
-  // Create new flow API Call
-  const handleCreateFlowSubmit = async () => {
-    if (!newFlowName.trim()) return;
-
-    setCreatingFlow(true);
-    try {
-      const res = await fetch("/api/flows", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ project_id: projectId, name: newFlowName.trim() }),
-      });
-
-      if (res.ok) {
-        setShowCreateFlow(false);
-        setNewFlowName("");
-        await fetchFlows(true); // Refetch and auto-select newest
-      } else {
-        const data = await res.json();
-        alert(data.message || "สร้าง Flow ไม่สำเร็จ");
-      }
-    } catch (err) {
-      alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
-    } finally {
-      setCreatingFlow(false);
-    }
+  const showToast = (message: string) => {
+    setToastError(message);
+    setTimeout(() => setToastError(null), 3000);
   };
 
-  // Add block: Open Modal or direct post
+  // ═══════ Custom Hooks ═══════
+  const {
+    project, flows, blocks, selectedFlowId, loading,
+    setSelectedFlowId,
+    fetchBlocks,
+    createFlow, createStartEndBlock, reorderBlocks, deleteBlock,
+  } = useFlowApi(projectId, router);
+
+  const {
+    isSimulating, simulationResult, playbackState,
+    startSimulation, stopSimulation,
+  } = useSimulation(speed, blocks);
+
+  // ═══════ Auto-Optimize Apply Handler ═══════
+  const handleApplyOptimize = async (changes: { blockId: number; people: number }[]) => {
+    // Batch update: PUT /api/blocks for each changed block
+    await Promise.all(
+      changes.map((c) =>
+        fetch("/api/blocks", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ block_id: c.blockId, people: c.people }),
+        })
+      )
+    );
+    fetchBlocks(); // refresh canvas
+  };
+
+  // ═══════ UI Handlers ═══════
+
+  const handleCreateFlowSubmit = async () => {
+    if (!newFlowName.trim()) return;
+    setCreatingFlow(true);
+    const success = await createFlow(newFlowName);
+    if (success) {
+      setShowCreateFlow(false);
+      setNewFlowName("");
+    }
+    setCreatingFlow(false);
+  };
+
   const handleAddBlockClick = async (type: string, label: string) => {
     if (!selectedFlowId) {
-      alert("กรุณาสร้าง Flow ก่อน");
+      showToast("กรุณาสร้าง Flow ก่อน");
       return;
     }
 
     if (type === "start" && blocks.some(b => b.type === "start")) {
-      alert("ไม่สามารถเพิ่มได้: Flow นี้มี Start Block อยู่แล้ว (อนุญาตให้มีได้แค่ 1 อัน)");
+      showToast("Flow นี้มี Start Block อยู่แล้ว (อนุญาตให้มีได้แค่ 1 อัน)");
       return;
     }
 
     if (type === "end" && blocks.some(b => b.type === "end")) {
-      alert("ไม่สามารถเพิ่มได้: Flow นี้มี End Block อยู่แล้ว (อนุญาตให้มีได้แค่ 1 อัน)");
+      showToast("Flow นี้มี End Block อยู่แล้ว (อนุญาตให้มีได้แค่ 1 อัน)");
       return;
     }
 
     // สำหรับ start และ end ให้ส่งไปสร้างเลยโดยไม่ต้องเปิด Modal ถามผู้ใช้
     if (type === "start" || type === "end") {
-      try {
-        const res = await fetch("/api/blocks", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            flow_id: selectedFlowId,
-            step_order: blocks.length + 1,
-            type,
-            name: label, // ใช้ชื่อ 'Start' หรือ 'End' แบบสำเร็จรูป
-          }),
-        });
-        
-        if (res.ok) {
-          fetchBlocks();
-        } else {
-          alert("สร้าง Block ไม่สำเร็จ");
-        }
-      } catch (err) {
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
-      }
+      await createStartEndBlock(type, label);
       return;
     }
 
@@ -186,50 +131,28 @@ export default function FlowEditorPage() {
     }
   };
 
-  // Reorder Blocks Drag & Drop
-  const handleReorderBlocks = async (newBlocks: BlockData[]) => {
-    // Optimistic UI updates
-    setBlocks(newBlocks);
-    
-    const payload = newBlocks.map(b => ({
-      block_id: b.block_id,
-      step_order: b.step_order
-    }));
-
-    try {
-      const res = await fetch("/api/blocks/reorder", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) {
-        alert("จัดลำดับใหม่ไม่สำเร็จ ระบบจะรีโหลดข้อมูลเดิม");
-        fetchBlocks(); // rollback UI
-      }
-    } catch (error) {
-      alert("เชื่อมต่อไม่สำเร็จ เพื่อเซิร์ฟเวอร์ ระบบจะรีโหลดข้อมูลเดิม");
-      fetchBlocks(); // rollback UI
+  // Direct Delete Block from Panel
+  const handleDeleteBlock = async (blockId: number) => {
+    const success = await deleteBlock(blockId);
+    if (success && blockToEdit?.block_id === blockId) {
+      setBlockToEdit(null); // Close modal if deleting the currently editing block
     }
   };
 
-  // Direct Delete Block from Panel
-  const handleDeleteBlock = async (blockId: number) => {
-    // ถอด confirm ออกชั่วคราวเผื่อ Browser บล็อค popup
-    try {
-      const res = await fetch(`/api/blocks?block_id=${blockId}`, { method: "DELETE" });
-      if (res.ok) {
-        fetchBlocks();
-        if (blockToEdit?.block_id === blockId) {
-          setBlockToEdit(null); // Close modal if deleting the currently editing block
-        }
-        alert("ลบ Block สำเร็จแล้วครับ!");
-      } else {
-        const data = await res.json();
-        alert(data.message || "ลบ Block ไม่สำเร็จ");
-      }
-    } catch (err) {
-      alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+  const handlePlayClick = () => {
+    if (blocks.length < 2) {
+      showToast("ไม่สามารถจำลองได้: ต้องมีอย่างน้อย Start Block และ End Block");
+      return;
     }
+    if (blocks[0].type !== "start") {
+      showToast("ไม่สามารถจำลองได้: Block ลำดับแรกต้องเป็น 'Start' เสมอ");
+      return;
+    }
+    if (blocks[blocks.length - 1].type !== "end") {
+      showToast("ไม่สามารถจำลองได้: Block ลำดับสุดท้ายต้องเป็น 'End' เสมอ");
+      return;
+    }
+    setShowSimulateModal(true);
   };
 
   if (loading || !project) {
@@ -247,7 +170,7 @@ export default function FlowEditorPage() {
       <header className="flex items-center h-[50px] bg-[#34495e] px-4 shrink-0 z-50 shadow-md gap-4">
         {/* Menu + Logo */}
         <Link href="/home" className="shrink-0 flex items-center gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
           <Image src="/FacSimLogo.png" alt="FacSim Logo" width={100} height={12} priority />
         </Link>
         <span className="text-white font-semibold text-sm">{project.name}</span>
@@ -263,8 +186,24 @@ export default function FlowEditorPage() {
         selectedFlowId={selectedFlowId}
         setSelectedFlowId={setSelectedFlowId}
         onNewFlow={() => setShowCreateFlow(true)}
+        onPlay={handlePlayClick}
+        onStop={stopSimulation}
         speed={speed}
         setSpeed={setSpeed}
+        onAutoOptimize={() => {
+          if (!selectedFlowId) {
+            showToast("กรุณาเลือก Flow ก่อนใช้ Auto-Optimize");
+            return;
+          }
+          setShowOptimize(true);
+        }}
+        onDownloadPDF={() => {
+          if (!simulationResult) {
+            showToast("คุณต้องรัน Simulation ก่อนสร้างรายงาน PDF");
+            return;
+          }
+          setShowReport(true);
+        }}
       />
 
       {/* ═══════ BODY ═══════ */}
@@ -273,68 +212,85 @@ export default function FlowEditorPage() {
         <EditorLeftPanel onAddBlock={handleAddBlockClick} />
 
         {/* ─── CENTER: REACT FLOW CANVAS ─── */}
-        <EditorCanvas 
-          blocks={blocks} 
-          selectedFlowId={selectedFlowId} 
-          flowsEmpty={flows.length === 0} 
+        <EditorCanvas
+          blocks={blocks}
+          selectedFlowId={selectedFlowId}
+          flowsEmpty={flows.length === 0}
           onNodeClick={handleNodeClick}
+          isSimulating={isSimulating}
+          machineStates={playbackState?.machineStates}
+          sourceProgress={playbackState?.sourceProgress ?? 0}
+          speed={speed}
+          activeTestcase={simulationResult?.testcase ? { 
+            name: simulationResult.testcase, 
+            detail: simulationResult.testcase_detail,
+            type: simulationResult.testcase_type 
+          } : null}
         />
 
         {/* ─── RIGHT PANEL ─── */}
-        <EditorRightPanel 
-          blocks={blocks} 
-          onDeleteBlock={handleDeleteBlock} 
+        <EditorRightPanel
+          blocks={blocks}
+          onDeleteBlock={handleDeleteBlock}
           onEditBlock={(blockId) => handleNodeClick(blockId.toString())}
-          onReorderBlocks={handleReorderBlocks}
+          onReorderBlocks={reorderBlocks}
+          simulationResult={simulationResult}
+          playbackState={playbackState}
         />
       </div>
 
       {/* ═══════ CREATE FLOW MODAL ═══════ */}
       {showCreateFlow && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000]" onClick={() => setShowCreateFlow(false)}>
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-[2000] p-4" onClick={() => setShowCreateFlow(false)}>
           <div
-            className="bg-white rounded-2xl w-[360px] shadow-2xl relative overflow-hidden"
+            className="bg-white rounded-[24px] w-full max-w-[400px] shadow-[0_20px_60px_rgba(0,0,0,0.06)] border border-[#e8e8e3] relative overflow-hidden"
             onClick={(e) => e.stopPropagation()}
-            style={{ animation: "modalIn 0.2s ease" }}
+            style={{ animation: "modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)" }}
           >
             {creatingFlow && (
               <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-10">
-                <div className="w-8 h-8 rounded-full border-4 border-gray-200 border-t-[#1594dd] animate-spin" />
+                <div className="w-8 h-8 rounded-full border-[3px] border-gray-100 border-t-[#4CAF50] animate-spin" />
               </div>
             )}
-            <div className="bg-[#34495e] px-5 py-4">
-              <h2 className="text-base font-bold text-white">Create New Flow</h2>
-            </div>
-            <div className="p-5">
-              <label className="block text-sm font-semibold text-[#34495e] mb-1.5">
-                Flow Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="เช่น Main Factory Flow"
-                value={newFlowName}
-                onChange={(e) => setNewFlowName(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1594dd] transition-all"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleCreateFlowSubmit();
-                }}
-              />
-            </div>
-            <div className="px-5 pb-5 flex gap-3">
-              <button
-                onClick={() => setShowCreateFlow(false)}
-                className="flex-1 py-2 text-sm font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCreateFlowSubmit}
-                disabled={!newFlowName.trim()}
-                className="flex-1 py-2 text-sm font-bold text-white bg-[#1594dd] hover:bg-[#1277b5] rounded-lg transition-all disabled:opacity-50"
-              >
-                Create
-              </button>
+            
+            <div className="p-8 pb-6">
+              <h2 className="text-[22px] font-semibold text-[#2b3a2f] tracking-tight mb-2">Create New Flow</h2>
+              <p className="text-[14px] text-gray-400 mb-8 leading-relaxed">
+                Give your new factory simulation flow a descriptive name.
+              </p>
+
+              <div className="space-y-2">
+                <label className="block text-[13px] font-medium text-[#7A8B76]">
+                  Flow Name <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Main Factory Flow"
+                  value={newFlowName}
+                  onChange={(e) => setNewFlowName(e.target.value)}
+                  className="w-full bg-[#fbfbf9] border border-[#e8e8e3] rounded-[14px] px-4 py-3.5 text-[15px] font-medium text-[#2b3a2f] placeholder-gray-300 outline-none hover:border-[#d0d0c8] focus:bg-white focus:border-[#8F9E8B] focus:ring-[3px] focus:ring-[#8F9E8B]/10 transition-all"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleCreateFlowSubmit();
+                  }}
+                />
+              </div>
+
+              <div className="mt-8 flex gap-3">
+                <button
+                  onClick={() => setShowCreateFlow(false)}
+                  className="flex-1 py-3 text-[15px] font-semibold text-gray-600 bg-white border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 rounded-[14px] transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreateFlowSubmit}
+                  disabled={!newFlowName.trim()}
+                  className="flex-1 py-3 text-[15px] font-bold text-white bg-[#4CAF50] hover:bg-[#388E3C] rounded-[14px] shadow-[0_4px_16px_rgba(76,175,80,0.3)] hover:shadow-[0_6px_20px_rgba(76,175,80,0.4)] hover:-translate-y-[1px] active:translate-y-0 transition-all disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0 disabled:cursor-not-allowed"
+                >
+                  Create Flow
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -366,6 +322,58 @@ export default function FlowEditorPage() {
           }}
         />
       )}
+
+      {/* ═══════ SIMULATE MODAL ═══════ */}
+      {showSimulateModal && selectedFlowId && (
+        <SimulateModal
+          flowId={selectedFlowId}
+          flowName={flows.find((f) => f.flow_id === selectedFlowId)?.name || ""}
+          onClose={() => setShowSimulateModal(false)}
+          onResult={(result) => {
+            startSimulation(result);
+          }}
+        />
+      )}
+
+      {/* ═══════ REPORT MODAL ═══════ */}
+      {showReport && simulationResult && project && selectedFlowId && (
+        <ReportModal
+          projectName={project.name}
+          flowName={flows.find((f) => f.flow_id === selectedFlowId)?.name || "Unknown Flow"}
+          simulationResult={simulationResult}
+          authorName={(() => {
+            if (typeof window !== "undefined") {
+              try {
+                const u = JSON.parse(localStorage.getItem("user") || "{}");
+                return u?.name || "Unknown User";
+              } catch {
+                return "Unknown User";
+              }
+            }
+            return "Unknown User";
+          })()}
+          onClose={() => setShowReport(false)}
+        />
+      )}
+
+      {/* ═══════ MINIMAL TOAST ALERT ═══════ */}
+      {toastError && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="bg-[#1e293b] text-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-800 rounded-2xl px-5 py-3.5 flex items-center gap-3.5 w-max max-w-[400px]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 drop-shadow-sm"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span className="text-[13.5px] font-medium tracking-wide leading-relaxed">{toastError}</span>
+          </div>
+        </div>
+      )}
+      {/* ╔═══════ AUTO-OPTIMIZE MODAL ═══════ */}
+      {showOptimize && (
+        <AutoOptimizeModal
+          blocks={blocks}
+          onClose={() => setShowOptimize(false)}
+          onApply={handleApplyOptimize}
+        />
+      )}
+
     </div>
   );
 }

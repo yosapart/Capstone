@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const blockSchema = z.object({
-  flow_id: z.number({ error: "Flow ID ต้องเป็นตัวเลข" }),
-  step_order: z.number({ error: "Step order ต้องเป็นตัวเลข" }),
+  flow_id: z.number(),
+  step_order: z.number(),
   type: z.string().min(1),
   name: z.string().min(1),
   description: z.string().optional(),
@@ -11,4 +11,14 @@ export const blockSchema = z.object({
   people: z.number().optional(),
   cost_per_person: z.number().optional(),
   duration: z.number().optional(),
+});
+
+export const reorderSchema = z.object({
+  flow_id: z.number(),
+  items: z.array(
+    z.object({
+      block_id: z.number(),
+      step_order: z.number(),
+    })
+  ),
 });

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import { FlowData } from "./editorTypes";
 
 interface EditorToolbarProps {
@@ -7,8 +8,12 @@ interface EditorToolbarProps {
   selectedFlowId: number | null;
   setSelectedFlowId: (id: number) => void;
   onNewFlow: () => void;
+  onPlay: () => void;
+  onStop?: () => void;
   speed: number;
   setSpeed: (speed: number) => void;
+  onDownloadPDF?: () => void;
+  onAutoOptimize?: () => void;
 }
 
 export function EditorToolbar({
@@ -16,76 +21,175 @@ export function EditorToolbar({
   selectedFlowId,
   setSelectedFlowId,
   onNewFlow,
+  onPlay,
+  onStop,
   speed,
   setSpeed,
+  onDownloadPDF,
+  onAutoOptimize,
 }: EditorToolbarProps) {
+  const [isFlowOpen, setIsFlowOpen] = useState(false);
+  const [isSpeedOpen, setIsSpeedOpen] = useState(false);
+  const flowRef = useRef<HTMLDivElement>(null);
+  const speedRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (flowRef.current && !flowRef.current.contains(event.target as Node)) {
+        setIsFlowOpen(false);
+      }
+      if (speedRef.current && !speedRef.current.contains(event.target as Node)) {
+        setIsSpeedOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <div className="flex items-center h-[42px] bg-white border-b border-gray-200 px-4 gap-3 shrink-0">
-      {/* Flow selector */}
-      <select
-        value={selectedFlowId ?? ""}
-        onChange={(e) => setSelectedFlowId(Number(e.target.value))}
-        className="border border-gray-300 rounded-md px-3 py-1 text-sm text-[#34495e] outline-none focus:ring-2 focus:ring-[#1594dd] cursor-pointer"
-      >
-        {flows.length === 0 && <option value="">-- No Flow --</option>}
-        {flows.map((f) => (
-          <option key={f.flow_id} value={f.flow_id}>
-            {f.name}
-          </option>
-        ))}
-      </select>
+    <div className="flex items-center h-[52px] bg-white border-b border-[#f0f0f0] px-5 gap-4 shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.02)] relative z-20">
+
+      {/* Custom Flow Selector */}
+      <div className="relative min-w-[140px]" ref={flowRef}>
+        <button
+          onClick={() => setIsFlowOpen(!isFlowOpen)}
+          className={`w-full flex items-center justify-between bg-white border rounded-[8px] px-3 py-1.5 text-[13px] font-medium text-gray-700 outline-none transition-all cursor-pointer ${isFlowOpen ? "border-[#8F9E8B] ring-[3px] ring-[#8F9E8B]/10" : "border-gray-200 hover:border-gray-300"
+            }`}
+        >
+          <span className="truncate">
+            {selectedFlowId
+              ? flows.find(f => f.flow_id === selectedFlowId)?.name || "Select Flow"
+              : "-- No Flow --"}
+          </span>
+          <svg className={`w-3.5 h-3.5 ml-2 text-gray-400 transition-transform ${isFlowOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+
+        {isFlowOpen && (
+          <div className="absolute top-[calc(100%+6px)] left-0 w-full bg-white border border-gray-100 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] p-1.5 z-50 max-h-[240px] overflow-y-auto">
+            {flows.length === 0 && (
+              <div className="px-3 py-2 text-[13px] text-gray-400 text-center">-- No Flow --</div>
+            )}
+            {flows.map((f) => (
+              <button
+                key={f.flow_id}
+                onClick={() => {
+                  setSelectedFlowId(f.flow_id);
+                  setIsFlowOpen(false);
+                }}
+                className={`w-full text-left px-3 py-2 text-[13px] rounded-lg transition-colors ${selectedFlowId === f.flow_id
+                  ? "bg-[#8F9E8B]/15 text-[#5A6956] font-semibold"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
+              >
+                {f.name}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       <button
         onClick={onNewFlow}
-        className="text-xs font-semibold text-[#1594dd] hover:text-[#1277b5] transition-colors"
+        className="text-[13px] font-medium text-[#7A8B76] hover:text-[#5A6956] bg-[#7A8B76]/10 hover:bg-[#7A8B76]/20 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
       >
-        + New Flow
+        <span>+</span> New Flow
       </button>
 
       {/* Divider */}
-      <div className="w-px h-5 bg-gray-300" />
+      <div className="w-[1px] h-4 bg-gray-200" />
 
       {/* Undo / Redo */}
-      <button className="p-1 text-gray-500 hover:text-[#34495e] transition-colors" title="Undo">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-      </button>
-      <button className="p-1 text-gray-500 hover:text-[#34495e] transition-colors" title="Redo">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-      </button>
+      <div className="flex items-center gap-1">
+        <button className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-all" title="Undo">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>
+        </button>
+        <button className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-all" title="Redo">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
+        </button>
+      </div>
 
       {/* Divider */}
-      <div className="w-px h-5 bg-gray-300" />
+      <div className="w-[1px] h-4 bg-gray-200" />
 
       {/* Play / Stop */}
-      <button className="p-1 text-gray-500 hover:text-green-600 transition-colors" title="Play">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      </button>
-      <button className="p-1 text-gray-500 hover:text-red-500 transition-colors" title="Stop">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
-      </button>
+      <div className="flex items-center gap-1.5">
+        <button onClick={onPlay} className="p-1.5 text-gray-400 hover:text-[#4CAF50] hover:bg-[#4CAF50]/10 rounded-lg transition-all" title="Play">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+        </button>
+        <button onClick={onStop} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Stop">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
+        </button>
+      </div>
 
       {/* Speed */}
-      <span className="text-xs text-gray-500">Speed</span>
-      <select
-        value={speed}
-        onChange={(e) => setSpeed(Number(e.target.value))}
-        className="border border-gray-300 rounded-md px-2 py-0.5 text-xs text-gray-600 outline-none cursor-pointer"
+      <div className="flex items-center gap-2 ml-2">
+        <span className="text-[13px] font-medium text-gray-400">Speed</span>
+
+        {/* Custom Speed Selector */}
+        <div className="relative" ref={speedRef}>
+          <button
+            onClick={() => setIsSpeedOpen(!isSpeedOpen)}
+            className={`w-[70px] flex items-center justify-between bg-white border rounded-[8px] px-2.5 py-1 text-[13px] font-medium text-gray-600 outline-none transition-all cursor-pointer ${isSpeedOpen ? "border-[#8F9E8B] ring-[3px] ring-[#8F9E8B]/10" : "border-gray-200 hover:border-gray-300"
+              }`}
+          >
+            <span>{speed}x</span>
+            <svg className={`w-3.5 h-3.5 text-gray-400 transition-transform ${isSpeedOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+
+          {isSpeedOpen && (
+            <div className="absolute top-[calc(100%+6px)] left-0 w-full bg-white border border-gray-100 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] p-1.5 z-50">
+              {[0.5, 1, 2, 4].map((v) => (
+                <button
+                  key={v}
+                  onClick={() => {
+                    setSpeed(v);
+                    setIsSpeedOpen(false);
+                  }}
+                  className={`w-full text-left px-2.5 py-1.5 text-[13px] rounded-lg transition-colors ${speed === v
+                    ? "bg-[#8F9E8B]/15 text-[#5A6956] font-semibold"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    }`}
+                >
+                  {v}x
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="w-[1px] h-4 bg-gray-200" />
+
+      {/* Auto-Optimize Button */}
+      <button
+        onClick={onAutoOptimize}
+        title="Auto-Optimization Solver"
+        className="flex items-center gap-1.5 text-[13px] font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-1.5 rounded-xl transition-all"
       >
-        <option value={0.5}>0.5x</option>
-        <option value={1}>1x</option>
-        <option value={2}>2x</option>
-        <option value={4}>4x</option>
-      </select>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+        Auto-Optimize
+      </button>
 
       <div className="flex-1" />
 
       {/* Save Flow + Download PDF */}
-      <button className="text-xs font-semibold text-white bg-[#27ae60] px-4 py-1.5 rounded-md hover:bg-[#219a52] transition-colors">
-        Save Flow
-      </button>
-      <button className="text-xs font-semibold text-white bg-[#2980b9] px-4 py-1.5 rounded-md hover:bg-[#2471a3] transition-colors">
-        Download PDF
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onDownloadPDF}
+          className="text-[13px] font-semibold text-gray-600 
+  bg-white border border-gray-200 
+  px-4 py-2 rounded-xl shadow-sm 
+  transition-all duration-200
+
+  hover:bg-blue-500 hover:border-blue-500 hover:text-white
+  hover:shadow-[0_0_12px_rgba(59,130,246,0.5)]"
+        >
+          Download PDF
+        </button>
+      </div>
     </div>
   );
 }
