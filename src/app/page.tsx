@@ -68,11 +68,61 @@ function AuthModal({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: ""
+  });
   
   // 🔥 สำหรับโหมด OTP
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const getNameErrorMessage = (value: string) => {
+    if (!value) return "กรุณากรอกชื่อผู้ใช้";
+    return "";
+  };
+
+  const getEmailErrorMessage = (value: string) => {
+    if (!value) return "กรุณากรอกอีเมล";
+    if (!value.endsWith("@gmail.com")) return "รองรับเฉพาะ @gmail.com เท่านั้น";
+    return "";
+  };
+
+  const getPasswordErrorMessage = (value: string) => {
+    if (!value) return "กรุณากรอกรหัสผ่าน";
+    if (value.length < 6) return "รหัสผ่านต้องมีอย่างน้อย 6 ตัว";
+    return "";
+  };
+
+  const getConfirmPasswordErrorMessage = (value: string) => {
+    if (!value) return "กรุณายืนยันรหัสผ่าน";
+    if (value.length < 6) return "รหัสผ่านต้องมีอย่างน้อย 6 ตัว";
+    return "";
+  };
+
+  const handleNameBlur = () => {
+    const message = getNameErrorMessage(name);
+    setErrors((prev) => ({ ...prev, name: message }));
+  };
+
+  const handleEmailBlur = () => {
+    const message = getEmailErrorMessage(email);
+    setErrors((prev) => ({ ...prev, email: message }));
+  };
+
+  const handlePasswordBlur = () => {
+    const message = getPasswordErrorMessage(password);
+    setErrors((prev) => ({ ...prev, password: message }));
+  };
+
+  const handleConfirmPasswordBlur = () => {
+    const message = getConfirmPasswordErrorMessage(confirmPassword);
+    setErrors((prev) => ({ ...prev, confirmPassword: message }));
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -84,25 +134,25 @@ function AuthModal({
   };
 
   const handleSubmitInner = async () => {
+    const newErrors = { name: "", email: "", password: "", confirmPassword: "" };
+    setErrors(newErrors);
+    let hasError = false;
 
-    // 🔥 VALIDATE FRONT ก่อนยิง API
+    newErrors.email = getEmailErrorMessage(email);
+    if (newErrors.email) hasError = true;
+    
+    newErrors.password = getPasswordErrorMessage(password);
+    if (newErrors.password) hasError = true;
+    //Validate Sign up
     if (mode === "register") {
-      if (!email.endsWith("@gmail.com")) {
-         alert("ระบบรองรับเฉพาะ @gmail.com เท่านั้น");
-         return;
-      }
-      if (!name || !email || !password || !confirmPassword) {
-        alert("กรอกข้อมูลให้ครบ");
-        return;
-      }
+      newErrors.name = getNameErrorMessage(name);
+      if (newErrors.name) hasError = true;
 
-      if (password.length < 6) {
-        alert("Password ต้องอย่างน้อย 6 ตัว");
-        return;
-      }
+      newErrors.confirmPassword = getConfirmPasswordErrorMessage(confirmPassword);
+      if (newErrors.confirmPassword) hasError = true;
 
-      if (password !== confirmPassword) {
-        alert("Password ไม่ตรงกัน");
+      if (hasError) {
+        setErrors(newErrors);
         return;
       }
     }
@@ -172,10 +222,18 @@ function AuthModal({
       const data = await res.json();
 
       if (!res.ok) {
-        if (data.errors) {
-          alert(JSON.stringify(data.errors.fieldErrors));
-        } else {
-          alert(data.message);
+        if (data.errors && data.errors.fieldErrors) {
+          const fieldErrors = data.errors.fieldErrors;
+          setErrors({
+            name: fieldErrors.name ? fieldErrors.name[0] : "",
+            email: fieldErrors.email ? fieldErrors.email[0] : "",
+            password: fieldErrors.password ? fieldErrors.password[0] : "",
+            confirmPassword: fieldErrors.confirmPassword ? fieldErrors.confirmPassword[0] : "",
+          });
+        } else if (data.message) {
+          if (data.message.includes("Email")) {
+            setErrors(prev => ({ ...prev, email: data.message }));
+          }
         }
         return;
       }
@@ -183,13 +241,13 @@ function AuthModal({
       if (data.requiresOtp) {
         alert("กรุณาตรวจสอบ OTP ในอีเมลของคุณเพื่อยืนยันการสมัคร");
         setShowOtp(true);
-      }
+      } 
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000]">
-      <div className="bg-white p-6 rounded-2xl w-80 space-y-4 shadow-xl relative overflow-hidden">
+      <div className="bg-white p-6 rounded-2xl w-[330px] flex flex-col items-center space-y-4 shadow-xl relative overflow-hidden">
 
         {/* Loading Overlay */}
         {loading && (
@@ -209,44 +267,99 @@ function AuthModal({
           </div>
         )}
 
-        <h2 className="text-xl font-bold text-center text-[#34495e]">
-          {showOtp ? "ใส่รหัส OTP" : (mode === "login" ? "Login" : "Sign up")}
+        <h2 className="text-[22px] font-bold text-center text-[#34495e]">
+          {showOtp ? "ใส่รหัส OTP" : (mode === "login" ? "Login" : "─ Sign up ─")}
         </h2>
 
         {!showOtp ? (
           <>
             {mode === "register" && (
-              <input
-                className="border border-gray-300 w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+              <div className="w-[275px] min-h-[60px] flex flex-col items-start">
+                <input
+                  className={`border w-[275px] p-3 rounded-lg focus:outline-none focus:ring-2 transition-all 
+                    ${errors.name 
+                    ? "border-red-500 focus:ring-red-400 bg-red-50" 
+                    : "border-gray-300 focus:ring-blue-400"
+                  }`}
+                  placeholder="Name"
+                  value={name}
+                  onBlur={handleNameBlur}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    if (errors.name) setErrors(prev => ({ ...prev, name: "" }));
+                  }}
+                />
+                  <div className="h-1.5 mt-1.5">
+                    {errors.name && <p className="text-[12px] text-red-500 pl-1 font-medium leading-none">{errors.name}</p>}
+                  </div>
+              </div>
             )}
 
-            <input
-              className="border border-gray-300 w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Email (@gmail.com)"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-
-            <input
-              type="password"
-              className="border border-gray-300 w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-
-            {mode === "register" && (
+            <div className="w-[275px] min-h-[60px] flex flex-col items-start">
               <input
-                type="password"
-                className="border border-gray-300 w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                className={`border w-[275px] p-3 rounded-lg focus:outline-none focus:ring-2 transition-all
+                  ${errors.email 
+                    ? "border-red-500 focus:ring-red-400 bg-red-50" 
+                    : "border-gray-300 focus:ring-blue-400"
+                  }`}
+                placeholder="Email (@gmail.com)"
+                value={email}
+                onBlur={handleEmailBlur}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) setErrors(prev => ({ ...prev, email: "" }));
+                }}
+                
               />
+              <div className="h-1.5 mt-1.5"> 
+                {errors.email && (
+                  <p className="text-[12px] text-red-500 pl-1 font-medium leading-none">{errors.email}</p>
+                )}
+              </div>
+            </div>
+            
+            <div className="w-[275px] min-h-[60px] flex flex-col items-start">
+                <input
+                  type="password"
+                  className={`border w-[275px] p-3 rounded-lg focus:outline-none focus:ring-2 transition-all 
+                    ${errors.password 
+                    ? "border-red-500 focus:ring-red-400 bg-red-50" 
+                    : "border-gray-300 focus:ring-blue-400"
+                  }`}
+                  placeholder="Password"
+                  value={password}
+                  onBlur={handlePasswordBlur}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (errors.password) setErrors(prev => ({ ...prev, password: "" }));
+                  }}
+                />
+                  <div className="h-1.5 mt-1.5">
+                    {errors.password && <p className="text-[12px] text-red-500 pl-1 font-medium leading-none">{errors.password}</p>}
+                  </div>
+              </div>
+            
+            {mode === "register" && (
+              <div className="w-[275px] min-h-[60px] flex flex-col items-start">
+                <input
+                  type="password"
+                  className={`border w-[275px] p-3 rounded-lg focus:outline-none focus:ring-2 transition-all 
+                    ${errors.confirmPassword 
+                    ? "border-red-500 focus:ring-red-400 bg-red-50" 
+                    : "border-gray-300 focus:ring-blue-400"
+                  }`}
+                  placeholder="Confirm Password"
+                  onBlur={handleConfirmPasswordBlur}
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: "" }));
+                  }}
+                />
+                  <div className="h-1.5 mt-1.5">
+                    {errors.confirmPassword && <p className="text-[12px] text-red-500 pl-1 font-medium leading-none">{errors.confirmPassword}</p>}
+                  </div>
+              </div>
             )}
           </>
         ) : (
@@ -255,7 +368,7 @@ function AuthModal({
             <input
               type="text"
               maxLength={6}
-              className="border border-gray-300 w-full p-3 rounded-lg text-center tracking-widest text-lg font-bold focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="border border-gray-300 w-[275px] p-3 rounded-lg text-center tracking-widest text-lg font-bold focus:outline-none focus:ring-2 focus:ring-blue-400"
               placeholder="000000"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
@@ -266,7 +379,7 @@ function AuthModal({
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="w-full bg-[#1594dd] text-white font-bold py-3 rounded-lg hover:bg-[#1973c8] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-[275px] bg-[#1594dd] text-white font-bold py-3 rounded-lg hover:bg-[#1973c8] cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {showOtp ? "ยืนยัน OTP" : (mode === "login" ? "Login" : "Sign up")}
         </button>
@@ -276,7 +389,7 @@ function AuthModal({
             if (showOtp) setShowOtp(false);
             else onClose();
           }}
-          className="w-full text-sm font-semibold text-gray-400 hover:text-gray-600 transition-colors"
+          className="w-full text-sm font-semibold text-gray-400 hover:text-gray-600 cursor-pointer transition-colors"
         >
           {showOtp ? "ย้อนกลับ" : "Close"}
         </button>
