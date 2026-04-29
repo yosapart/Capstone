@@ -5,7 +5,7 @@ import { z } from "zod";
 
 const verifySchema = z.object({
   email: z.string().email(),
-  otp: z.string().length(6, "OTP ต้องมี 6 หลัก"),
+  otp: z.string().length(6, "The OTP must be 6 digits."),
 });
 
 // ========== Register ==========
@@ -25,10 +25,10 @@ export async function registerController(req: Request) {
 
     const { name, email, password } = parsed.data;
 
-    // 🔒 เช็คว่าเป็น gmail.com
+    //เช็คว่าเป็น gmail.com
     if (!email.endsWith("@gmail.com")) {
       return NextResponse.json(
-        { message: "ระบบรองรับเฉพาะ @gmail.com เท่านั้น" },
+        { message: "Only @gmail.com addresses are supported." },
         { status: 400 }
       );
     }
@@ -41,13 +41,13 @@ export async function registerController(req: Request) {
 
     if (error.message === "EMAIL_EXISTS") {
       return NextResponse.json(
-        { message: "Email นี้ถูกใช้แล้ว" },
+        { message: "This email has already been taken." },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { message: "เกิดข้อผิดพลาด" },
+      { message: "An error has occurred." },
       { status: 500 }
     );
   }
@@ -63,7 +63,7 @@ export async function loginController(req: Request) {
 
     // 2. เช็คว่าเป็น gmail.com
     if (!result.user.email.endsWith("@gmail.com")) {
-      return NextResponse.json({ message: "ระบบรองรับเฉพาะ @gmail.com เท่านั้น" }, { status: 400 });
+      return NextResponse.json({ message: "Only @gmail.com addresses are supported." }, { status: 400 });
     }
 
     // 3. สร้างและส่ง OTP
@@ -71,7 +71,7 @@ export async function loginController(req: Request) {
 
     // 4. แจ้ง Frontend ว่าต้องกรอก OTP
     return NextResponse.json({
-      message: "รหัสผ่านถูกต้อง กรุณาเช็ค OTP ในอีเมลของคุณ",
+      message: "Password verified. Please check your email for the OTP code.",
       requiresOtp: true,
       email: result.user.email
     });
@@ -80,21 +80,21 @@ export async function loginController(req: Request) {
 
     if (error.message === "USER_NOT_FOUND") {
       return NextResponse.json(
-        { message: "ไม่พบ user" },
+        { message: "User not found." },
         { status: 404 }
       );
     }
 
     if (error.message === "INVALID_PASSWORD") {
       return NextResponse.json(
-        { message: "รหัสผ่านผิด" },
+        { message: "Incorrect password." },
         { status: 401 }
       );
     }
 
     if (error.message === "OTP_CREATE_FAILED") {
       return NextResponse.json(
-        { message: "ไม่สามารถสร้าง OTP ได้ กรุณาเชื่อมต่อ Database otps table" },
+        { message: "Failed to create OTP. Please check the connection to the \"otps\" table." },
         { status: 500 }
       );
     }
@@ -113,7 +113,7 @@ export async function verifyOtpController(req: Request) {
     const parsed = verifySchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json({ message: "ข้อมูลไม่ถูกต้อง" }, { status: 400 });
+      return NextResponse.json({ message: "Invalid data." }, { status: 400 });
     }
 
     const { email, otp } = parsed.data;
@@ -121,7 +121,7 @@ export async function verifyOtpController(req: Request) {
     const { user, token } = await verifyOtp(email, otp);
 
     const res = NextResponse.json({
-      message: "ยืนยัน OTP ล็อกอินสำเร็จ",
+      message: "OTP verified. Login successful.",
       user: {
         user_id: user.user_id,
         name: user.name,
@@ -146,18 +146,18 @@ export async function verifyOtpController(req: Request) {
     console.error("Verify OTP Error:", error);
 
     if (error.message === "OTP_NOT_FOUND") {
-      return NextResponse.json({ message: "ไม่พบรหัส OTP โปรดล็อกอินใหม่" }, { status: 400 });
+      return NextResponse.json({ message: "OTP not found. Please log in again." }, { status: 400 });
     }
     if (error.message === "OTP_INVALID") {
-      return NextResponse.json({ message: "รหัส OTP ไม่ถูกต้อง" }, { status: 400 });
+      return NextResponse.json({ message: "Invalid OTP." }, { status: 400 });
     }
     if (error.message === "OTP_EXPIRED") {
-      return NextResponse.json({ message: "รหัส OTP หมดอายุแล้ว โปรดล็อกอินใหม่" }, { status: 400 });
+      return NextResponse.json({ message: "OTP has expired. Please log in again." }, { status: 400 });
     }
     if (error.message === "USER_NOT_FOUND_AFTER_OTP") {
-      return NextResponse.json({ message: "ไม่พบข้อมูลผู้ใช้ในระบบ" }, { status: 404 });
+      return NextResponse.json({ message: "User data not found." }, { status: 404 });
     }
 
-    return NextResponse.json({ message: "เกิดข้อผิดพลาดในการตรวจสอบ OTP" }, { status: 500 });
+    return NextResponse.json({ message: "An error occurred while verifying OTP." }, { status: 500 });
   }
 }
