@@ -58,7 +58,7 @@ export default function LoginPage() {
     if (data.user) {
       localStorage.setItem("user", JSON.stringify(data.user));
     }
-    router.push("/");
+    router.push("/home");
   };
 
   return (
