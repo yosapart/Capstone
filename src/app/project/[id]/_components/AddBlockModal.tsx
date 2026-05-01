@@ -28,25 +28,19 @@ export function AddBlockModal({
   const [costPerPerson, setCostPerPerson] = useState<number | "">(existingBlock?.cost_per_person || "");
   const [duration, setDuration] = useState<number | "">(existingBlock?.duration || "");
   const [loading, setLoading] = useState(false);
+  
+  const isFormIncomplete = !name.trim() || (
+    blockType.type === "process" && (
+      costPerUnit === "" ||
+      electricityPerUnit === "" ||
+      people === "" ||
+      costPerPerson === "" ||
+      duration === ""
+    )
+  );
 
   const handleSubmit = async () => {
-    if (!name.trim()) {
-      alert("กรุณากรอกชื่อ Block");
-      return;
-    }
-
-    if (blockType.type === "process") {
-      if (
-        costPerUnit === "" ||
-        electricityPerUnit === "" ||
-        people === "" ||
-        costPerPerson === "" ||
-        duration === ""
-      ) {
-        alert("กรุณากรอกข้อมูลให้ครบทุกช่อง (ยกเว้น Description)");
-        return;
-      }
-    }
+    if (isFormIncomplete) return;
 
     setLoading(true);
     try {
@@ -264,7 +258,12 @@ export function AddBlockModal({
             </button>
             <button
               onClick={handleSubmit}
-              className="px-7 py-2.5 text-[14px] font-semibold text-white bg-[#4CAF50] hover:bg-[#43A047] rounded-xl shadow-[0_4px_12px_rgba(76,175,80,0.3)] transition-all"
+              disabled={isFormIncomplete || loading}
+              className={`px-7 py-2.5 text-[14px] font-semibold text-white rounded-xl transition-all ${
+                isFormIncomplete || loading
+                  ? "bg-gray-300 cursor-not-allowed opacity-70"
+                  : "bg-[#4CAF50] hover:bg-[#43A047] shadow-[0_4px_12px_rgba(76,175,80,0.3)]"
+              }`}
             >
               {isEditMode ? "Save Changes" : "Save Block"}
             </button>

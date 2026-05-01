@@ -129,7 +129,7 @@ export async function verifyOtpController(req: Request) {
       }
     });
 
-    // ตั้งค่า HTTPOnly Cookie
+    // ตั้งค่า HTTPOnly Cookie ให้เป็น Session Cookie (หายไปเมื่อปิดเบราว์เซอร์)
     res.cookies.set({
       name: "auth_token",
       value: token,
@@ -137,7 +137,6 @@ export async function verifyOtpController(req: Request) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 24 // 1 วัน
     });
 
     return res;

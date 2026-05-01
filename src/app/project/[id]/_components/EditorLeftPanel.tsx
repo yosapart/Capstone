@@ -8,8 +8,8 @@ interface EditorLeftPanelProps {
 
 export function EditorLeftPanel({ onAddBlock }: EditorLeftPanelProps) {
   return (
-    <aside className="w-[160px] bg-white border-r border-gray-200 flex flex-col shrink-0 p-4 gap-4">      {/* Block palette */}
-      <div className="grid grid-cols-2 gap-2">
+    <aside className="w-[85px] bg-white border-r border-gray-200 flex flex-col shrink-0 p-2.5 gap-4">      {/* Block palette */}
+      <div className="grid grid-cols-1 gap-3 mt-4">
         {BLOCK_TYPES.map((bt) => (
           <button
             key={bt.type}

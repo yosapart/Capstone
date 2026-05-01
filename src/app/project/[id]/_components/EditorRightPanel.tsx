@@ -76,11 +76,9 @@ export function EditorRightPanel({
   };
 
   const formatTime = (totalMins: number) => {
-    if (totalMins < 60) return `${fmt(totalMins)} นาที`;
-    const hours = Math.floor(totalMins / 60);
-    const mins = totalMins % 60;
-    if (mins === 0) return `${hours} ชั่วโมง`;
-    return `${hours} ชม. ${fmt(mins)} นาที`;
+    if (totalMins < 60) return { value: fmt(totalMins), unit: "นาที" };
+    const hours = totalMins / 60;
+    return { value: fmt(hours), unit: "ชั่วโมง" };
   };
 
   return (
@@ -143,8 +141,8 @@ export function EditorRightPanel({
                           className="w-3 h-3 rounded-sm border"
                           style={{ borderColor: bt?.border, backgroundColor: `${bt?.color}30` }}
                         />
-                        <span className={`text-xs font-semibold text-[#34495e] ${block.type === "process" ? "hover:text-[#1594dd] transition-colors" : ""}`}>
-                          {block.name}
+                        <span className={`text-xs font-semibold text-[#34495e] truncate whitespace-nowrap block min-w-0 ${block.type === "process" ? "hover:text-[#1594dd] transition-colors" : ""}`}>
+                          {block.name.length > 20 ? block.name.substring(0, 20) + "..." : block.name}
                         </span>
                       </div>
                       <p className="text-[10px] text-gray-400 mt-0.5">Step {block.step_order}</p>
@@ -190,27 +188,35 @@ export function EditorRightPanel({
                 {/* Summary Cards */}
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-lg p-2.5 border border-blue-200/50">
-                    <p className="text-[10px] text-blue-500 font-medium">💰 ต้นทุนรวม</p>
+                    <p className="text-[10px] text-blue-500 font-medium">ต้นทุนรวม</p>
                     <p className={`text-sm font-bold mt-0.5 ${playbackState ? "text-blue-600 transition-all duration-300" : "text-[#34495e]"}`}>
                       {fmtCompact(playbackState ? playbackState.cost : simulationResult.total_cost)}
                     </p>
                     <p className="text-[9px] text-gray-400">บาท</p>
                   </div>
                   <div className="bg-gradient-to-br from-amber-50 to-amber-100/50 rounded-lg p-2.5 border border-amber-200/50">
-                    <p className="text-[10px] text-amber-600 font-medium">⚡ ค่าไฟรวม</p>
+                    <p className="text-[10px] text-amber-600 font-medium">ค่าไฟรวม</p>
                     <p className={`text-sm font-bold mt-0.5 ${playbackState ? "text-amber-600 transition-all duration-300" : "text-[#34495e]"}`}>
                       {fmtCompact(playbackState ? playbackState.electricity : simulationResult.total_electricity)}
                     </p>
                     <p className="text-[9px] text-gray-400">หน่วย</p>
                   </div>
-                  <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-lg p-2.5 border border-green-200/50">
-                    <p className="text-[10px] text-green-600 font-medium">⏱️ เวลารวม</p>
-                    <p className={`text-[12px] font-bold mt-0.5 ${playbackState ? "text-green-600 transition-all duration-300" : "text-[#34495e]"}`}>
-                      {formatTime(playbackState ? playbackState.duration : simulationResult.total_duration)}
-                    </p>
+                  <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-lg p-2.5 border border-green-200/50 flex flex-col">
+                    <p className="text-[10px] text-green-600 font-medium">เวลารวม</p>
+                    {(() => {
+                      const timeData = formatTime(playbackState ? playbackState.duration : simulationResult.total_duration);
+                      return (
+                        <>
+                          <p className={`text-sm font-bold mt-0.5 ${playbackState ? "text-green-600 transition-all duration-300" : "text-[#34495e]"}`}>
+                            {timeData.value}
+                          </p>
+                          <p className="text-[9px] text-gray-400">{timeData.unit}</p>
+                        </>
+                      );
+                    })()}
                   </div>
                   <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-lg p-2.5 border border-purple-200/50">
-                    <p className="text-[10px] text-purple-600 font-medium">🎯 ผลิตได้</p>
+                    <p className="text-[10px] text-purple-600 font-medium">ผลิตได้</p>
                     <p className="text-sm font-bold text-[#34495e] mt-0.5 flex items-end gap-1">
                       {playbackState ? (
                         <span className="text-purple-600 transition-all">{fmtCompact(playbackState.currentProduce)}</span>
@@ -230,14 +236,14 @@ export function EditorRightPanel({
                 {simulationResult.selling_price_per_unit && (
                   <div className="grid grid-cols-2 gap-2 mt-2">
                     <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/50 rounded-lg p-2.5 border border-indigo-200/50">
-                      <p className="text-[10px] text-indigo-500 font-medium">💵 รายได้รวม</p>
+                      <p className="text-[10px] text-indigo-500 font-medium">รายได้รวม</p>
                       <p className={`text-sm font-bold mt-0.5 ${playbackState ? "text-indigo-600 transition-all duration-300" : "text-[#34495e]"}`}>
                         {fmtCompact(playbackState ? (playbackState.revenue || 0) : (simulationResult.total_revenue || 0))}
                       </p>
                       <p className="text-[9px] text-gray-400">บาท</p>
                     </div>
                     <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-lg p-2.5 border border-emerald-200/50">
-                      <p className="text-[10px] text-emerald-600 font-medium">📈 กำไรสุทธิ</p>
+                      <p className="text-[10px] text-emerald-600 font-medium">กำไรสุทธิ</p>
                       <p className={`text-sm font-bold mt-0.5 ${playbackState ? "text-emerald-600 transition-all duration-300" : "text-[#34495e]"}`}>
                         {fmtCompact(playbackState ? (playbackState.netProfit || 0) : (simulationResult.net_profit || 0))}
                       </p>
@@ -271,7 +277,9 @@ export function EditorRightPanel({
                                 backgroundColor: `${bt?.color || "#666"}30`,
                               }}
                             />
-                            <span className="font-semibold text-[#34495e]">{step.name}</span>
+                             <span className="font-semibold text-[#34495e] truncate whitespace-nowrap block min-w-0">
+                               {step.name.length > 20 ? step.name.substring(0, 20) + "..." : step.name}
+                             </span>
                           </div>
                         </div>
 

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Components & Types
 import { BlockData } from "./_components/editorTypes";
@@ -50,6 +50,16 @@ export default function FlowEditorPage() {
 
   // Toast Alert state
   const [toastError, setToastError] = useState<string | null>(null);
+  const [user, setUser] = useState<{ email?: string; name?: string } | null>(null);
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem("user");
+    if (stored) {
+      try {
+        setUser(JSON.parse(stored));
+      } catch (e) {}
+    }
+  }, []);
 
   const showToast = (message: string) => {
     setToastError(message);
@@ -175,8 +185,13 @@ export default function FlowEditorPage() {
         </Link>
         <span className="text-white font-semibold text-sm">{project.name}</span>
         <div className="flex-1" />
-        <div className="w-7 h-7 rounded-full bg-[#1594dd] flex items-center justify-center text-white font-bold text-xs uppercase">
-          U
+        <div className="flex items-center gap-3">
+          <div className="w-7 h-7 rounded-full bg-[#1594dd] flex items-center justify-center text-white font-bold text-xs uppercase shadow-sm">
+            {user?.name?.[0] || user?.email?.[0] || "U"}
+          </div>
+          <span className="text-white/90 text-[13px] font-medium hidden sm:inline-block">
+            {user?.email || "Loading..."}
+          </span>
         </div>
       </header>
 
@@ -344,7 +359,7 @@ export default function FlowEditorPage() {
           authorName={(() => {
             if (typeof window !== "undefined") {
               try {
-                const u = JSON.parse(localStorage.getItem("user") || "{}");
+                const u = JSON.parse(sessionStorage.getItem("user") || "{}");
                 return u?.name || "Unknown User";
               } catch {
                 return "Unknown User";

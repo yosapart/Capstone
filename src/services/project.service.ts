@@ -22,10 +22,31 @@ export async function createProject(user_id: number, name: string, description?:
   }
 
   // Insert
-  const { error: insertError } = await supabase.from("projects").insert([
+  const { data, error: insertError } = await supabase.from("projects").insert([
     { user_id, name, description: description || "" }
-  ]);
+  ]).select().single();
+
   if (insertError) throw insertError;
 
-  return { message: "สร้าง Project สำเร็จ" };
+  return { message: "สร้าง Project สำเร็จ", project: data };
+}
+
+// ========== Update Project ==========
+export async function updateProject(project_id: number, name: string, description?: string) {
+  const { error } = await supabase
+    .from("projects")
+    .update({ name, description })
+    .eq("project_id", project_id);
+  if (error) throw error;
+  return { message: "แก้ไข Project สำเร็จ" };
+}
+
+// ========== Delete Project ==========
+export async function deleteProject(project_id: number) {
+  const { error } = await supabase
+    .from("projects")
+    .delete()
+    .eq("project_id", project_id);
+  if (error) throw error;
+  return { message: "ลบ Project สำเร็จ" };
 }
