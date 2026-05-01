@@ -197,7 +197,7 @@ function AuthModal({
         sessionStorage.setItem("user", JSON.stringify(data.user));
         window.dispatchEvent(new Event("user-changed"));
         onClose();
-        router.refresh();
+        router.push("/home");
       }
     }
 

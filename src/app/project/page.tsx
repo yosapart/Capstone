@@ -6,27 +6,43 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 
 import { Header } from "../_global_components/Header";
-import { IconSearch, IconPlus } from "../_components/Icons";
 import { Sidebar } from "../_global_components/Sidebar";
 import { ProjectCard, type Project } from "../_components/ProjectCard";
-import { CreateProjectModal } from "../_components/CreateProjectModal";
+import { CreateProjectModal } from "./_components/CreateProjectModal";
+import { DeleteProjectModal } from "../project/_components/DeleteProjectModal";
+import { IconSearch, IconPlus } from "../_components/Icons";
 
-/* ───── types ───── */
 interface UserInfo {
   user_id: number;
   name: string;
   email: string;
 }
 
-export default function ProjectPage() {
+export default function HomePage() {
   const router = useRouter();
-  const [user, setUser] = useState<UserInfo | null>(null);
-  const [search, setSearch] = useState("");
-  const [activeMenu, setActiveMenu] = useState("projects");
-  const [sortBy, setSortBy] = useState("newest");
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [user, setUser] = useState<UserInfo | null>(() => {
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem("user");
+      return stored ? JSON.parse(stored) : null;
+    }
+    return null;
+  });
+  const [activeMenu, setActiveMenu] = useState("home");
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
+  const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [search, setSearch] = useState("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // ฟังก์ชันบันทึกโปรเจกต์ที่เพิ่งเข้าชม
+  const trackRecent = useCallback((id: number) => {
+    const stored = localStorage.getItem("recent_viewed_ids");
+    let ids: number[] = stored ? JSON.parse(stored) : [];
+    // เอา id ใหม่ไว้หน้าสุด, ลบตัวซ้ำ, เก็บแค่ 3 อัน
+    ids = [id, ...ids.filter(x => x !== id)].slice(0, 3);
+    localStorage.setItem("recent_viewed_ids", JSON.stringify(ids));
+  }, []);
 
   // ดึง projects จาก API
   const fetchProjects = useCallback(async () => {
@@ -45,7 +61,7 @@ export default function ProjectPage() {
   }, []);
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
+    const stored = sessionStorage.getItem("user");
     if (!stored) {
       router.push("/");
       return;
@@ -59,8 +75,13 @@ export default function ProjectPage() {
     fetchProjects();
   }, [router, fetchProjects]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {
+      console.error("Logout failed", e);
+    }
+    sessionStorage.removeItem("user");
     window.dispatchEvent(new Event("user-changed"));
     router.push("/");
   };
@@ -68,17 +89,37 @@ export default function ProjectPage() {
   if (!user) return null;
 
   /* ─── กรองและเรียง projects ─── */
-  const userProjects = projects.filter((p) => p.user_id === user.user_id);
-
-  const sortedProjects = [...userProjects].sort((a, b) => {
-    if (sortBy === "newest") return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    if (sortBy === "oldest") return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-    return a.name.localeCompare(b.name);
+  const userProjects = projects.filter((p) => {
+    const isOwner = p.user_id === user.user_id;
+    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
+    return isOwner && matchesSearch;
   });
 
-  const recentProjects = [...userProjects]
-    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-    .slice(0, 3);
+  const sortedProjects = [...userProjects].sort((a, b) => 
+    a.name.localeCompare(b.name, 'th', { sensitivity: 'accent' })
+  );
+
+  // คัดกรอง Recent Projects (เรียงตามการเข้าชมล่าสุดใน localStorage หรือ ID ล่าสุดถ้าไม่มีข้อมูล)
+  const recentProjects = (() => {
+    const stored = typeof window !== 'undefined' ? localStorage.getItem("recent_viewed_ids") : null;
+    const recentIds: number[] = stored ? JSON.parse(stored) : [];
+    
+    // ดึงโปรเจกต์ตามลำดับใน localStorage
+    const viewed = recentIds
+      .map(id => userProjects.find(p => p.project_id === id))
+      .filter((p): p is Project => !!p);
+
+    // ถ้ามีไม่ถึง 3 อัน ให้เอาโปรเจกต์ที่สร้างล่าสุดมาเติม
+    if (viewed.length < 3) {
+      const others = [...userProjects]
+        .sort((a, b) => b.project_id - a.project_id)
+        .filter(p => !recentIds.includes(p.project_id));
+      
+      return [...viewed, ...others].slice(0, 3);
+    }
+
+    return viewed;
+  })();
 
   return (
     <div className="flex flex-col h-screen bg-[#f0f2f5] overflow-hidden">
@@ -86,7 +127,6 @@ export default function ProjectPage() {
 
       {/* ═══════ BODY (Sidebar + Content) ═══════ */}
       <div className="flex flex-1 overflow-hidden">
-
         {/* ─── SIDEBAR ─── */}
         <Sidebar
           activeMenu={activeMenu}
@@ -98,19 +138,22 @@ export default function ProjectPage() {
         <main className="flex-1 overflow-y-auto p-8">
 
           {/* Top actions row */}
-          <div className="flex items-center justify-between mb-8">
-            <div /> {/* spacer */}
+          <div className="flex items-center justify-between mb-8 gap-4">
+            {/* Search */}
+            <div className="flex items-center w-full max-w-[320px] bg-white border border-gray-200 rounded-xl px-4 py-2.5 gap-2 shadow-sm focus-within:ring-2 focus-within:ring-[#1594dd]/20 focus-within:border-[#1594dd] transition-all">
+              <div className="text-gray-400">
+                <IconSearch />
+              </div>
+              <input
+                type="text"
+                placeholder="Search your project"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="bg-transparent text-gray-800 placeholder-gray-400 outline-none w-full text-sm"
+              />
+            </div>
             <div className="flex items-center gap-3">
-              {/* Sort By */}
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-white border border-gray-300 text-sm text-gray-600 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-[#1594dd] cursor-pointer"
-              >
-                <option value="newest">Sort By: Newest</option>
-                <option value="oldest">Sort By: Oldest</option>
-                <option value="name">Sort By: Name</option>
-              </select>
+
 
               {/* Create Project */}
               <button
@@ -133,7 +176,13 @@ export default function ProjectPage() {
             ) : recentProjects.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {recentProjects.map((p) => (
-                  <ProjectCard key={p.project_id} project={p} />
+                  <ProjectCard 
+                    key={p.project_id} 
+                    project={p} 
+                    onEdit={(proj) => setProjectToEdit(proj)}
+                    onDelete={(proj) => setProjectToDelete(proj)}
+                    onView={(proj) => trackRecent(proj.project_id)}
+                  />
                 ))}
               </div>
             ) : (
@@ -153,7 +202,13 @@ export default function ProjectPage() {
             ) : sortedProjects.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {sortedProjects.map((p) => (
-                  <ProjectCard key={p.project_id} project={p} />
+                  <ProjectCard 
+                    key={p.project_id} 
+                    project={p} 
+                    onEdit={(proj) => setProjectToEdit(proj)}
+                    onDelete={(proj) => setProjectToDelete(proj)}
+                    onView={(proj) => trackRecent(proj.project_id)}
+                  />
                 ))}
               </div>
             ) : (
@@ -167,15 +222,31 @@ export default function ProjectPage() {
         </main>
       </div>
 
-      {/* ═══════ CREATE PROJECT MODAL ═══════ */}
-      {showCreateModal && (
+      {/* ═══════ CREATE/EDIT PROJECT MODAL ═══════ */}
+      {(showCreateModal || projectToEdit) && (
         <CreateProjectModal
-          onClose={() => setShowCreateModal(false)}
-          onCreated={() => {
+          existingProject={projectToEdit}
+          onClose={() => {
+            setShowCreateModal(false);
+            setProjectToEdit(null);
+          }}
+          onCreated={(projectId: number | string) => {
+            router.push(`/project/${projectId}`);
+          }}
+          onUpdated={() => {
             fetchProjects();
           }}
         />
       )}
+
+      {/* ═══════ DELETE CONFIRMATION MODAL ═══════ */}
+      {projectToDelete && (
+        <DeleteProjectModal
+          project={projectToDelete}
+          onClose={() => setProjectToDelete(null)}
+          onDeleted={() => fetchProjects()}
+        />
+      )}
     </div>
-  );
+    );
 }

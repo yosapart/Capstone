@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { SimulationResult, PlaybackState } from "./editorTypes";
 
 /**
@@ -12,6 +12,7 @@ export function useSimulation(speed: number, blocks: any[]) {
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
   const [playbackState, setPlaybackState] = useState<PlaybackState | null>(null);
+  const timeSinceLastSourceEmitRef = useRef(0);
 
   // =============== SIMULATION PLAYBACK LOOP ===============
   useEffect(() => {
@@ -56,8 +57,10 @@ export function useSimulation(speed: number, blocks: any[]) {
     const totalCostPerUnit = (simulationResult.total_cost || 0) / target_output;
     const totalElecPerUnit = (simulationResult.total_electricity || 0) / target_output;
 
-    // ตัวแปรสำหรับจับเวลาปล่อยของจาก Start block
-    let timeSinceLastSourceEmit = 0;
+    // รีเซ็ตค่าหากเป็นการเริ่มต้น Simulation ใหม่จริงๆ
+    if (!playbackState || (playbackState.currentProduce === 0 && playbackState.duration === 0)) {
+      timeSinceLastSourceEmitRef.current = 0;
+    }
 
     const runTick = () => {
       if (!isSimulating) return;
@@ -127,17 +130,17 @@ export function useSimulation(speed: number, blocks: any[]) {
 
         // 3. Feed Source into first machine
         if (sourceItems > 0 && processSteps.length > 0) {
-          timeSinceLastSourceEmit += chunkTime;
+          timeSinceLastSourceEmitRef.current += chunkTime;
           const firstStepDurationMs = (processSteps[0].duration || 0.5) * 1000;
           // ปล่อยของเร็วกว่าความเร็วเครื่องแรก 20% เพื่อให้สายพานทำงานต่อเนื่องและคิวค่อยๆ ขยับ
           dynamicEmitInterval = firstStepDurationMs * 0.8;
 
-          if (timeSinceLastSourceEmit >= dynamicEmitInterval) {
+          if (timeSinceLastSourceEmitRef.current >= dynamicEmitInterval) {
             const firstState = localStates[processSteps[0].step_order];
             if (firstState.queue < QUEUE_LIMIT) {
               firstState.queue++;
               sourceItems--;
-              timeSinceLastSourceEmit = 0;
+              timeSinceLastSourceEmitRef.current = 0;
             } else {
               // ถ้าคิวเต็ม ก็ยังไม่ปล่อยของ (แต่ไม่รีเซ็ตเวลา)
             }
@@ -162,7 +165,7 @@ export function useSimulation(speed: number, blocks: any[]) {
       currentDuration += timeStep / 1000;
 
       // คำนวณ sourceProgress สำหรับจุดเหลืองเส้น Start→M1
-      const srcProg = dynamicEmitInterval > 0 ? Math.min(1, timeSinceLastSourceEmit / dynamicEmitInterval) : 0;
+      const srcProg = dynamicEmitInterval > 0 ? Math.min(1, timeSinceLastSourceEmitRef.current / dynamicEmitInterval) : 0;
       
       let rev = 0;
       let net = 0;

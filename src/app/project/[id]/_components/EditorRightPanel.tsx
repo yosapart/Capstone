@@ -142,7 +142,7 @@ export function EditorRightPanel({
                           style={{ borderColor: bt?.border, backgroundColor: `${bt?.color}30` }}
                         />
                         <span className={`text-xs font-semibold text-[#34495e] truncate whitespace-nowrap block min-w-0 ${block.type === "process" ? "hover:text-[#1594dd] transition-colors" : ""}`}>
-                          {block.name.length > 20 ? block.name.substring(0, 20) + "..." : block.name}
+                          {block.name.length > 15 ? block.name.substring(0, 15) + "..." : block.name}
                         </span>
                       </div>
                       <p className="text-[10px] text-gray-400 mt-0.5">Step {block.step_order}</p>
@@ -278,7 +278,7 @@ export function EditorRightPanel({
                               }}
                             />
                              <span className="font-semibold text-[#34495e] truncate whitespace-nowrap block min-w-0">
-                               {step.name.length > 20 ? step.name.substring(0, 20) + "..." : step.name}
+                               {step.name.length > 15 ? step.name.substring(0, 15) + "..." : step.name}
                              </span>
                           </div>
                         </div>
