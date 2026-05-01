@@ -17,7 +17,7 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps){
     const [user, setUser] = useState<UserInfo | null>(null);
 
     useEffect(() => {
-        const stored = localStorage.getItem("user");
+        const stored = sessionStorage.getItem("user");
         if (stored) {
             try {
                 setUser(JSON.parse(stored));
@@ -28,7 +28,7 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps){
 
         // Listen for login/logout events from other components
         const handleStorage = () => {
-            const s = localStorage.getItem("user");
+            const s = sessionStorage.getItem("user");
             if (s) {
                 try { setUser(JSON.parse(s)); } catch { setUser(null); }
             } else {
@@ -44,8 +44,13 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps){
         };
     }, []);
 
-    const handleLogout = () => {
-        localStorage.removeItem("user");
+    const handleLogout = async () => {
+        try {
+            await fetch("/api/auth/logout", { method: "POST" });
+        } catch (e) {
+            console.error("Logout failed", e);
+        }
+        sessionStorage.removeItem("user");
         setUser(null);
         window.dispatchEvent(new Event("user-changed"));
     };

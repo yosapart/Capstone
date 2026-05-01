@@ -13,14 +13,16 @@ interface ProjectCardProps {
   project: Project;
   onEdit?: (project: Project) => void;
   onDelete?: (project: Project) => void;
+  onView?: (project: Project) => void;
 }
 
-export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
+export function ProjectCard({ project, onEdit, onDelete, onView }: ProjectCardProps) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 px-5 py-4 flex items-center justify-between hover:shadow-md hover:border-[#1594dd]/30 transition-all">
       {/* ชื่อ Project — คลิกเข้า Flow Editor */}
       <Link
         href={`/project/${project.project_id}`}
+        onClick={() => onView?.(project)}
         className="font-semibold text-[#34495e] text-sm truncate mr-4 hover:text-[#1594dd] transition-colors"
       >
         {project.name}

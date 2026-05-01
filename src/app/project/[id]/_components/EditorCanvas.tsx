@@ -93,7 +93,9 @@ export function EditorCanvas({
                     className="w-3 h-3 rounded-sm border-2 shrink-0"
                     style={{ borderColor: bt?.border || "#999", backgroundColor: `${bt?.color || "#666"}30` }}
                   />
-                  <span className="text-xs font-bold text-[#34495e]">{block.name}</span>
+                  <span className="text-xs font-bold text-[#34495e] break-all whitespace-normal">
+                    {block.name}
+                  </span>
                 </div>
                 {isSimulating && block.type === "process" && machineState && (
                   <div className="px-2 pb-1.5 pt-0.5 flex flex-col gap-1 text-[10px] border-t border-gray-100">
@@ -126,6 +128,8 @@ export function EditorCanvas({
             border: `2px solid ${isBlocked ? "#ef4444" : (bt?.border || "#666")}`,
             borderRadius: "8px",
             minWidth: "120px",
+            maxWidth: "250px",
+            width: "auto",
             textAlign: "left",
             boxShadow: isBlocked ? "0 0 10px rgba(239,68,68,0.4)" : "none",
           },

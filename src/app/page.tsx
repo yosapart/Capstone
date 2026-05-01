@@ -17,7 +17,7 @@ export default function Home() {
   const [mode, setMode] = useState<"login" | "register">("login");
 
   const handleCreate = () => {
-    const user = localStorage.getItem("user");
+    const user = sessionStorage.getItem("user");
 
     if (!user) {
       setMode("login");
@@ -132,7 +132,7 @@ function AuthModal({
         setShowOtp(true);
       } else {
         // เผื่อไว้กรณีที่บางทีอาจจะไม่ติด OTP
-        localStorage.setItem("user", JSON.stringify(data.user));
+        sessionStorage.setItem("user", JSON.stringify(data.user));
         window.dispatchEvent(new Event("user-changed"));
         onClose();
         router.refresh();
@@ -155,7 +155,7 @@ function AuthModal({
       }
 
       // OTP สำเร็จ → เข้าหน้า project เลย
-      localStorage.setItem("user", JSON.stringify(data.user));
+      sessionStorage.setItem("user", JSON.stringify(data.user));
       window.dispatchEvent(new Event("user-changed"));
       onClose();
       router.push("/home");
