@@ -58,7 +58,7 @@ export default function LoginPage() {
     if (data.user) {
       sessionStorage.setItem("user", JSON.stringify(data.user));
     }
-    router.push("/");
+    router.push("/home");
   };
 
   return (
