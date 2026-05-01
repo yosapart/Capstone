@@ -3,13 +3,21 @@
 import { useState } from "react";
 
 interface CreateProjectModalProps {
+  existingProject?: any;
   onClose: () => void;
-  onCreated: () => void;
+  onCreated: (projectId: number) => void;
+  onUpdated?: () => void;
 }
 
-export function CreateProjectModal({ onClose, onCreated }: CreateProjectModalProps) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+export function CreateProjectModal({ 
+  existingProject, 
+  onClose, 
+  onCreated, 
+  onUpdated 
+}: CreateProjectModalProps) {
+  const isEditMode = !!existingProject;
+  const [name, setName] = useState(existingProject?.name || "");
+  const [description, setDescription] = useState(existingProject?.description || "");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
@@ -19,7 +27,7 @@ export function CreateProjectModal({ onClose, onCreated }: CreateProjectModalPro
     }
 
     // ดึง user_id จาก localStorage
-    const stored = localStorage.getItem("user");
+    const stored = sessionStorage.getItem("user");
     if (!stored) {
       alert("กรุณา Login ก่อน");
       return;
@@ -36,15 +44,28 @@ export function CreateProjectModal({ onClose, onCreated }: CreateProjectModalPro
 
     setLoading(true);
     try {
-      const res = await fetch("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: userId,
-          name: name.trim(),
-          description: description.trim() || undefined,
-        }),
-      });
+      let res;
+      if (isEditMode) {
+        res = await fetch("/api/projects", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            project_id: existingProject.project_id,
+            name: name.trim(),
+            description: description.trim() || undefined,
+          }),
+        });
+      } else {
+        res = await fetch("/api/projects", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: userId,
+            name: name.trim(),
+            description: description.trim() || undefined,
+          }),
+        });
+      }
 
       const data = await res.json();
 
@@ -59,8 +80,11 @@ export function CreateProjectModal({ onClose, onCreated }: CreateProjectModalPro
         return;
       }
 
-      alert("สร้าง Project สำเร็จ 🎉");
-      onCreated();
+      if (isEditMode) {
+        onUpdated?.();
+      } else {
+        onCreated(data.project.project_id);
+      }
       onClose();
     } catch {
       alert("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
@@ -69,55 +93,56 @@ export function CreateProjectModal({ onClose, onCreated }: CreateProjectModalPro
     }
   };
 
+
+  const inputClassName = "w-full bg-[#fbfbf9] border border-[#e8e8e3] rounded-xl px-4 py-2.5 text-[15px] text-gray-800 outline-none focus:bg-white focus:ring-4 focus:ring-[#8F9E8B]/15 focus:border-[#8F9E8B] transition-all duration-300";
+  const labelClassName = "block text-[13px] font-medium text-gray-500 mb-1.5";
+  const isFormIncomplete = !name.trim();
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000]" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-[2000]" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl w-[420px] shadow-2xl relative overflow-hidden"
+        className="bg-white rounded-[24px] w-[500px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
-        style={{ animation: "modalIn 0.2s ease" }}
+        style={{ animation: "modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)" }}
       >
         {/* Loading Overlay */}
         {loading && (
-          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-2xl">
-            <div
-              style={{
-                width: 40, height: 40,
-                border: "4px solid #e5e7eb",
-                borderTop: "4px solid #1594dd",
-                borderRadius: "50%",
-                animation: "spin 0.8s linear infinite",
-              }}
-            />
-            <p className="text-sm text-gray-500 mt-3 font-medium">กำลังสร้าง Project...</p>
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-md flex flex-col items-center justify-center z-10">
+            <div className="w-8 h-8 rounded-full border-4 border-gray-100 border-t-[#8F9E8B] animate-spin" />
+            <p className="text-sm text-gray-500 mt-3 font-medium">กำลังดำเนินการ...</p>
           </div>
         )}
 
         {/* Header */}
-        <div className="bg-[#34495e] px-6 py-4">
-          <h2 className="text-lg font-bold text-white">Create New Project</h2>
-          <p className="text-gray-300 text-xs mt-1">กรอกข้อมูลเพื่อสร้าง Project ใหม่</p>
+        <div className="px-8 pt-8 pb-2 shrink-0">
+          <h2 className="text-[22px] font-medium text-gray-800 tracking-tight">
+            {isEditMode ? "Edit Project" : "Create New Project"}
+          </h2>
+          <p className="text-[14px] text-gray-400 mt-1 font-light">
+            {isEditMode ? "แก้ไขข้อมูลโปรเจกต์ของคุณ" : "กรอกข้อมูลเพื่อสร้าง Project ใหม่"}
+          </p>
         </div>
 
         {/* Body */}
-        <div className="p-6 space-y-5">
+        <div className="px-8 py-6 space-y-5 overflow-y-auto">
           {/* Project Name */}
           <div>
-            <label className="block text-sm font-semibold text-[#34495e] mb-1.5">
-              Project Name <span className="text-red-500">*</span>
+            <label className={labelClassName}>
+              Project Name <span className="text-[#d97777]">*</span>
             </label>
             <input
               type="text"
               placeholder="เช่น Factory Layout A"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#1594dd] focus:border-transparent transition-all"
+              className={inputClassName}
               autoFocus
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-semibold text-[#34495e] mb-1.5">
+            <label className={labelClassName}>
               Description <span className="text-gray-400 font-normal">(optional)</span>
             </label>
             <textarea
@@ -125,26 +150,30 @@ export function CreateProjectModal({ onClose, onCreated }: CreateProjectModalPro
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#1594dd] focus:border-transparent transition-all resize-none"
+              className={`${inputClassName} resize-none`}
             />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-6 pb-5 flex gap-3">
+        <div className="px-8 py-5 flex items-center justify-end shrink-0 bg-white border-t border-[#f4f4f4] gap-3">
           <button
             onClick={onClose}
             disabled={loading}
-            className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 transition-all disabled:opacity-50"
+            className="px-5 py-2.5 text-[14px] font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-xl transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading}
-            className="flex-1 py-2.5 rounded-lg text-sm font-bold text-white bg-[#1594dd] hover:bg-[#1277b5] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading || isFormIncomplete}
+            className={`px-7 py-2.5 text-[14px] font-semibold text-white rounded-xl transition-all ${
+              loading || isFormIncomplete
+                ? "bg-gray-300 cursor-not-allowed opacity-70"
+                : "bg-[#4CAF50] hover:bg-[#43A047] shadow-[0_4px_12px_rgba(76,175,80,0.3)]"
+            }`}
           >
-            Create Project
+            {isEditMode ? "Save Changes" : "Create Project"}
           </button>
         </div>
 

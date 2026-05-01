@@ -33,7 +33,7 @@ export default function LoginPage() {
       setStep("otp");
     } else {
       // สำหรับกรณียกเว้นที่ไม่ได้บังคับ OTP
-      localStorage.setItem("user", JSON.stringify(data.user));
+      sessionStorage.setItem("user", JSON.stringify(data.user));
       router.push("/");
     }
   };
@@ -56,7 +56,7 @@ export default function LoginPage() {
 
     // เมื่อ OTP สำเร็จ
     if (data.user) {
-      localStorage.setItem("user", JSON.stringify(data.user));
+      sessionStorage.setItem("user", JSON.stringify(data.user));
     }
     router.push("/home");
   };
