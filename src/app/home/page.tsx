@@ -79,8 +79,8 @@ export default function HomePage() {
         />
 
         {/* ─── CONTENT ─── */}
-        <main className="flex-1 overflow-y-auto p-8">
-          home
+        <main className="flex-1 overflow-y-auto p-10">
+          <h2 className="font-bold text-[26px] ">Welcome, {user.name}.</h2>
         </main>
         </div>
     </div>
