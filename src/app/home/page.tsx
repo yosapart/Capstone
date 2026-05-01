@@ -5,27 +5,22 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 
-import { IconSearch, IconPlus } from "../_components/Icons";
-import { Sidebar } from "../_components/Sidebar";
+import { Header } from "../_global_components/Header";
+import { Sidebar } from "../_global_components/Sidebar";
 import { ProjectCard, type Project } from "../_components/ProjectCard";
 import { CreateProjectModal } from "../_components/CreateProjectModal";
 import { DeleteProjectModal } from "../_components/DeleteProjectModal";
 
-/* ───── types ───── */
 interface UserInfo {
   user_id: number;
   name: string;
   email: string;
 }
 
-/* ───── main page ───── */
 export default function HomePage() {
   const router = useRouter();
   const [user, setUser] = useState<UserInfo | null>(null);
-  const [search, setSearch] = useState("");
-  const [activeMenu, setActiveMenu] = useState("projects");
-  const [sortBy, setSortBy] = useState("newest");
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [activeMenu, setActiveMenu] = useState("home");
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
@@ -85,6 +80,11 @@ export default function HomePage() {
   if (!user) return null;
 
   /* ─── กรองและเรียง projects ─── */
+  const userProjects = projects.filter((p) => p.user_id === user.user_id);
+
+  return (
+    <div className="flex flex-col h-screen bg-[#f0f2f5] overflow-hidden">
+      <Header user={user} />
   const userProjects = projects.filter((p) => {
     const isOwner = p.user_id === user.user_id;
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
@@ -141,7 +141,7 @@ export default function HomePage() {
       </header>
 
       {/* ═══════ BODY (Sidebar + Content) ═══════ */}
-      <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 overflow-hidden">
 
         {/* ─── SIDEBAR ─── */}
         <Sidebar
@@ -151,6 +151,10 @@ export default function HomePage() {
         />
 
         {/* ─── CONTENT ─── */}
+        <main className="flex-1 overflow-y-auto p-10">
+          <h2 className="font-bold text-[26px] ">Welcome, {user.name}.</h2>
+        </main>
+        </div>
         <main className="flex-1 overflow-y-auto p-8">
 
           {/* Top actions row */}
@@ -264,5 +268,5 @@ export default function HomePage() {
         />
       )}
     </div>
-  );
+    );
 }

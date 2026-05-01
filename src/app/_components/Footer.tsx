@@ -62,8 +62,8 @@ export function Footer(){
                     </div>
                 </div>
                 
-                <div className='flex text-white ml-[39%] '>
-                    <div className='mr-[7%]'>
+                <div className='flex text-white ml-auto mr-10'>
+                    <div className='mr-[2rem]'>
                         <h2 className='text-l text-gray-300 font-[500] mb-[1rem] '>
                             Docs
                         </h2>
@@ -80,7 +80,7 @@ export function Footer(){
                         </ul>
                     </div>
 
-                    <div className='mr-[7%]'>
+                    <div className='mr-[2rem]'>
                         <h2 className='text-l text-gray-300 font-[500] mb-[1rem] '>
                             Resources
                         </h2>
@@ -97,7 +97,7 @@ export function Footer(){
                         </ul>
                     </div>
 
-                    <div className='mr-[7%]'>
+                    <div className='mr-[2rem]'>
                         <h2 className='text-l text-gray-300 font-[500] mb-[1rem] '>
                             Legal
                         </h2>
@@ -114,7 +114,7 @@ export function Footer(){
                         </ul>
                     </div>
 
-                    <div className='mr-[7%] '>
+                    <div>
                         <h2 className='text-l text-gray-300 font-[500] mb-[1rem] '>
                             About Us
                         </h2>
