@@ -32,13 +32,13 @@ export function ProjectCard({ project, onEdit, onDelete, onView }: ProjectCardPr
       <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={(e) => { e.stopPropagation(); onEdit?.(project); }}
-          className="text-xs font-semibold text-[#1594dd] bg-[#1594dd]/10 px-4 py-1.5 rounded-md hover:bg-[#1594dd]/20 transition-colors"
+          className="text-xs font-semibold text-[#1594dd] bg-[#1594dd]/10 px-4 py-1.5 rounded-md cursor-pointer hover:bg-[#1594dd]/20 transition-colors"
         >
           Edit
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); onDelete?.(project); }}
-          className="text-xs font-semibold text-red-500 bg-red-50 px-4 py-1.5 rounded-md hover:bg-red-100 transition-colors"
+          className="text-xs font-semibold text-red-500 bg-red-50 px-4 py-1.5 rounded-md cursor-pointer hover:bg-red-100 transition-colors"
         >
           Delete
         </button>

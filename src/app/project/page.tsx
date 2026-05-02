@@ -7,9 +7,9 @@ import { useEffect, useState, useCallback } from "react";
 
 import { Header } from "../_global_components/Header";
 import { Sidebar } from "../_global_components/Sidebar";
-import { ProjectCard, type Project } from "../_components/ProjectCard";
-import { CreateProjectModal } from "./_components/CreateProjectModal";
-import { DeleteProjectModal } from "../project/_components/DeleteProjectModal";
+import { ProjectCard, type Project } from "../_global_components/ProjectCard";
+import { CreateProjectModal } from "../_global_components/CreateProjectModal";
+import { DeleteProjectModal } from "../_global_components/DeleteProjectModal";
 import { IconSearch, IconPlus } from "../_components/Icons";
 
 interface UserInfo {
