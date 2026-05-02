@@ -17,7 +17,13 @@ interface UserInfo {
 
 export default function HomePage() {
   const router = useRouter();
-  const [user, setUser] = useState<UserInfo | null>(null);
+  const [user, setUser] = useState<UserInfo | null>(() => {
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem("user");
+      return stored ? JSON.parse(stored) : null;
+    }
+    return null;
+  });
   const [activeMenu, setActiveMenu] = useState("home");
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
@@ -39,7 +45,7 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
+    const stored = sessionStorage.getItem("user");
     if (!stored) {
       router.push("/");
       return;
@@ -54,7 +60,7 @@ export default function HomePage() {
   }, [router, fetchProjects]);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
     window.dispatchEvent(new Event("user-changed"));
     router.push("/");
   };
@@ -79,8 +85,8 @@ export default function HomePage() {
         />
 
         {/* ─── CONTENT ─── */}
-        <main className="flex-1 overflow-y-auto p-8">
-          home
+        <main className="flex-1 overflow-y-auto p-10">
+          <h2 className="font-bold text-[26px] ">Welcome, {user.name}.</h2>
         </main>
         </div>
     </div>

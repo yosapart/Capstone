@@ -92,9 +92,9 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
       if (optMode === "compare") {
         const cmp = compareAllStrategies(processBlocks, cfg);
         setCompareResults({
-          "⏱ เร็วที่สุด": cmp.time,
-          "💰 ถูกที่สุด": cmp.cost,
-          "📈 กำไรสูงสุด": cmp.profit,
+          "เร็วที่สุด": cmp.time,
+          "ถูกที่สุด": cmp.cost,
+          "กำไรสูงสุด": cmp.profit,
         });
       } else {
         const res = runProfitOptimizer(processBlocks, { ...cfg, mode: optMode });
@@ -468,7 +468,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                 {running
                   ? "กำลังคำนวณ..."
                   : optMode === "compare"
-                  ? "📊 เปรียบเทียบกลยุทธ์"
+                  ? "Comparing strategies"
                   : "Solve"}
               </button>
             </div>

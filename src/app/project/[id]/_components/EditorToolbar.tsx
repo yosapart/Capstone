@@ -58,7 +58,10 @@ export function EditorToolbar({
         >
           <span className="truncate">
             {selectedFlowId
-              ? flows.find(f => f.flow_id === selectedFlowId)?.name || "Select Flow"
+              ? (() => {
+                const name = flows.find(f => f.flow_id === selectedFlowId)?.name || "Select Flow";
+                return name.length > 10 ? name.substring(0, 10) + "..." : name;
+              })()
               : "-- No Flow --"}
           </span>
           <svg className={`w-3.5 h-3.5 ml-2 text-gray-400 transition-transform ${isFlowOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -81,7 +84,7 @@ export function EditorToolbar({
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
               >
-                {f.name}
+                {f.name.length > 10 ? f.name.substring(0, 10) + "..." : f.name}
               </button>
             ))}
           </div>
@@ -98,18 +101,7 @@ export function EditorToolbar({
       {/* Divider */}
       <div className="w-[1px] h-4 bg-gray-200" />
 
-      {/* Undo / Redo */}
-      <div className="flex items-center gap-1">
-        <button className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-all" title="Undo">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>
-        </button>
-        <button className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-all" title="Redo">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
-        </button>
-      </div>
 
-      {/* Divider */}
-      <div className="w-[1px] h-4 bg-gray-200" />
 
       {/* Play / Stop */}
       <div className="flex items-center gap-1.5">
@@ -170,7 +162,7 @@ export function EditorToolbar({
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
         </svg>
-        Auto-Optimize
+        Optimize
       </button>
 
       <div className="flex-1" />
