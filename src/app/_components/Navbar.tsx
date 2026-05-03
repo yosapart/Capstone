@@ -13,7 +13,7 @@ interface UserInfo {
     email: string;
 }
 
-export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps){
+export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
     const [user, setUser] = useState<UserInfo | null>(null);
 
     useEffect(() => {
@@ -58,9 +58,9 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps){
     return (
         <nav className='flex items-center text-[16px] font-bold max-w-full h-[65px] bg-[#34495e] sticky top-0 z-[1000]'>
             <Link href="/" className='block ml-[100px]'>
-                <Image 
-                    src="/FacSimLogo.png" 
-                    alt="FacSim Logo" 
+                <Image
+                    src="/FacSimLogo.png"
+                    alt="FacSim Logo"
                     width={175}
                     height={18}
                     priority
@@ -77,7 +77,7 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps){
                         Features
                     </Link>
                 </li>
-                
+
                 <li className="relative flex h-[65px] w-[170px] items-center justify-center
                                after:absolute after:bottom-0 after:left-1/2 after:h-[5px] after:w-0 
                                after:-translate-x-1/2 after:rounded-[10px] after:bg-[#e0e0e0]
@@ -112,7 +112,7 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps){
                     </button>
                 </li>
             </ul>
-            
+
         </nav>
     )
 };
