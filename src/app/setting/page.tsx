@@ -17,11 +17,17 @@ interface UserInfo {
 
 export default function ProjectPage() {
     const router = useRouter();
-    const [user, setUser] = useState<UserInfo | null>(null);
+    const [user, setUser] = useState<UserInfo | null>(() => {
+        if (typeof window !== "undefined") {
+            const stored = sessionStorage.getItem("user");
+            return stored ? JSON.parse(stored) : null;
+        }
+        return null;
+    });
     const [activeMenu, setActiveMenu] = useState("projects");
 
     useEffect(() => {
-        const stored = localStorage.getItem("user");
+        const stored = sessionStorage.getItem("user");
         if (!stored) {
             router.push("/");
             return;
@@ -34,7 +40,7 @@ export default function ProjectPage() {
     }, [router]);
 
     const handleLogout = () => {
-        localStorage.removeItem("user");
+        sessionStorage.removeItem("user");
         window.dispatchEvent(new Event("user-changed"));
         router.push("/");
     };

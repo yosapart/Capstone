@@ -20,16 +20,32 @@ export function CreateProjectModal({
   const [description, setDescription] = useState(existingProject?.description || "");
   const [loading, setLoading] = useState(false);
 
+  const [errors, setErrors] = useState({ name: "" });
+  const [submitError, setSubmitError] = useState("");
+
+  const getNameErrorMessage = (value: string) => {
+    if (!value.trim()) return "Please enter a project name.";
+    return "";
+  };
+
+  const handleNameBlur = () => {
+    const message = getNameErrorMessage(name);
+    setErrors((prev) => ({ ...prev, name: message }));
+  };
+
   const handleSubmit = async () => {
-    if (!name.trim()) {
-      alert("กรุณากรอกชื่อ Project");
+    setSubmitError("");
+    
+    const nameError = getNameErrorMessage(name);
+    if (nameError) {
+      setErrors((prev) => ({ ...prev, name: nameError }));
       return;
     }
 
     // ดึง user_id จาก localStorage
     const stored = sessionStorage.getItem("user");
     if (!stored) {
-      alert("กรุณา Login ก่อน");
+      setSubmitError("Please log in to continue.");
       return;
     }
 
@@ -38,7 +54,7 @@ export function CreateProjectModal({
       const user = JSON.parse(stored);
       userId = user.user_id;
     } catch {
-      alert("ข้อมูล User ไม่ถูกต้อง");
+      setSubmitError("Invalid user data. Please log in again.");
       return;
     }
 
@@ -73,9 +89,9 @@ export function CreateProjectModal({
         if (data.errors) {
           const fieldErrors = data.errors.fieldErrors;
           const messages = Object.values(fieldErrors).flat().join("\n");
-          alert(messages);
+          setSubmitError(messages);
         } else {
-          alert(data.message || "เกิดข้อผิดพลาด");
+          setSubmitError(data.message || "An error occurred while saving the project.");
         }
         return;
       }
@@ -87,14 +103,18 @@ export function CreateProjectModal({
       }
       onClose();
     } catch {
-      alert("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
+      setSubmitError("Unable to connect to the server. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
 
-
   const inputClassName = "w-full bg-[#fbfbf9] border border-[#e8e8e3] rounded-xl px-4 py-2.5 text-[15px] text-gray-800 outline-none focus:bg-white focus:ring-4 focus:ring-[#8F9E8B]/15 focus:border-[#8F9E8B] transition-all duration-300";
+  const nameInputClassName = `w-full rounded-xl px-4 py-2.5 text-[15px] outline-none focus:bg-white focus:ring-4 transition-all duration-300 border ${
+    errors.name
+      ? "border-red-500 bg-red-50 text-red-900 focus:ring-red-400/20 focus:border-red-500" 
+      : "border-[#e8e8e3] bg-[#fbfbf9] text-gray-800 focus:ring-[#8F9E8B]/15 focus:border-[#8F9E8B]"
+  }`;
   const labelClassName = "block text-[13px] font-medium text-gray-500 mb-1.5";
   const isFormIncomplete = !name.trim();
 
@@ -109,7 +129,7 @@ export function CreateProjectModal({
         {loading && (
           <div className="absolute inset-0 bg-white/60 backdrop-blur-md flex flex-col items-center justify-center z-10">
             <div className="w-8 h-8 rounded-full border-4 border-gray-100 border-t-[#8F9E8B] animate-spin" />
-            <p className="text-sm text-gray-500 mt-3 font-medium">กำลังดำเนินการ...</p>
+            <p className="text-sm text-gray-500 mt-3 font-medium">Processing...</p>
           </div>
         )}
 
@@ -119,12 +139,24 @@ export function CreateProjectModal({
             {isEditMode ? "Edit Project" : "Create New Project"}
           </h2>
           <p className="text-[14px] text-gray-400 mt-1 font-light">
-            {isEditMode ? "แก้ไขข้อมูลโปรเจกต์ของคุณ" : "กรอกข้อมูลเพื่อสร้าง Project ใหม่"}
+            {isEditMode ? "Edit your project details" : "Enter details to create a new project"}
           </p>
         </div>
 
         {/* Body */}
-        <div className="px-8 py-6 space-y-5 overflow-y-auto">
+        <div className="px-8 py-2 overflow-y-auto">
+          {submitError && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-[14px] flex gap-2.5 mb-4">
+              <svg className="w-5 h-5 shrink-0 mt-0.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h4 className="font-semibold text-red-800">Something went wrong</h4>
+                <p className="mt-0.5">{submitError}</p>
+              </div>
+            </div>
+          )}
+
           {/* Project Name */}
           <div>
             <label className={labelClassName}>
@@ -132,12 +164,23 @@ export function CreateProjectModal({
             </label>
             <input
               type="text"
-              placeholder="เช่น Factory Layout A"
+              placeholder="e.g., Factory Layout A"
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              className={inputClassName}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (errors.name) {
+                  setErrors((prev) => ({ ...prev, name: "" }));
+                }
+              }}
+              onBlur={handleNameBlur}
+              className={nameInputClassName}
               autoFocus
             />
+            <div className="min-h-[20px] mt-1 mb-2">
+              {errors.name && (
+                <p className="text-red-500 text-[13px]">{errors.name}</p>
+              )}
+            </div>
           </div>
 
           {/* Description */}
@@ -146,7 +189,7 @@ export function CreateProjectModal({
               Description <span className="text-gray-400 font-normal">(optional)</span>
             </label>
             <textarea
-              placeholder="อธิบายรายละเอียดของ Project..."
+              placeholder="Project description..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}

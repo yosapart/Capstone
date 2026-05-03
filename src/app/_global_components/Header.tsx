@@ -23,6 +23,11 @@ export function Header({ user }: HeaderProps){
               <div className="w-8 h-8 rounded-full bg-[#1594dd] flex items-center justify-center text-white font-bold text-sm uppercase">
                 {user?.name ? user.name.charAt(0) : "U"}
               </div>
+              {user?.email && (
+                <span className="text-white text-sm font-medium">
+                  {user.email}
+                </span>
+              )}
             </div>
         </header>
     )

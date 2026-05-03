@@ -33,10 +33,10 @@ export async function createProjectController(req: Request) {
     console.error(error);
 
     if (error.message === "USER_NOT_FOUND") {
-      return NextResponse.json({ message: "User ไม่พบในระบบ" }, { status: 400 });
+      return NextResponse.json({ message: "User not found in the system." }, { status: 400 });
     }
 
-    return NextResponse.json({ message: "เกิดข้อผิดพลาด" }, { status: 500 });
+    return NextResponse.json({ message: "An error occurred." }, { status: 500 });
   }
 }
 
@@ -45,12 +45,12 @@ export async function updateProjectController(req: Request) {
   try {
     const body = await req.json();
     const { project_id, name, description } = body;
-    if (!project_id || !name) return NextResponse.json({ message: "ข้อมูลไม่ครบ" }, { status: 400 });
+    if (!project_id || !name) return NextResponse.json({ message: "Incomplete information." }, { status: 400 });
     const result = await updateProject(project_id, name, description);
     return NextResponse.json(result);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: "เกิดข้อผิดพลาด" }, { status: 500 });
+    return NextResponse.json({ message: "An error occurred." }, { status: 500 });
   }
 }
 
@@ -59,11 +59,11 @@ export async function deleteProjectController(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const projectId = searchParams.get("project_id");
-    if (!projectId) return NextResponse.json({ message: "โปรดระบุ project_id" }, { status: 400 });
+    if (!projectId) return NextResponse.json({ message: "Please specify the project_id." }, { status: 400 });
     const result = await deleteProject(Number(projectId));
-    return NextResponse.json(result);
+    return NextResponse.json({ message: "Deleted successfully" }, { status: 200 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: "เกิดข้อผิดพลาด" }, { status: 500 });
+    return NextResponse.json({ message: "An error occurred." }, { status: 500 });
   }
 }
