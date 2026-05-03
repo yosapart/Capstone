@@ -15,6 +15,16 @@ export async function runSimulation(flow_id: number, target_output: number, test
     throw new Error("FLOW_NOT_FOUND");
   }
 
+  // 1.5️⃣ Cleanup: ลบ Simulation เก่าของ Flow นี้ออกก่อน (เพื่อให้มีแค่ 1 อันล่าสุด)
+  const { data: oldSims } = await supabase.from("simulations").select("simu_id").eq("flow_id", flow_id);
+  if (oldSims && oldSims.length > 0) {
+    const ids = oldSims.map(s => s.simu_id);
+    // ลบข้อมูลที่เกี่ยวข้องในตารางอื่นก่อน (ถ้าไม่ได้ตั้ง ON DELETE CASCADE)
+    await supabase.from("results").delete().in("simu_id", ids);
+    await supabase.from("event").delete().in("simu_id", ids);
+    await supabase.from("simulations").delete().in("simu_id", ids);
+  }
+
   // 2️⃣ ดึง testcase (ตัวเดียว)
   let testcase: TestcaseData | null = null;
 

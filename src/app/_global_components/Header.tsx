@@ -14,7 +14,7 @@ interface HeaderProps {
 
 export function Header({ user }: HeaderProps){
     return(
-            <header className="flex items-center h-[60px] bg-[#34495e] px-6 shrink-0 z-50 shadow-md">
+            <header className="flex items-center h-[60px] bg-[#34495e] pl-6 pr-9 shrink-0 z-50 shadow-md">
             <Link href="/home" className="shrink-0 mr-6">
               <Image src="/FacSimLogo.png" alt="FacSim Logo" width={140} height={16} priority />
             </Link>

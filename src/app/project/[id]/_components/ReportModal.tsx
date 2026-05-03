@@ -155,7 +155,7 @@ export function ReportModal({ projectName, flowName, simulationResult, authorNam
               {simulationResult.steps.map((step, idx) => (
                 <tr key={idx}>
                   <td className="border border-black px-2 py-1 text-center">{step.step_order}</td>
-                  <td className="border border-black px-2 py-1">
+                  <td className="border border-black px-2 py-1 break-all min-w-[150px]">
                     {step.name} 
                     {step.type === "start" ? " (Start)" : step.type === "end" ? " (End)" : ""}
                   </td>

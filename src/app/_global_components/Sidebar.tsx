@@ -81,8 +81,10 @@ function SidebarItem({
       <button
         onClick={()=>{
           const lowerLabel = label.toLowerCase();
-          const path = lowerLabel === "home" ? "/home" : `/${lowerLabel}`;
-          router.push(path);
+          if (lowerLabel !== "logout") {
+            const path = lowerLabel === "home" ? "/home" : `/${lowerLabel}`;
+            router.push(path);
+          }
           onClick();
         }}
         className={`
