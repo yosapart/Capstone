@@ -18,7 +18,7 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, onEdit, onDelete, onView }: ProjectCardProps) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 px-5 py-4 flex items-center justify-between hover:shadow-md hover:border-[#1594dd]/30 transition-all">
+    <div className="group bg-white rounded-xl border border-gray-200 px-5 py-4 flex items-center justify-between hover:shadow-md hover:border-[#1594dd]/30 transition-all">
       {/* ชื่อ Project — คลิกเข้า Flow Editor */}
       <Link
         href={`/project/${project.project_id}`}
@@ -29,7 +29,7 @@ export function ProjectCard({ project, onEdit, onDelete, onView }: ProjectCardPr
       </Link>
 
       {/* ปุ่ม */}
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-2 shrink-0 shrink-0 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 ">
         <button
           onClick={(e) => { e.stopPropagation(); onEdit?.(project); }}
           className="text-xs font-semibold text-[#1594dd] bg-[#1594dd]/10 px-4 py-1.5 rounded-md cursor-pointer hover:bg-[#1594dd]/20 transition-colors"

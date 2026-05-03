@@ -7,7 +7,9 @@ import { useEffect, useState, useCallback } from "react";
 
 import { Header } from "../_global_components/Header";
 import { Sidebar } from "../_global_components/Sidebar";
-import { ProjectCard, type Project } from "../_global_components/ProjectCard";
+import  Welcome  from "@/app/home/_components/welcome";
+import Recent from "@/app/home/_components/recent";
+import { type Project } from "../_global_components/ProjectCard";
 import { CreateProjectModal } from "../_global_components/CreateProjectModal";
 import { DeleteProjectModal } from "../_global_components/DeleteProjectModal";
 
@@ -116,64 +118,41 @@ export default function HomePage() {
         />
 
         <main className="flex-1 overflow-y-auto p-10">
-          <section className="flex justify-between">
-            <h2 className="font-bold text-[26px] ">Welcome, {user.name}.</h2>
-            <div className="bg-[#ffffff] p-5 pt-3 pl-4 rounded-[10px] w-60 text-[18px] font-medium ">
-              Total Projects
-              <p className="mt-3 text-[35px] ">
-                {loadingProjects ? "..." : userProjects.length}
-              </p>
-            </div>
-          </section>
+          <Welcome user={user} loadingProjects={loadingProjects} userProjects={userProjects} />
 
-          <section className="mb-10 bg-[#ffffff] mt-10 p-4 pb-8 rounded-[10px] ">
-            <h2 className="text-[22px] font-bold text-[#34495e] mb-6">Recent Project</h2>
-            {loadingProjects ? (
-              <div className="flex items-center justify-center py-8">
-                <p className="text-gray-400 text-sm">loading...</p>
-              </div>
-            ) : recentProjects.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {recentProjects.map((p) => (
-                  <ProjectCard 
-                    key={p.project_id} 
-                    project={p} 
-                    onEdit={(proj) => setProjectToEdit(proj)}
-                    onDelete={(proj) => setProjectToDelete(proj)}
-                    onView={(proj) => trackRecent(proj.project_id)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="flex items-center justify-center py-8">
-                <p className="text-gray-400 text-sm italic">No recent projects</p>
-              </div>
-            )}
-          </section>
+          <Recent 
+            recentProjects={recentProjects}
+            loadingProjects={loadingProjects}
+            onEdit={(proj) => setProjectToEdit(proj)}
+            onDelete={(proj) => setProjectToDelete(proj)}
+            onView={(proj) => trackRecent(proj.project_id)}
+          />
+          
         </main>
       </div>
+
       {(projectToEdit) && (
-              <CreateProjectModal
-                existingProject={projectToEdit}
-                onClose={() => {
-                  setProjectToEdit(null);
-                }}
-                onCreated={(projectId: number | string) => {
-                  router.push(`/project/${projectId}`);
-                }}
-                onUpdated={() => {
-                  fetchProjects();
-                }}
-              />
-            )}
-      
-            {projectToDelete && (
-              <DeleteProjectModal
-                project={projectToDelete}
-                onClose={() => setProjectToDelete(null)}
-                onDeleted={() => fetchProjects()}
-              />
-            )}
+        <CreateProjectModal
+          existingProject={projectToEdit}
+          onClose={() => {
+            setProjectToEdit(null);
+          }}
+          onCreated={(projectId: number | string) => {
+            router.push(`/project/${projectId}`);
+          }}
+          onUpdated={() => {
+            fetchProjects();
+          }}
+        />
+      )}
+  
+      {projectToDelete && (
+        <DeleteProjectModal
+          project={projectToDelete}
+          onClose={() => setProjectToDelete(null)}
+          onDeleted={() => fetchProjects()}
+        />
+      )}
     </div>
   );
 }
