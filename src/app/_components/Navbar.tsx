@@ -99,42 +99,20 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps){
                 </li>
             </ul>
 
-            {user ? (
-                /* ✅ Login แล้ว → แสดงชื่อ, email, ปุ่ม Logout */
-                <div className='flex items-center ml-[40px] mr-[60px] gap-[20px]'>
-                    <div className="flex items-center gap-3">
-                        {/* Avatar วงกลม */}
-                        <div className="w-9 h-9 rounded-full bg-[#1594dd] flex items-center justify-center text-white font-bold text-sm uppercase">
-                            {user.name?.charAt(0) || "U"}
-                        </div>
-                        <div className="flex flex-col leading-tight">
-                            <span className="text-white text-sm font-semibold">{user.name}</span>
-                            <span className="text-gray-300 text-xs">{user.email}</span>
-                        </div>
-                    </div>
-                    <button 
-                        onClick={handleLogout}
-                        className='text-sm text-white bg-red-500/80 px-5 py-2 rounded-full hover:bg-red-600 transition-all'
-                    >
-                        Logout
+            <ul className='flex items-center ml-[40px] mr-[100px] gap-[30px]'>
+                <li>
+                    <button onClick={onSignUpClick} className='text-lg text-white hover:underline hover:underline-offset-3 hover:decoration-2'>
+                        Sign up
                     </button>
-                </div>
-            ) : (
-                /* ❌ ยังไม่ login → แสดง Sign up / Login */
-                <ul className='flex items-center ml-[40px] mr-[100px] gap-[30px]'>
-                    <li>
-                        <button onClick={onSignUpClick} className='text-lg text-white hover:underline hover:underline-offset-3 hover:decoration-2'>
-                            Sign up
-                        </button>
-                    </li>
+                </li>
 
-                    <li>
-                        <button onClick={onLoginClick} className='text-lg text-white bg-[#1594dd] px-10 py-2 rounded-full hover:bg-[#1973c8] transition-all'>
-                            Login
-                        </button>
-                    </li>
-                </ul>
-            )}
+                <li>
+                    <button onClick={onLoginClick} className='text-lg text-white bg-[#1594dd] px-10 py-2 rounded-full hover:bg-[#1973c8] transition-all'>
+                        Login
+                    </button>
+                </li>
+            </ul>
+            
         </nav>
     )
 };
