@@ -71,8 +71,6 @@ function AuthModal({
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [isSuccess, setIsSuccess] = useState(false);
-
   const [errors, setErrors] = useState({
     name: "",
     email: "",
@@ -263,37 +261,6 @@ function AuthModal({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000]">
       <div className="bg-white p-6 rounded-2xl w-[330px] flex flex-col items-center space-y-4 shadow-xl relative overflow-hidden">
-  
-      {/* Success Overlay (แสดงเมื่อสำเร็จ) */}
-      {isSuccess && (
-        <div className="absolute inset-0 bg-white flex flex-col items-center justify-center z-20 rounded-2xl animate-in fade-in duration-300">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-            <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-            </svg>
-          </div>
-      
-          <h2 className="text-xl font-bold text-gray-800">
-            {showOtp 
-              ? "Verification Successful!" 
-              : (mode === "login" ? "Login Successful!" : "Sign up Successful!")
-            }
-          </h2>
-
-          <p className="text-sm text-gray-500 text-center px-6 mt-2">
-            {mode === "register" 
-              ? "Your account has been successfully created." 
-              : "You have been successfully logged in."
-            }
-            <br/>
-            Redirecting you to the home page.<br/>Please wait...
-          </p>
-
-          <div className="w-4/5 bg-gray-100 h-1.5 mt-6 rounded-full overflow-hidden">
-            <div className={styles.progressBar} />
-          </div>
-        </div>
-      )}
         
         {/* Loading Overlay */}
         {loading && (

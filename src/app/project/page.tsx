@@ -7,9 +7,9 @@ import { useEffect, useState, useCallback } from "react";
 
 import { Header } from "../_global_components/Header";
 import { Sidebar } from "../_global_components/Sidebar";
-import { ProjectCard, type Project } from "../_components/ProjectCard";
-import { CreateProjectModal } from "./_components/CreateProjectModal";
-import { DeleteProjectModal } from "../project/_components/DeleteProjectModal";
+import { ProjectCard, type Project } from "../_global_components/ProjectCard";
+import { CreateProjectModal } from "../_global_components/CreateProjectModal";
+import { DeleteProjectModal } from "../_global_components/DeleteProjectModal";
 import { IconSearch, IconPlus } from "../_components/Icons";
 
 interface UserInfo {
@@ -138,9 +138,9 @@ export default function HomePage() {
         <main className="flex-1 overflow-y-auto p-8">
 
           {/* Top actions row */}
-          <div className="flex items-center justify-between mb-8 gap-4">
+          <div className="flex items-center justify-between mb-10 gap-4">
             {/* Search */}
-            <div className="flex items-center w-full max-w-[320px] bg-white border border-gray-200 rounded-xl px-4 py-2.5 gap-2 shadow-sm focus-within:ring-2 focus-within:ring-[#1594dd]/20 focus-within:border-[#1594dd] transition-all">
+            <div className="flex items-center w-full max-w-[500px] bg-white border border-gray-200 rounded-xl px-4 py-2.5 gap-2 shadow-sm focus-within:ring-2 focus-within:ring-[#1594dd]/20 focus-within:border-[#1594dd] transition-all">
               <div className="text-gray-400">
                 <IconSearch />
               </div>
@@ -168,10 +168,10 @@ export default function HomePage() {
 
           {/* ── Recent Projects ── */}
           <section className="mb-10">
-            <h2 className="text-lg font-bold text-[#34495e] mb-4">Recent Project</h2>
+            <h2 className="text-[24px] font-bold text-[#34495e] mb-4">Recent Project</h2>
             {loadingProjects ? (
               <div className="flex items-center justify-center py-8">
-                <p className="text-gray-400 text-sm">กำลังโหลด...</p>
+                <p className="text-gray-400 text-sm">loading...</p>
               </div>
             ) : recentProjects.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -187,17 +187,17 @@ export default function HomePage() {
               </div>
             ) : (
               <div className="flex items-center justify-center py-8">
-                <p className="text-gray-400 text-sm italic">No recent projects</p>
+                <p className="text-gray-400 italic">No recent projects</p>
               </div>
             )}
           </section>
 
           {/* ── Your Projects ── */}
           <section className="mb-10">
-            <h2 className="text-lg font-bold text-[#34495e] mb-4">Your Project</h2>
+            <h2 className="text-[24px] font-bold text-[#34495e] mb-4">Your Project</h2>
             {loadingProjects ? (
               <div className="flex items-center justify-center py-16">
-                <p className="text-gray-400 text-sm">กำลังโหลด...</p>
+                <p className="text-gray-400 text-base font-normal italic">loading...</p>
               </div>
             ) : sortedProjects.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -213,7 +213,7 @@ export default function HomePage() {
               </div>
             ) : (
               <div className="flex items-center justify-center py-16">
-                <p className="text-gray-400 text-base font-medium italic">
+                <p className="text-gray-400 text-base font-normal italic">
                   — You don&apos;t have any project —
                 </p>
               </div>
