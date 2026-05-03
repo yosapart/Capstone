@@ -68,12 +68,18 @@ export async function registerUser(data: {
 
 // ========== Generate & Send OTP ==========
 export async function generateAndSendOtp(email: string, metadata: any = null) {
-  // สร้าง OTP 6 หลัก
+  // 1. ลบ OTP เก่าของอีเมลนี้ทิ้งก่อน (ป้องกันการนำ OTP เก่ามาใช้หากกดสมัครซ้ำ)
+  await supabase.from("otps").delete().eq("email", email);
+
+  // 2. Cleanup: ลบ OTP ที่หมดอายุแล้วทั้งหมดในตารางทิ้ง (เพื่อไม่ให้มีข้อมูลขยะค้างใน DB)
+  await supabase.from("otps").delete().lt("expires_at", new Date().toISOString());
+
+  // 3. สร้าง OTP 6 หลัก
   const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // บันทึก OTP ลง Database (ตั้งหมดอายุอีก 5 นาที)
+  // 3. บันทึก OTP ลง Database (ตั้งหมดอายุอีก 3 นาที)
   const expiresAt = new Date();
-  expiresAt.setMinutes(expiresAt.getMinutes() + 5);
+  expiresAt.setMinutes(expiresAt.getMinutes() + 3);
 
   const { error: otpError } = await supabase.from("otps").insert([
     {
