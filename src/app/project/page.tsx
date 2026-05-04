@@ -158,7 +158,7 @@ export default function HomePage() {
               {/* Create Project */}
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-2 bg-[#1594dd] text-white font-semibold text-sm px-5 py-2.5 rounded-lg hover:bg-[#1277b5] transition-all shadow-sm hover:shadow-md"
+                className="flex items-center gap-2 bg-[#1594dd] text-white font-semibold text-sm px-5 py-2.5 cursor-pointer rounded-lg hover:bg-[#1277b5] transition-all shadow-sm hover:shadow-md"
               >
                 <IconPlus />
                 Create Project

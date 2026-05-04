@@ -38,7 +38,7 @@ export default function Recent({
                 </div>
             ) : (
                 <div className="flex items-center justify-center py-8">
-                    <p className="text-gray-400 text-sm italic">No recent projects</p>
+                    <p className="text-gray-400 italic">No recent projects</p>
                 </div>
             )}
         </section>

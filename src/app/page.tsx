@@ -440,10 +440,15 @@ function AuthModal({
 
               <div className="h-3 mt-1.5 w-full">
                 {errors.otp && (
-                  <p className="text-[11px] text-red-500 text-center font-medium leading-tight">
+                  <p className="text-[12px] text-red-500 text-center font-medium leading-tight">
                     {errors.otp}
                   </p>
                 )}
+              </div>
+
+              <div className="text-[14px] mt-2.5 ">
+                Didn't receive Code?
+                <span className="ml-1 text-[#1277b5] cursor-pointer hover:underline ">Resend OTP</span>
               </div>
             </div>
           </>

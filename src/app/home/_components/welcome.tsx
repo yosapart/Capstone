@@ -12,6 +12,11 @@ interface WelcomeProps {
 }
 
 export default function Welcome({ user, loadingProjects, userProjects }: WelcomeProps) {
+    const nameStr = user?.name || "";
+    const displayName = (nameStr.length > 16) 
+        ? nameStr.substring(0, 15) + "..." 
+        : nameStr;
+
     const [randomSubtitle, setRandomSubtitle] = useState('');
 
     const subtitles = [
@@ -29,7 +34,7 @@ export default function Welcome({ user, loadingProjects, userProjects }: Welcome
     return (
         <section className="flex justify-between items-start ">
             <div>
-                <h2 className="font-bold text-[26px] " >Welcome, {user?.name || "Guest"}.</h2>
+                <h2 className="font-bold text-[26px] " >Welcome, {displayName}</h2>
                 <p className="text-[16px] text-gray-600 mt-2">{randomSubtitle}</p>   
             </div>
             
