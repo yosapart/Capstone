@@ -57,7 +57,7 @@ export default function FlowEditorPage() {
     if (stored) {
       try {
         setUser(JSON.parse(stored));
-      } catch (e) {}
+      } catch (e) { }
     }
   }, []);
 
@@ -236,10 +236,10 @@ export default function FlowEditorPage() {
           machineStates={playbackState?.machineStates}
           sourceProgress={playbackState?.sourceProgress ?? 0}
           speed={speed}
-          activeTestcase={simulationResult?.testcase ? { 
-            name: simulationResult.testcase, 
+          activeTestcase={simulationResult?.testcase ? {
+            name: simulationResult.testcase,
             detail: simulationResult.testcase_detail,
-            type: simulationResult.testcase_type 
+            type: simulationResult.testcase_type
           } : null}
         />
 
@@ -267,7 +267,7 @@ export default function FlowEditorPage() {
                 <div className="w-8 h-8 rounded-full border-[3px] border-gray-100 border-t-[#4CAF50] animate-spin" />
               </div>
             )}
-            
+
             <div className="p-8 pb-6">
               <h2 className="text-[22px] font-semibold text-[#2b3a2f] tracking-tight mb-2">Create New Flow</h2>
               <p className="text-[14px] text-gray-400 mb-8 leading-relaxed">

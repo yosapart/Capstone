@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { loginUser, registerUser, generateAndSendOtp, verifyOtp } from "@/services/auth.service";
+import { signToken } from "@/lib/authTokens";
 import { registerSchema } from "@/lib/validators/auth";
 import { z } from "zod";
 
@@ -41,7 +42,7 @@ export async function registerController(req: Request) {
 
     if (error.message === "EMAIL_EXISTS") {
       return NextResponse.json(
-        { message: "This email has already been taken." },
+        { message: "Email is already taken." },
         { status: 400 }
       );
     }
@@ -66,15 +67,29 @@ export async function loginController(req: Request) {
       return NextResponse.json({ message: "Only @gmail.com addresses are supported." }, { status: 400 });
     }
 
-    // 3. สร้างและส่ง OTP
-    await generateAndSendOtp(result.user.email);
+    // 3. ออก JWT Token จริง
+    const token = await signToken({ user_id: result.user.user_id, email: result.user.email });
 
-    // 4. แจ้ง Frontend ว่าต้องกรอก OTP
-    return NextResponse.json({
-      message: "Password verified. Please check your email for the OTP code.",
-      requiresOtp: true,
-      email: result.user.email
+    const res = NextResponse.json({
+      message: "Login successful.",
+      user: {
+        user_id: result.user.user_id,
+        name: result.user.name,
+        email: result.user.email,
+      }
     });
+
+    // 4. ตั้งค่า HTTPOnly Cookie
+    res.cookies.set({
+      name: "auth_token",
+      value: token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+    });
+
+    return res;
 
   } catch (error: any) {
 

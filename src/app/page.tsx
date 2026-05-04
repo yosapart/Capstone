@@ -32,11 +32,11 @@ export default function Home() {
 
   return (
     <>
-      <Navbar 
+      <Navbar
         onLoginClick={() => { setMode("login"); setShowAuth(true); }}
         onSignUpClick={() => { setMode("register"); setShowAuth(true); }}
       />
-      
+
       <main>
         <HeroSection onCreateClick={handleCreate} />
         <DesignSection />
@@ -44,16 +44,16 @@ export default function Home() {
         <PDFSection />
         <CloseSection />
       </main>
-      
+
       <Footer />
-      
+
       {showAuth && (
-        <AuthModal 
-          mode={mode} 
-          onClose={() => setShowAuth(false)} 
+        <AuthModal
+          mode={mode}
+          onClose={() => setShowAuth(false)}
         />
       )}
-      </>
+    </>
   );
 }
 
@@ -78,11 +78,12 @@ function AuthModal({
     confirmPassword: "",
     otp: ""
   });
-  
+
   // 🔥 สำหรับโหมด OTP
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const getNameErrorMessage = (value: string) => {
     if (!value) return "Please enter your username.";
@@ -143,7 +144,7 @@ function AuthModal({
 
     newErrors.email = getEmailErrorMessage(email);
     if (newErrors.email) hasError = true;
-    
+
     newErrors.password = getPasswordErrorMessage(password);
     if (newErrors.password) hasError = true;
     //Validate Sign up
@@ -183,23 +184,30 @@ function AuthModal({
         setErrors({
           ...errors,
           email: " ",
-          password: "Invalid email or password" 
+          password: "Invalid email or password"
         });
-      return;
+        return;
       }
 
       if (data.requiresOtp) {
         setShowOtp(true);
       } else {
-        // เผื่อไว้กรณีที่บางทีอาจจะไม่ติด OTP
+        // Login success
         sessionStorage.setItem("user", JSON.stringify(data.user));
         window.dispatchEvent(new Event("user-changed"));
-        onClose();
-        router.push("/home");
+        
+        // หน่วงเวลาหมุนโหลดนิดนึงให้ดูสมจริง
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        setSuccess(true);
+        setTimeout(() => {
+          onClose();
+          router.push("/home");
+        }, 1500);
       }
     }
 
-    // 🔥 VERIFY OTP (ขั้นสอง)
+    // VERIFY OTP (ขั้นสอง)
     if (showOtp) {
       const res = await fetch("/api/auth/verify-otp", {
         method: "POST",
@@ -212,7 +220,7 @@ function AuthModal({
       if (!res.ok) {
         setErrors((prev) => ({
           ...prev,
-          otp: "Invalid OTP. Please try again." 
+          otp: "Invalid OTP. Please try again."
         }));
         return;
       }
@@ -220,8 +228,15 @@ function AuthModal({
       // OTP สำเร็จ → เข้าหน้า project เลย
       sessionStorage.setItem("user", JSON.stringify(data.user));
       window.dispatchEvent(new Event("user-changed"));
-      onClose();
-      router.push("/home");
+      
+      // หน่วงเวลาหมุนโหลดนิดนึงให้ดูสมจริง
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      setSuccess(true);
+      setTimeout(() => {
+        onClose();
+        router.push("/home");
+      }, 1500);
     }
 
     // 🔥 REGISTER
@@ -245,8 +260,11 @@ function AuthModal({
             otp: "",
           });
         } else if (data.message) {
-          if (data.message.includes("Email")) {
+          const lowerMsg = data.message.toLowerCase();
+          if (lowerMsg.includes("email") || lowerMsg.includes("gmail")) {
             setErrors(prev => ({ ...prev, email: data.message }));
+          } else {
+            setErrors(prev => ({ ...prev, password: data.message }));
           }
         }
         return;
@@ -254,16 +272,16 @@ function AuthModal({
 
       if (data.requiresOtp) {
         setShowOtp(true);
-      } 
+      }
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000]">
       <div className="bg-white p-6 rounded-2xl w-[330px] flex flex-col items-center space-y-4 shadow-xl relative overflow-hidden">
-        
+
         {/* Loading Overlay */}
-        {loading && (
+        {loading && !success && (
           <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-2xl" style={{ animation: 'fadeIn 0.2s ease' }}>
             <div style={{
               width: 40, height: 40,
@@ -273,7 +291,21 @@ function AuthModal({
               animation: 'spin 0.8s linear infinite',
             }} />
             <p className="text-sm text-gray-500 mt-3 font-medium">Processing...</p>
+          </div>
+        )}
+
+        {/* Success Overlay */}
+        {success && (
+          <div className="absolute inset-0 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center z-20 rounded-2xl" style={{ animation: 'scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-800">Welcome Back!</h3>
+            <p className="text-sm text-gray-500 mt-1">Login successful</p>
             <style>{`
+              @keyframes scaleUp { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
               @keyframes spin { to { transform: rotate(360deg); } }
               @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
             `}</style>
@@ -290,10 +322,10 @@ function AuthModal({
               <div className="w-[275px] min-h-[65px] flex flex-col items-start">
                 <input
                   className={`border w-[275px] p-3 rounded-lg focus:outline-none focus:ring-2 transition-all 
-                    ${errors.name 
-                    ? "border-red-500 focus:ring-red-400 bg-red-50" 
-                    : "border-gray-300 focus:ring-blue-400"
-                  }`}
+                    ${errors.name
+                      ? "border-red-500 focus:ring-red-400 bg-red-50"
+                      : "border-gray-300 focus:ring-blue-400"
+                    }`}
                   placeholder="Name"
                   value={name}
                   onBlur={handleNameBlur}
@@ -302,17 +334,17 @@ function AuthModal({
                     if (errors.name) setErrors(prev => ({ ...prev, name: "" }));
                   }}
                 />
-                  <div className="h-2 mt-1.5">
-                    {errors.name && <p className="text-[12px] text-red-500 pl-1 font-medium leading-none">{errors.name}</p>}
-                  </div>
+                <div className="h-2 mt-1.5">
+                  {errors.name && <p className="text-[12px] text-red-500 pl-1 font-medium leading-none">{errors.name}</p>}
+                </div>
               </div>
             )}
 
             <div className="w-[275px] min-h-[65px] flex flex-col items-start">
               <input
                 className={`border w-[275px] p-3 rounded-lg focus:outline-none focus:ring-2 transition-all
-                  ${errors.email 
-                    ? "border-red-500 focus:ring-red-400 bg-red-50" 
+                  ${errors.email
+                    ? "border-red-500 focus:ring-red-400 bg-red-50"
                     : "border-gray-300 focus:ring-blue-400"
                   }`}
                 placeholder="Email (@gmail.com)"
@@ -322,45 +354,45 @@ function AuthModal({
                   setEmail(e.target.value);
                   if (errors.email) setErrors(prev => ({ ...prev, email: "" }));
                 }}
-                
+
               />
-              <div className="h-2 mt-1.5"> 
+              <div className="h-2 mt-1.5">
                 {errors.email && (
                   <p className="text-[12px] text-red-500 pl-1 font-medium leading-none">{errors.email}</p>
                 )}
               </div>
             </div>
-            
+
             <div className="w-[275px] min-h-[65px] flex flex-col items-start">
-                <input
-                  type="password"
-                  className={`border w-[275px] p-3 rounded-lg focus:outline-none focus:ring-2 transition-all 
-                    ${errors.password 
-                    ? "border-red-500 focus:ring-red-400 bg-red-50" 
+              <input
+                type="password"
+                className={`border w-[275px] p-3 rounded-lg focus:outline-none focus:ring-2 transition-all 
+                    ${errors.password
+                    ? "border-red-500 focus:ring-red-400 bg-red-50"
                     : "border-gray-300 focus:ring-blue-400"
                   }`}
-                  placeholder="Password"
-                  value={password}
-                  onBlur={handlePasswordBlur}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (errors.password) setErrors(prev => ({ ...prev, password: "" }));
-                  }}
-                />
-                  <div className="h-2 mt-1.5">
-                    {errors.password && <p className="text-[12px] text-red-500 pl-1 font-medium leading-none">{errors.password}</p>}
-                  </div>
+                placeholder="Password"
+                value={password}
+                onBlur={handlePasswordBlur}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password) setErrors(prev => ({ ...prev, password: "" }));
+                }}
+              />
+              <div className="h-2 mt-1.5">
+                {errors.password && <p className="text-[12px] text-red-500 pl-1 font-medium leading-none">{errors.password}</p>}
               </div>
-            
+            </div>
+
             {mode === "register" && (
               <div className="w-[275px] min-h-[70px] flex flex-col items-start">
                 <input
                   type="password"
                   className={`border w-[275px] p-3 rounded-lg focus:outline-none focus:ring-2 transition-all 
-                    ${errors.confirmPassword 
-                    ? "border-red-500 focus:ring-red-400 bg-red-50" 
-                    : "border-gray-300 focus:ring-blue-400"
-                  }`}
+                    ${errors.confirmPassword
+                      ? "border-red-500 focus:ring-red-400 bg-red-50"
+                      : "border-gray-300 focus:ring-blue-400"
+                    }`}
                   placeholder="Confirm Password"
                   onBlur={handleConfirmPasswordBlur}
                   value={confirmPassword}
@@ -369,9 +401,9 @@ function AuthModal({
                     if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: "" }));
                   }}
                 />
-                  <div className="h-2 mt-1.5">
-                    {errors.confirmPassword && <p className="text-[12px] text-red-500 pl-1 font-medium leading-none">{errors.confirmPassword}</p>}
-                  </div>
+                <div className="h-2 mt-1.5">
+                  {errors.confirmPassword && <p className="text-[12px] text-red-500 pl-1 font-medium leading-none">{errors.confirmPassword}</p>}
+                </div>
               </div>
             )}
           </>
@@ -379,7 +411,7 @@ function AuthModal({
           <>
             <p className="text-sm text-center text-gray-500 mb-5 px-4 break-all">
               An OTP has been sent to your email<br />
-              <span 
+              <span
                 className="inline-block max-w-full truncate font-medium text-gray-700 align-bottom"
               >
                 {maskEmail(email)}
@@ -393,10 +425,10 @@ function AuthModal({
                 type="text"
                 maxLength={6}
                 className={`border w-full p-3 rounded-lg text-center tracking-widest text-lg font-semibold focus:outline-none focus:ring-2 transition-all
-                ${errors.otp 
-                  ? "border-red-500 bg-red-50 focus:ring-red-400" 
-                  : "border-gray-300 focus:ring-blue-400"
-                }`}
+                ${errors.otp
+                    ? "border-red-500 bg-red-50 focus:ring-red-400"
+                    : "border-gray-300 focus:ring-blue-400"
+                  }`}
                 placeholder="000000"
                 value={otp}
                 onChange={(e) => {
@@ -405,13 +437,18 @@ function AuthModal({
                   if (errors.otp) setErrors((prev) => ({ ...prev, otp: "" }));
                 }}
               />
-    
+
               <div className="h-3 mt-1.5 w-full">
                 {errors.otp && (
-                  <p className="text-[11px] text-red-500 text-center font-medium leading-tight">
+                  <p className="text-[12px] text-red-500 text-center font-medium leading-tight">
                     {errors.otp}
                   </p>
                 )}
+              </div>
+
+              <div className="text-[14px] mt-2.5 ">
+                Didn't receive Code?
+                <span className="ml-1 text-[#1277b5] cursor-pointer hover:underline ">Resend OTP</span>
               </div>
             </div>
           </>
@@ -441,17 +478,17 @@ function AuthModal({
 
 // เปลี่ยนชื่อเมลหน้าotp
 const maskEmail = (email: string) => {
-    if (!email || !email.includes("@")) return email;
+  if (!email || !email.includes("@")) return email;
 
-    const [localPart, domain] = email.split("@");
-    
-    if (localPart.length <= 4) {
-      const stars = "*".repeat(localPart.length - 1);
-      return `${localPart[0]}${stars}@${domain}`;
-    }
+  const [localPart, domain] = email.split("@");
 
-    const firstThree = localPart.substring(0, 3);
-    const lastChar = localPart.charAt(localPart.length - 1);
-    
-    return `${firstThree}*****${lastChar}@${domain}`;
-  };
+  if (localPart.length <= 4) {
+    const stars = "*".repeat(localPart.length - 1);
+    return `${localPart[0]}${stars}@${domain}`;
+  }
+
+  const firstThree = localPart.substring(0, 3);
+  const lastChar = localPart.charAt(localPart.length - 1);
+
+  return `${firstThree}*****${lastChar}@${domain}`;
+};

@@ -13,7 +13,7 @@ export function HeroSection({ onCreateClick }: HeroSectionProps){
             <div className='text-xl mb-[4.5rem]'>
                 Design, simulate, and optimize your production lines effortlessly. Bridge the gap between planning and reality.
             </div>
-            <button onClick={onCreateClick} className='text-xl text-white font-bold bg-[#34495e] px-[3.5rem] py-[1.25rem] rounded-[15px] hover:bg-[#1973c8] transition-all'>
+            <button onClick={onCreateClick} className='text-xl text-white font-bold bg-[#34495e] px-[3.5rem] py-[1.25rem] rounded-[15px] cursor-pointer hover:bg-[#1973c8] transition-all'>
                 Get Started →
             </button>
         </div>

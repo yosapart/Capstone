@@ -28,11 +28,6 @@ export function CreateProjectModal({
     return "";
   };
 
-  const handleNameBlur = () => {
-    const message = getNameErrorMessage(name);
-    setErrors((prev) => ({ ...prev, name: message }));
-  };
-
   const handleSubmit = async () => {
     setSubmitError("");
     
@@ -172,7 +167,6 @@ export function CreateProjectModal({
                   setErrors((prev) => ({ ...prev, name: "" }));
                 }
               }}
-              onBlur={handleNameBlur}
               className={nameInputClassName}
               autoFocus
             />
@@ -203,7 +197,7 @@ export function CreateProjectModal({
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-5 py-2.5 text-[14px] font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-xl transition-colors"
+            className="px-5 py-2.5 text-[14px] font-medium text-gray-500 cursor-pointer hover:text-gray-800 hover:bg-gray-50 rounded-xl transition-colors"
           >
             Cancel
           </button>
@@ -213,7 +207,7 @@ export function CreateProjectModal({
             className={`px-7 py-2.5 text-[14px] font-semibold text-white rounded-xl transition-all ${
               loading || isFormIncomplete
                 ? "bg-gray-300 cursor-not-allowed opacity-70"
-                : "bg-[#4CAF50] hover:bg-[#43A047] shadow-[0_4px_12px_rgba(76,175,80,0.3)]"
+                : "bg-[#4CAF50] cursor-pointer hover:bg-[#43A047] shadow-[0_4px_12px_rgba(76,175,80,0.3)]"
             }`}
           >
             {isEditMode ? "Save Changes" : "Create Project"}
