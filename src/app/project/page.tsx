@@ -5,12 +5,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 
-import { Header } from "../_global_components/Header";
-import { Sidebar } from "../_global_components/Sidebar";
-import { ProjectCard, type Project } from "../_global_components/ProjectCard";
-import { CreateProjectModal } from "../_global_components/CreateProjectModal";
-import { DeleteProjectModal } from "../_global_components/DeleteProjectModal";
-import { IconSearch, IconPlus } from "../_components/Icons";
+import { Header } from "@/app/_global_components/Header";
+import { Sidebar } from "@/app/_global_components/Sidebar";
+import { ProjectCard, type Project } from "@/app/_global_components/ProjectCard";
+import { CreateProjectModal } from "@/app/_global_components/CreateProjectModal";
+import { DeleteProjectModal } from "@/app/_global_components/DeleteProjectModal";
+import { IconSearch, IconPlus } from "@/app/_components/Icons";
+
+import { RecentProjects } from "@/app/project/_components/RecentProject";
+import { YourProjects } from "@/app/project/_components/YourProject";
 
 interface UserInfo {
   user_id: number;
@@ -154,7 +157,6 @@ export default function HomePage() {
             </div>
             <div className="flex items-center gap-3">
 
-
               {/* Create Project */}
               <button
                 onClick={() => setShowCreateModal(true)}
@@ -166,59 +168,23 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* ── Recent Projects ── */}
-          <section className="mb-10">
-            <h2 className="text-[24px] font-bold text-[#34495e] mb-4">Recent Project</h2>
-            {loadingProjects ? (
-              <div className="flex items-center justify-center py-8">
-                <p className="text-gray-400 text-sm">loading...</p>
-              </div>
-            ) : recentProjects.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {recentProjects.map((p) => (
-                  <ProjectCard 
-                    key={p.project_id} 
-                    project={p} 
-                    onEdit={(proj) => setProjectToEdit(proj)}
-                    onDelete={(proj) => setProjectToDelete(proj)}
-                    onView={(proj) => trackRecent(proj.project_id)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="flex items-center justify-center py-8">
-                <p className="text-gray-400 italic">No recent projects</p>
-              </div>
-            )}
-          </section>
+          {/* Recent Projects */}
+          <RecentProjects 
+            loading={loadingProjects}
+            projects={recentProjects}
+            onEdit={setProjectToEdit}
+            onDelete={setProjectToDelete}
+            onView={trackRecent}
+          />
 
-          {/* ── Your Projects ── */}
-          <section className="mb-10">
-            <h2 className="text-[24px] font-bold text-[#34495e] mb-4">Your Project</h2>
-            {loadingProjects ? (
-              <div className="flex items-center justify-center py-16">
-                <p className="text-gray-400 text-base font-normal italic">loading...</p>
-              </div>
-            ) : sortedProjects.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {sortedProjects.map((p) => (
-                  <ProjectCard 
-                    key={p.project_id} 
-                    project={p} 
-                    onEdit={(proj) => setProjectToEdit(proj)}
-                    onDelete={(proj) => setProjectToDelete(proj)}
-                    onView={(proj) => trackRecent(proj.project_id)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="flex items-center justify-center py-16">
-                <p className="text-gray-400 text-base font-normal italic">
-                  — You don&apos;t have any project —
-                </p>
-              </div>
-            )}
-          </section>
+          {/* Your Projects */}
+          <YourProjects 
+            loading={loadingProjects}
+            projects={sortedProjects}
+            onEdit={setProjectToEdit}
+            onDelete={setProjectToDelete}
+            onView={trackRecent}
+          />
         </main>
       </div>
 

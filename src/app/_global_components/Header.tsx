@@ -4,8 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 
 interface UserInfo {
-    name: string;
-    email: string;
+    name?: string;
+    email?: string;
 }
 
 interface HeaderProps {
@@ -13,22 +13,12 @@ interface HeaderProps {
 }
 
 export function Header({ user }: HeaderProps){
-  const processEmail = (email: string) => {
-    if (!email.includes('@')) return email;
-    const [local, domain] = email.split('@');
-    if (local.length > 25) {
-      return `${local.substring(0, 15)}...@${domain}`;
-    }
-    return email;
-  };
-  
   const rawEmail = user?.email || "";
   const [localPart, domainPart] = rawEmail.split('@');
-  const finalEmail = user?.email ? processEmail(user.email) : "";
 
   const displayEmail = (localPart?.length > 25) 
-  ? `${localPart.substring(0, 15)}...@${domainPart}` 
-  : rawEmail;
+    ? `${localPart.substring(0, 15)}...@${domainPart}` 
+    : rawEmail;
 
   const emailLen = displayEmail.length;
   const nameStr = user?.name || "";

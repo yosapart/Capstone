@@ -31,13 +31,13 @@ export function ReportModal({ projectName, flowName, simulationResult, authorNam
       <div className="fixed top-6 right-6 flex gap-3 print:hidden z-50">
         <button 
           onClick={onClose}
-          className="px-5 py-2.5 bg-white text-slate-700 font-semibold rounded shadow border border-slate-300 hover:bg-slate-50 transition"
+          className="px-5 py-2.5 cursor-pointer bg-white text-slate-700 font-semibold rounded shadow border border-slate-300 hover:bg-slate-50 transition"
         >
           Close
         </button>
         <button 
           onClick={handlePrint}
-          className="px-5 py-2.5 bg-[#1594dd] text-white font-bold rounded shadow hover:bg-[#1277b5] transition flex items-center gap-2"
+          className="px-5 py-2.5 cursor-pointer bg-[#1594dd] text-white font-bold rounded shadow hover:bg-[#1277b5] transition flex items-center gap-2"
         >
           Save PDF
         </button>

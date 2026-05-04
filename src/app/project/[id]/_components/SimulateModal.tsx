@@ -81,30 +81,30 @@ export function SimulateModal({ flowId, flowName, onClose, onResult }: SimulateM
 
         {/* Header - Simple & Clean */}
         <div className="px-6 pt-6 pb-4">
-          <h2 className="text-xl font-semibold text-slate-800 tracking-tight">Run Simulation</h2>
-          <p className="text-sm text-slate-500 mt-1">Configuring <span className="text-slate-900 font-medium">{flowName}</span></p>
+          <h2 className="text-[22px] font-semibold text-slate-800 tracking-tight">Run Simulation</h2>
+          <p className="text-[16px] text-slate-500 mt-1">Configuring <span className="text-slate-900 font-medium">{flowName}</span></p>
         </div>
 
         <div className="px-6 py-2 space-y-5">
           {/* Input Group */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-[13px] font-medium text-slate-600 ml-0.5">Target Output</label>
+              <label className="text-[14px] font-medium text-slate-600 ml-0.5">Target Output</label>
               <input
                 type="number"
                 min={1}
-                className="w-full bg-slate-50 border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 rounded-xl p-3 text-sm transition-all outline-none"
+                className="w-full bg-slate-50 mt-2 border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 rounded-xl p-3 text-sm transition-all outline-none"
                 value={targetOutput}
                 onChange={(e) => setTargetOutput(Number(e.target.value))}
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[13px] font-medium text-slate-600 ml-0.5">Selling Price / Unit</label>
+              <label className="text-[14px] font-medium text-slate-600 ml-0.5">Selling Price / Unit</label>
               <input
                 type="number"
                 min={0}
                 placeholder="Optional"
-                className="w-full bg-slate-50 border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 rounded-xl p-3 text-sm transition-all outline-none"
+                className="w-full bg-slate-50 mt-2 border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 rounded-xl p-3 text-sm transition-all outline-none"
                 value={sellingPrice || ""}
                 onChange={(e) => setSellingPrice(Number(e.target.value))}
               />
@@ -113,17 +113,17 @@ export function SimulateModal({ flowId, flowName, onClose, onResult }: SimulateM
 
           {/* Mode Switcher - Segmented Control style */}
           <div className="space-y-1.5">
-            <label className="text-[13px] font-medium text-slate-600 ml-0.5">Visualization</label>
-            <div className="flex p-1 bg-slate-100 rounded-xl">
+            <label className="text-[14px] font-medium text-slate-600 ml-0.5">Visualization</label>
+            <div className="flex p-1 mt-1.5 bg-slate-100 rounded-xl">
               <button
                 onClick={() => setMode("realtime")}
-                className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${mode === "realtime" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                className={`flex-1 py-2 text-[13px] cursor-pointer font-medium rounded-lg transition-all ${mode === "realtime" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
               >
                 Real-time
               </button>
               <button
                 onClick={() => setMode("instant")}
-                className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${mode === "instant" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                className={`flex-1 py-2 text-[13px] cursor-pointer font-medium rounded-lg transition-all ${mode === "instant" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
               >
                 Instant
               </button>
@@ -132,10 +132,10 @@ export function SimulateModal({ flowId, flowName, onClose, onResult }: SimulateM
 
           {/* Custom Test Case Select */}
           <div className="space-y-1.5 relative" ref={scenarioRef}>
-            <label className="text-[13px] font-medium text-slate-600 ml-0.5">Scenario</label>
+            <label className="text-[14px] font-medium text-slate-600 ml-0.5">Scenario</label>
             <button
               onClick={() => setIsScenarioOpen(!isScenarioOpen)}
-              className={`w-full flex items-center justify-between bg-slate-50 border-none ring-1 transition-all rounded-xl p-3 text-sm outline-none cursor-pointer ${isScenarioOpen ? "ring-2 ring-slate-900 bg-white" : "ring-slate-200 hover:ring-slate-300"
+              className={`w-full mt-2 flex items-center justify-between bg-slate-50 border-none ring-1 transition-all rounded-xl p-3 text-sm outline-none cursor-pointer ${isScenarioOpen ? "ring-2 ring-slate-900 bg-white" : "ring-slate-200 hover:ring-slate-300"
                 }`}
             >
               <span className="text-slate-700 font-medium truncate">{getSelectedScenarioName()}</span>
@@ -143,13 +143,13 @@ export function SimulateModal({ flowId, flowName, onClose, onResult }: SimulateM
             </button>
 
             {isScenarioOpen && (
-              <div className="absolute top-[calc(100%+6px)] left-0 w-full bg-white border border-slate-100 rounded-[14px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] p-1.5 z-50 max-h-[200px] overflow-y-auto">
+              <div className="absolute top-[calc(100%+6px)] left-0 w-full bg-white border border-slate-100 rounded-[14px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] p-1.5 z-[50] max-h-[200px] overflow-y-auto">
                 <button
                   onClick={() => {
                     setSelectedCaseId(0);
                     setIsScenarioOpen(false);
                   }}
-                  className={`w-full text-left px-3 py-2.5 text-[13px] rounded-lg transition-colors ${selectedCaseId === 0
+                  className={`w-full cursor-pointer text-left px-3 py-2.5 text-[13px] rounded-lg transition-colors ${selectedCaseId === 0
                       ? "bg-slate-100 text-slate-900 font-semibold"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     }`}
@@ -163,7 +163,7 @@ export function SimulateModal({ flowId, flowName, onClose, onResult }: SimulateM
                       setSelectedCaseId(tc.tc_id);
                       setIsScenarioOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-2.5 text-[13px] rounded-lg transition-colors ${selectedCaseId === tc.tc_id
+                    className={`w-full cursor-pointer text-left px-3 py-2.5 text-[13px] rounded-lg transition-colors ${selectedCaseId === tc.tc_id
                         ? "bg-slate-100 text-slate-900 font-semibold"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                       }`}
@@ -180,14 +180,14 @@ export function SimulateModal({ flowId, flowName, onClose, onResult }: SimulateM
         <div className="p-6 mt-2 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition"
+            className="flex-1 px-4 py-3 text-sm font-medium text-slate-600 cursor-pointer hover:bg-slate-50 rounded-xl transition"
           >
             Cancel
           </button>
           <button
             onClick={handleSimulate}
             disabled={loading}
-            className="flex-[2] px-4 py-3 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-white text-sm font-semibold rounded-xl transition shadow-lg shadow-slate-200 active:scale-[0.98]"
+            className="flex-[2] px-4 py-3 bg-slate-900 cursor-pointer hover:bg-slate-800 disabled:bg-slate-300 text-white text-sm font-semibold rounded-xl transition shadow-lg shadow-slate-200 active:scale-[0.98]"
           >
             {loading ? "Processing..." : "Start Simulation"}
           </button>

@@ -82,11 +82,11 @@ export function AddBlockModal({
           const msgs = Object.values(data.errors.fieldErrors).flat().join("\n");
           alert(msgs);
         } else {
-          alert(data.message || "บันทึก Block ไม่สำเร็จ");
+          alert(data.message || "Failed to save block.");
         }
       }
     } catch (err) {
-      alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+      alert("A server connection error occurred.");
     } finally {
       setLoading(false);
     }
@@ -94,7 +94,7 @@ export function AddBlockModal({
 
   const handleDelete = async () => {
     if (!isEditMode) return;
-    if (!confirm("คุณแน่ใจว่าต้องการลบ Block นี้?")) return;
+    if (!confirm("Are you sure you want to delete this block?")) return;
 
     setLoading(true);
     try {
@@ -107,11 +107,11 @@ export function AddBlockModal({
         onClose();
       } else {
         const data = await res.json();
-        alert(data.message || "ลบ Block ไม่สำเร็จ");
+        alert(data.message || "Failed to delete block.");
         console.error("Delete Error details:", data);
       }
     } catch (err) {
-      alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+      alert("A server connection error occurred.");
     } finally {
       setLoading(false);
     }
@@ -130,7 +130,7 @@ export function AddBlockModal({
         {loading && (
           <div className="absolute inset-0 bg-white/60 backdrop-blur-md flex flex-col items-center justify-center z-10">
             <div className="w-8 h-8 rounded-full border-4 border-gray-100 border-t-[#8F9E8B] animate-spin" />
-            <p className="text-sm text-gray-500 mt-3 font-medium">กำลังดำเนินการ...</p>
+            <p className="text-sm text-gray-500 mt-3 font-medium">In progress...</p>
           </div>
         )}
 
@@ -140,7 +140,7 @@ export function AddBlockModal({
               {isEditMode ? "Edit Block" : "Add Block"}<span className="text-gray-400 font-light ml-2">/ {blockType.label}</span>
             </h2>
             <p className="text-[14px] text-gray-400 mt-1 font-light">
-              {isEditMode ? "แก้ไขรายละเอียดสำหรับกระบวนการนี้" : `กำหนดรายละเอียดสำหรับกระบวนการ ${blockType.label}`}
+              {isEditMode ? "Edit details for this process." : `Define process details ${blockType.label}`}
             </p>
           </div>
         </div>
@@ -152,7 +152,7 @@ export function AddBlockModal({
             </label>
             <input
               type="text"
-              placeholder="เช่น หม้อต้มใบที่ 1"
+              placeholder="e.g., Boiler No. 1"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className={inputClassName}
@@ -163,7 +163,7 @@ export function AddBlockModal({
           <div>
             <label className={labelClassName}>Description</label>
             <textarea
-              placeholder="รายละเอียดเพิ่มเติม..."
+              placeholder="More information..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
@@ -179,7 +179,7 @@ export function AddBlockModal({
                   <input
                     type="number"
                     min="0"
-                    placeholder="เช่น 150"
+                    placeholder="e.g., 150"
                     value={costPerUnit}
                     onChange={(e) => setCostPerUnit(e.target.valueAsNumber || (e.target.value === "" ? "" : 0))}
                     className={inputClassName}
@@ -190,7 +190,7 @@ export function AddBlockModal({
                   <input
                     type="number"
                     min="0"
-                    placeholder="เช่น 10.5"
+                    placeholder="e.g., 10.5"
                     value={electricityPerUnit}
                     onChange={(e) => setElectricityPerUnit(e.target.valueAsNumber || (e.target.value === "" ? "" : 0))}
                     className={inputClassName}
@@ -204,7 +204,7 @@ export function AddBlockModal({
                   <input
                     type="number"
                     min="0"
-                    placeholder="จำนวนคน"
+                    placeholder="Number of workers"
                     value={people}
                     onChange={(e) => setPeople(e.target.valueAsNumber || (e.target.value === "" ? "" : 0))}
                     className={inputClassName}
@@ -215,7 +215,7 @@ export function AddBlockModal({
                   <input
                     type="number"
                     min="0"
-                    placeholder="ค่าใช้จ่าย/คน"
+                    placeholder="Cost per person"
                     value={costPerPerson}
                     onChange={(e) => setCostPerPerson(e.target.valueAsNumber || (e.target.value === "" ? "" : 0))}
                     className={inputClassName}
@@ -228,7 +228,7 @@ export function AddBlockModal({
                 <input
                   type="number"
                   min="0"
-                  placeholder="เวลาที่ใช้ในการผลิต"
+                  placeholder="Production time"
                   value={duration}
                   onChange={(e) => setDuration(e.target.valueAsNumber || (e.target.value === "" ? "" : 0))}
                   className={inputClassName}
