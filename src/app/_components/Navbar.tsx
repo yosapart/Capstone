@@ -101,13 +101,13 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
 
             <ul className='flex items-center ml-[40px] mr-[100px] gap-[30px]'>
                 <li>
-                    <button onClick={onSignUpClick} className='text-lg text-white hover:underline hover:underline-offset-3 hover:decoration-2'>
+                    <button onClick={onSignUpClick} className='text-lg text-white cursor-pointer hover:underline hover:underline-offset-3 hover:decoration-2'>
                         Sign up
                     </button>
                 </li>
 
                 <li>
-                    <button onClick={onLoginClick} className='text-lg text-white bg-[#1594dd] px-10 py-2 rounded-full hover:bg-[#1973c8] transition-all'>
+                    <button onClick={onLoginClick} className='text-lg text-white bg-[#1594dd] px-10 py-2 rounded-full cursor-pointer hover:bg-[#1973c8] transition-all'>
                         Login
                     </button>
                 </li>
