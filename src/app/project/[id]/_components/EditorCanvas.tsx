@@ -190,7 +190,7 @@ export function EditorCanvas({
   if (flowsEmpty) {
     return (
       <main className="flex-1 overflow-auto bg-[#fafafa] flex items-center justify-center">
-        <p className="text-gray-400 text-sm">สร้าง Flow ใหม่ด้วยปุ่ม &quot;+ New Flow&quot; ด้านบน</p>
+        <p className="text-gray-400 text-sm">Create a new flow using the &quot;+ New Flow&quot; button above.</p>
       </main>
     );
   }
@@ -198,7 +198,7 @@ export function EditorCanvas({
   if (!selectedFlowId) {
     return (
       <main className="flex-1 overflow-auto bg-[#fafafa] flex items-center justify-center">
-        <p className="text-gray-400 text-sm">กรุณาเลือก Flow</p>
+        <p className="text-gray-400 text-sm">Please select a flow.</p>
       </main>
     );
   }

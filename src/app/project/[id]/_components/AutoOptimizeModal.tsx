@@ -9,6 +9,8 @@ import {
   ProcessBlock,
 } from "@/services/optimizer.engine";
 
+import styles from './scrollbar.module.css';
+
 interface AutoOptimizeModalProps {
   blocks: BlockData[];
   onClose: () => void;
@@ -34,23 +36,23 @@ type OptMode = "time" | "cost" | "profit" | "compare";
 const MODES: { mode: OptMode; label: string; desc: string }[] = [
   {
     mode: "time",
-    label: "เร็วที่สุด",
-    desc: "เพิ่มคนจากจำนวนปัจจุบัน เน้นให้ผลิตทันเวลาที่กำหนด",
+    label: "Fastest Time",
+    desc: "Increases staff from current levels, prioritizing meeting the set deadline.",
   },
   {
     mode: "cost",
-    label: "ถูกที่สุด",
-    desc: "รีเซ็ตคนเป็น 1 แล้วจ้างเพิ่มเฉพาะจุดที่จำเป็นและถูกที่สุด",
+    label: "Lowest Cost",
+    desc: "Resets staff to 1 and hires only at the most critical and cost-effective points.",
   },
   {
     mode: "profit",
-    label: "กำไรสูงสุด",
-    desc: "วิเคราะห์ทุก Action โดยคิด profit = revenue - (labor+electricity+material) แบบ Marginal เพื่อหาจุดที่ให้กำไรดีสุด",
+    label: "Max Profit",
+    desc: "Analyzes every action using marginal profit calculation: Profit = Revenue - (Labor + Electricity + Material) to find the optimal profitability point.",
   },
   {
     mode: "compare",
-    label: "เปรียบเทียบ",
-    desc: "รันทั้ง 3 กลยุทธ์พร้อมกัน แสดงตัวเลขจริงของแต่ละแบบให้เลือก (ต้องใส่ราคาขาย)",
+    label: "Comparison",
+    desc: "Runs all three strategies simultaneously, displaying real data for each to help you choose (Selling Price required).",
   },
 ];
 
@@ -92,9 +94,9 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
       if (optMode === "compare") {
         const cmp = compareAllStrategies(processBlocks, cfg);
         setCompareResults({
-          "เร็วที่สุด": cmp.time,
-          "ถูกที่สุด": cmp.cost,
-          "กำไรสูงสุด": cmp.profit,
+          "Fastest Time": cmp.time,
+          "Lowest Cost": cmp.cost,
+          "Max Profit": cmp.profit,
         });
       } else {
         const res = runProfitOptimizer(processBlocks, { ...cfg, mode: optMode });
@@ -134,48 +136,48 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-[360px] mx-4 rounded-2xl shadow-2xl border border-slate-100 relative max-h-[92vh] overflow-y-auto"
+        className="bg-white w-full max-w-[470px] mx-4 rounded-2xl shadow-2xl border border-slate-100 relative max-h-[92vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 pt-6 pb-3">
-          <h2 className="text-xl font-semibold text-slate-800 tracking-tight">
+        <div className="px-6 pt-6 pb-2">
+          <h2 className="text-[22px] font-semibold text-slate-800 tracking-tight">
             Auto-Optimize
           </h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-[16px] text-slate-400 mt-0.4">
             {compareResults
-              ? "เลือกกลยุทธ์ที่ต้องการ"
+              ? "Select preferred strategy"
               : result
-              ? "ผลการวิเคราะห์"
-              : "ปรับจำนวนคนงานให้เหมาะสมตามเป้าหมาย"}
+              ? "Analysis Results"
+              : "Optimize workforce based on targets."}
           </p>
         </div>
 
-        <div className="px-6 pb-2 space-y-4">
+        <div className="px-6 pb-2 space-y-4.5">
           {/* ──── FORM ──── */}
           {!result && !compareResults && (
             <>
               {/* Mode Selector */}
-              <div className="space-y-1.5">
-                <label className="text-[13px] font-medium text-slate-600">
-                  เป้าหมาย Optimization
+              <div className="space-y-2 pt-2.5 border-t border-slate-100">
+                <label className="text-[16px] font-medium text-slate-600">
+                  Optimization Goal
                 </label>
-                <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-xl">
+                <div className="grid grid-cols-2 gap-2 p-1 mt-1 bg-slate-100 rounded-xl">
                   {MODES.map(({ mode, label }) => (
                     <button
                       key={mode}
                       onClick={() => setOptMode(mode)}
-                      className={`py-2 text-[12px] font-medium rounded-lg transition-all ${
+                      className={`py-2 text-[14px] cursor-pointer font-medium rounded-lg transition-all ${
                         optMode === mode
                           ? "bg-white text-slate-900 shadow-sm"
-                          : "text-slate-500 hover:text-slate-700"
+                          : "text-slate-400 hover:text-slate-700"
                       }`}
                     >
                       {label}
                     </button>
                   ))}
                 </div>
-                <p className="text-[11px] text-slate-400 ml-1">
+                <p className="text-[13px] h-[50px] text-slate-400 ml-1">
                   {MODES.find((m) => m.mode === optMode)?.desc}
                 </p>
               </div>
@@ -183,38 +185,32 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
               {/* Inputs */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-[12px] font-medium text-slate-600">
+                  <label className="text-[13px] font-medium text-slate-600">
                     Target Units
                   </label>
                   <input
                     type="number"
                     min={1}
-                    className="w-full bg-slate-50 ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 rounded-xl p-2.5 text-sm outline-none"
+                    className="w-full bg-slate-50 mt-1 ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 rounded-xl p-2.5 text-sm outline-none"
                     value={targetUnits}
                     onChange={(e) => setTargetUnits(Number(e.target.value))}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[12px] font-medium text-slate-600">
+                  <label className="text-[13px] font-medium text-slate-600">
                     Time Limit (min)
                   </label>
                   <input
                     type="number"
                     min={1}
-                    className="w-full bg-slate-50 ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 rounded-xl p-2.5 text-sm outline-none"
+                    className="w-full bg-slate-50 mt-1 ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 rounded-xl p-2.5 text-sm outline-none"
                     value={timeLimitMinutes}
                     onChange={(e) => setTimeLimitMinutes(Number(e.target.value))}
                   />
                 </div>
-                <div
-                  className={`space-y-1.5 col-span-2 ${
-                    optMode === "compare" || optMode === "profit"
-                      ? "ring-2 ring-slate-800 rounded-xl p-2 -mx-1"
-                      : ""
-                  }`}
-                >
-                  <label className="text-[12px] font-medium text-slate-600">
-                    ราคาขาย / ชิ้น{" "}
+                <div className={'space-y-1.5 col-span-2'}>
+                  <label className="text-[13px] font-medium text-slate-600">
+                    Selling Price / Unit{" "}
                     {(optMode === "compare" || optMode === "profit") && (
                       <span className="text-red-500">*</span>
                     )}
@@ -222,8 +218,8 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                   <input
                     type="number"
                     min={0}
-                    placeholder="Optional"
-                    className="w-full bg-slate-50 ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 rounded-xl p-2.5 text-sm outline-none"
+                    placeholder={(optMode === "compare" || optMode === "profit") ? "e.g., 250" : "Optional"}
+                    className="w-full bg-slate-50 mt-1 ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 rounded-xl p-2.5 text-sm outline-none"
                     value={sellingPrice || ""}
                     onChange={(e) => setSellingPrice(Number(e.target.value))}
                   />
@@ -236,9 +232,9 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
 
           {/* ──── COMPARE CARDS ──── */}
           {compareResults && (
-            <div className="space-y-2.5 pt-1 border-t border-slate-100">
-              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                เลือกกลยุทธ์ที่เหมาะสม
+            <div className="space-y-2.5 pt-2 border-t border-slate-100">
+              <p className="text-[13px] font-semibold text-slate-500 uppercase tracking-wider">
+                Select the optimal strategy.
               </p>
               {Object.entries(compareResults)
                 .sort(([, a], [, b]) => b.netProfit - a.netProfit)
@@ -248,43 +244,43 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                     <button
                       key={label}
                       onClick={() => handleChooseCompare(res)}
-                      className={`w-full text-left rounded-xl border p-3.5 transition-all hover:shadow-md ${
+                      className={`w-full text-left rounded-xl border p-3.5 cursor-pointer transition-all hover:shadow-md ${
                         isBest
                           ? "border-emerald-300 bg-emerald-50 ring-2 ring-emerald-100"
                           : "border-slate-200 bg-white hover:border-slate-300"
                       }`}
                     >
-                      <div className="flex justify-between items-center mb-2">
+                      <div className="flex justify-between items-center mb-2.5">
                         <span
-                          className={`text-[13px] font-semibold ${
+                          className={`text-[14px] font-semibold ${
                             isBest ? "text-emerald-800" : "text-slate-700"
                           }`}
                         >
                           {label}
                         </span>
                         {isBest && (
-                          <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
-                            แนะนำ ✓
+                          <span className="text-[12px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5  rounded-full">
+                            Recommended 
                           </span>
                         )}
                       </div>
                       <div className="grid grid-cols-3 gap-1 text-center">
                         <div>
-                          <p className="text-[9px] text-slate-400 uppercase">เวลา</p>
-                          <p className="text-[12px] font-semibold text-slate-700">
+                          <p className="text-[11px] text-slate-600 uppercase">Time</p>
+                          <p className="text-[13px] font-semibold text-slate-700">
                             {res.totalTime.toFixed(0)}m
                           </p>
                         </div>
                         <div>
-                          <p className="text-[9px] text-slate-400 uppercase">ต้นทุน</p>
-                          <p className="text-[12px] font-semibold text-slate-700">
+                          <p className="text-[11px] text-slate-600 uppercase">Cost</p>
+                          <p className="text-[13px] font-semibold text-slate-700">
                             {fmtB(res.totalCost)}
                           </p>
                         </div>
                         <div>
-                          <p className="text-[9px] text-slate-400 uppercase">กำไร</p>
+                          <p className="text-[11px] text-slate-600 uppercase">Profit</p>
                           <p
-                            className={`text-[12px] font-bold ${profitColor(
+                            className={`text-[13px] font-bold ${profitColor(
                               res.netProfit
                             )}`}
                           >
@@ -294,26 +290,26 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                         </div>
                       </div>
                       {/* Breakdown */}
-                      <div className="grid grid-cols-3 gap-1 mt-1.5 text-center border-t border-slate-100 pt-1.5">
+                      <div className="grid grid-cols-3 gap-1 mt-1.5 text-center border-t border-slate-200 pt-1.5">
                         <div>
-                          <p className="text-[9px] text-slate-300">ค่าจ้าง</p>
-                          <p className="text-[10px] text-slate-500">{fmtB(res.laborCost)}</p>
+                          <p className="text-[12px] text-slate-400">Labor</p>
+                          <p className="text-[11px] text-slate-500">{fmtB(res.laborCost)}</p>
                         </div>
                         <div>
-                          <p className="text-[9px] text-slate-300">ค่าไฟ</p>
-                          <p className="text-[10px] text-slate-500">{fmtB(res.electricityCost)}</p>
+                          <p className="text-[12px] text-slate-400">Electricity</p>
+                          <p className="text-[11px] text-slate-500">{fmtB(res.electricityCost)}</p>
                         </div>
                         <div>
-                          <p className="text-[9px] text-slate-300">วัสดุ</p>
-                          <p className="text-[10px] text-slate-500">{fmtB(res.materialCost)}</p>
+                          <p className="text-[12px] text-slate-400">Materials</p>
+                          <p className="text-[11px] text-slate-500">{fmtB(res.materialCost)}</p>
                         </div>
                       </div>
                       {/* Worker tags */}
-                      <div className="flex flex-wrap gap-1 mt-2">
+                      <div className={`flex flex-nowrap gap-2 overflow-x-auto ${styles['custom-scrollbar']}`}>
                         {res.allocations.map((a) => (
                           <span
                             key={a.block_id}
-                            className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                            className={`text-[11px] my-1.5 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 ${
                               a.suggestedPeople !== a.originalPeople
                                 ? "bg-slate-900 text-white"
                                 : "bg-slate-100 text-slate-400"
@@ -343,7 +339,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                 }`}
               >
                 <p
-                  className={`text-[13px] font-semibold ${
+                  className={`text-[14px] font-semibold ${
                     result.withinTimeLimit
                       ? "text-emerald-700"
                       : result.earlyStop
@@ -351,37 +347,38 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                       : "text-amber-700"
                   }`}
                 >
-                  {result.withinTimeLimit ? "✓ บรรลุเป้าหมาย" : result.earlyStop ? "⏸ หยุดเพิ่มอัตโนมัติ" : "⚠ ยังไม่ทันเวลา"}
+                  {result.withinTimeLimit ? "✓ Target Achieved" : result.earlyStop ? "⏸ Auto-increment Stopped" : "⚠ Deadline Not Met"}
                 </p>
-                <p className="text-[11px] text-slate-500 mt-0.5">{result.stopReason}</p>
-                <p className="text-[11px] text-slate-500 mt-0.5">
-                  เวลา{" "}
+                <p className="text-[13px] text-slate-500 mt-0.5">{result.stopReason}</p>
+                <p className="text-[13px] text-slate-500 mt-0.5">
+                  Time{" "}
                   <span className="font-semibold text-slate-700">
-                    {result.totalTime.toFixed(1)} นาที
+                    {result.totalTime.toFixed(1)} mins
                   </span>{" "}
-                  (เป้า {timeLimitMinutes} นาที)
+                  (Target {timeLimitMinutes} mins)
                 </p>
               </div>
 
               {/* Workers table */}
-              <div className="rounded-xl ring-1 ring-slate-100 overflow-hidden">
-                <div className="grid grid-cols-[1fr_48px_56px] text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-3 py-2 bg-slate-50">
+              <span className="text-[15.5px] font-semibold text-slate-800 uppercase">Workforce Adjustment</span>
+              <div className="mt-1 rounded-xl ring-1 ring-slate-100 overflow-hidden">
+                <div className="grid grid-cols-[1fr_100px_105px] text-[13px] font-semibold text-slate-400 uppercase tracking-wider px-3 py-2 bg-slate-50">
                   <span>Block</span>
-                  <span className="text-center">เดิม</span>
-                  <span className="text-center">แนะนำ</span>
+                  <span className="text-center">Original</span>
+                  <span className="text-center">Recommended</span>
                 </div>
                 {result.allocations.map((a) => {
                   const changed = a.suggestedPeople !== a.originalPeople;
                   return (
                     <div
                       key={a.block_id}
-                      className={`grid grid-cols-[1fr_48px_56px] px-3 py-2.5 items-center border-t border-slate-50 ${
+                      className={`grid grid-cols-[1fr_100px_105px] px-3 py-2.5 items-center border-t border-slate-50 ${
                         changed ? "bg-slate-50/60" : ""
                       }`}
                     >
                       <div>
                         <p className="text-[13px] font-medium text-slate-700">{a.name}</p>
-                        <p className="text-[10px] text-slate-400">Step {a.step_order}</p>
+                        <p className="text-[12px] text-slate-400">Step {a.step_order}</p>
                       </div>
                       <div className="text-center text-[13px] text-slate-400">
                         {a.originalPeople}
@@ -391,7 +388,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                           {a.suggestedPeople}
                         </span>
                         {changed && (
-                          <span className="text-[11px] text-emerald-600 ml-1">
+                          <span className="text-[12px] text-emerald-600 ml-1">
                             +{a.suggestedPeople - a.originalPeople}
                           </span>
                         )}
@@ -403,35 +400,35 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
 
               {/* Cost Breakdown */}
               <div className="bg-slate-50 rounded-xl p-3 space-y-1.5">
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                  ต้นทุนรวม (หลัง optimize)
+                <p className="text-[14px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                  Total Cost (Optimized)
                 </p>
                 {[
-                  { label: "ค่าจ้างแรงงาน", value: result.laborCost, color: "text-blue-600" },
-                  { label: "ค่าไฟฟ้า", value: result.electricityCost, color: "text-amber-600" },
-                  { label: "ค่าวัสดุ", value: result.materialCost, color: "text-slate-600" },
+                  { label: "Labor Costs", value: result.laborCost, color: "text-blue-600" },
+                  { label: "Electricity Costs", value: result.electricityCost, color: "text-amber-600" },
+                  { label: "Material Costs", value: result.materialCost, color: "text-slate-600" },
                 ].map(({ label, value, color }) => (
-                  <div key={label} className="flex justify-between text-[12px]">
+                  <div key={label} className="flex justify-between text-[13px]">
                     <span className="text-slate-500">{label}</span>
                     <span className={`font-semibold ${color}`}>{fmtB(value)} ฿</span>
                   </div>
                 ))}
-                <div className="flex justify-between text-[12px] border-t border-slate-200 pt-1.5 mt-1.5">
-                  <span className="font-semibold text-slate-700">รวมต้นทุน</span>
+                <div className="flex justify-between text-[13px] border-t border-slate-200 pt-1.5 mt-1.5">
+                  <span className="font-semibold text-slate-700">Total Cost</span>
                   <span className="font-bold text-slate-900">{fmtB(result.totalCost)} ฿</span>
                 </div>
                 {sellingPrice > 0 && (
                   <>
-                    <div className="flex justify-between text-[12px]">
-                      <span className="text-slate-500">รายได้</span>
+                    <div className="flex justify-between text-[13px]">
+                      <span className="text-slate-500">Revenue</span>
                       <span className="font-semibold text-indigo-600">{fmtB(result.revenue)} ฿</span>
                     </div>
                     <div
-                      className={`flex justify-between text-[13px] font-bold border-t border-slate-200 pt-1.5 mt-1.5 ${profitColor(
+                      className={`flex justify-between text-[14px] font-bold border-t border-slate-200 pt-1.5 mt-1.5 ${profitColor(
                         result.netProfit
                       )}`}
                     >
-                      <span>กำไรสุทธิ</span>
+                      <span>Net Profit</span>
                       <span>
                         {result.netProfit >= 0 ? "+" : ""}
                         {fmtB(result.netProfit)} ฿
@@ -452,7 +449,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
             <div className="flex gap-3">
               <button
                 onClick={onClose}
-                className="flex-1 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition"
+                className="flex-1 px-4 py-3 text-[14px] font-medium cursor-pointer text-slate-600 hover:bg-slate-50 rounded-xl transition"
               >
                 Cancel
               </button>
@@ -463,10 +460,10 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                   processBlocks.length === 0 ||
                   ((optMode === "compare" || optMode === "profit") && !sellingPrice)
                 }
-                className="flex-[2] px-4 py-3 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-white text-sm font-semibold rounded-xl transition shadow-lg shadow-slate-200 active:scale-[0.98]"
+                className="flex-[2] px-4 py-3 bg-slate-900 cursor-pointer hover:bg-slate-800 disabled:bg-slate-300 text-white text-[14px] font-semibold rounded-xl transition shadow-lg shadow-slate-200 active:scale-[0.98]"
               >
                 {running
-                  ? "กำลังคำนวณ..."
+                  ? "Calculating..."
                   : optMode === "compare"
                   ? "Comparing strategies"
                   : "Solve"}
@@ -477,22 +474,22 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
               onClick={resetAll}
               className="w-full px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition border border-slate-200"
             >
-              ← กลับ
+              ← Return
             </button>
           ) : (
             <div className="flex gap-3">
               <button
                 onClick={resetAll}
-                className="flex-1 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition"
+                className="flex-1 px-4 py-3 text-[14px] font-medium cursor-pointer text-slate-600 hover:bg-slate-50 rounded-xl transition"
               >
                 ← Back
               </button>
               <button
                 onClick={handleApply}
                 disabled={applying || !hasChanges}
-                className="flex-[2] px-4 py-3 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-white text-sm font-semibold rounded-xl transition shadow-lg shadow-slate-200 active:scale-[0.98]"
+                className="flex-[2] px-4 py-3 bg-slate-900 cursor-pointer hover:bg-slate-800 disabled:bg-slate-300 text-white text-sm font-semibold rounded-xl transition shadow-lg shadow-slate-200 active:scale-[0.98]"
               >
-                {applying ? "กำลัง Apply..." : "Apply Changes"}
+                {applying ? "Applying changes..." : "Apply Changes"}
               </button>
             </div>
           )}

@@ -79,7 +79,7 @@ export function EditorToolbar({
                   setSelectedFlowId(f.flow_id);
                   setIsFlowOpen(false);
                 }}
-                className={`w-full text-left px-3 py-2 text-[13px] rounded-lg transition-colors ${selectedFlowId === f.flow_id
+                className={`w-full text-left px-3 py-2 text-[13px] cursor-pointer rounded-lg transition-colors ${selectedFlowId === f.flow_id
                   ? "bg-[#8F9E8B]/15 text-[#5A6956] font-semibold"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
@@ -93,29 +93,29 @@ export function EditorToolbar({
 
       <button
         onClick={onNewFlow}
-        className="text-[13px] font-medium text-[#7A8B76] hover:text-[#5A6956] bg-[#7A8B76]/10 hover:bg-[#7A8B76]/20 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+        className="text-[13px] font-medium text-[#7A8B76] cursor-pointer hover:text-[#5A6956] bg-[#7A8B76]/10 hover:bg-[#7A8B76]/20 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
       >
         <span>+</span> New Flow
       </button>
 
       {/* Divider */}
-      <div className="w-[1px] h-4 bg-gray-200" />
+      <div className="w-[1px] h-7 bg-gray-200" />
 
 
 
       {/* Play / Stop */}
       <div className="flex items-center gap-1.5">
-        <button onClick={onPlay} className="p-1.5 text-gray-400 hover:text-[#4CAF50] hover:bg-[#4CAF50]/10 rounded-lg transition-all" title="Play">
+        <button onClick={onPlay} className="p-1.5 text-gray-400 cursor-pointer hover:text-[#4CAF50] hover:bg-[#4CAF50]/10 rounded-lg transition-all" title="Play">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
         </button>
-        <button onClick={onStop} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Stop">
+        <button onClick={onStop} className="p-1.5 text-gray-400 cursor-pointer hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Stop">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
         </button>
       </div>
 
       {/* Speed */}
       <div className="flex items-center gap-2 ml-2">
-        <span className="text-[13px] font-medium text-gray-400">Speed</span>
+        <span className="text-[14px] font-medium text-gray-400">Speed</span>
 
         {/* Custom Speed Selector */}
         <div className="relative" ref={speedRef}>
@@ -137,7 +137,7 @@ export function EditorToolbar({
                     setSpeed(v);
                     setIsSpeedOpen(false);
                   }}
-                  className={`w-full text-left px-2.5 py-1.5 text-[13px] rounded-lg transition-colors ${speed === v
+                  className={`w-full text-left px-2.5 py-1.5 cursor-pointer text-[13px] rounded-lg transition-colors ${speed === v
                     ? "bg-[#8F9E8B]/15 text-[#5A6956] font-semibold"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     }`}
@@ -151,13 +151,13 @@ export function EditorToolbar({
       </div>
 
       {/* Divider */}
-      <div className="w-[1px] h-4 bg-gray-200" />
+      <div className="w-[1px] h-7 bg-gray-200" />
 
       {/* Auto-Optimize Button */}
       <button
         onClick={onAutoOptimize}
         title="Auto-Optimization Solver"
-        className="flex items-center gap-1.5 text-[13px] font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-1.5 rounded-xl transition-all"
+        className="flex items-center gap-1.5 text-[14px] font-medium cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-1.5 rounded-xl transition-all"
       >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -171,13 +171,13 @@ export function EditorToolbar({
       <div className="flex items-center gap-3">
         <button
           onClick={onDownloadPDF}
-          className="text-[13px] font-semibold text-gray-600 
-  bg-white border border-gray-200 
-  px-4 py-2 rounded-xl shadow-sm 
-  transition-all duration-200
-
-  hover:bg-blue-500 hover:border-blue-500 hover:text-white
-  hover:shadow-[0_0_12px_rgba(59,130,246,0.5)]"
+          className="text-[14px] font-semibold text-gray-600 
+            bg-white border border-gray-200 
+            px-4 py-2 rounded-xl shadow-sm 
+            transition-all duration-200
+            cursor-pointer
+            hover:bg-blue-500 hover:border-blue-500 hover:text-white
+            hover:shadow-[0_0_12px_rgba(59,130,246,0.5)]"
         >
           Download PDF
         </button>
