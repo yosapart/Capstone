@@ -6,19 +6,20 @@ import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
 // Components & Types
-import { BlockData } from "./_components/editorTypes";
-import { EditorToolbar } from "./_components/EditorToolbar";
-import { EditorLeftPanel } from "./_components/EditorLeftPanel";
-import { EditorRightPanel } from "./_components/EditorRightPanel";
-import { EditorCanvas } from "./_components/EditorCanvas";
-import { AddBlockModal } from "./_components/AddBlockModal";
-import { SimulateModal } from "./_components/SimulateModal";
-import { ReportModal } from "./_components/ReportModal";
-import { AutoOptimizeModal } from "./_components/AutoOptimizeModal";
+import { Header } from "@/app/project/[id]/_components/Header";
+import { BlockData } from "@/app/project/[id]/_components/editorTypes";
+import { EditorToolbar } from "@/app/project/[id]/_components/EditorToolbar";
+import { EditorLeftPanel } from "@/app/project/[id]/_components/EditorLeftPanel";
+import { EditorRightPanel } from "@/app/project/[id]/_components/EditorRightPanel";
+import { EditorCanvas } from "@/app/project/[id]/_components/EditorCanvas";
+import { AddBlockModal } from "@/app/project/[id]/_components/AddBlockModal";
+import { SimulateModal } from "@/app/project/[id]/_components/SimulateModal";
+import { ReportModal } from "@/app/project/[id]/_components/ReportModal";
+import { AutoOptimizeModal } from "@/app/project/[id]/_components/AutoOptimizeModal";
 
 // Custom Hooks
-import { useFlowApi } from "./_components/useFlowApi";
-import { useSimulation } from "./_components/useSimulation";
+import { useFlowApi } from "@/app/project/[id]/_components/useFlowApi";
+import { useSimulation } from "@/app/project/[id]/_components/useSimulation";
 
 /* ───── Main Page ───── */
 export default function FlowEditorPage() {
@@ -109,17 +110,17 @@ export default function FlowEditorPage() {
 
   const handleAddBlockClick = async (type: string, label: string) => {
     if (!selectedFlowId) {
-      showToast("กรุณาสร้าง Flow ก่อน");
+      showToast("Please create a flow first.");
       return;
     }
 
     if (type === "start" && blocks.some(b => b.type === "start")) {
-      showToast("Flow นี้มี Start Block อยู่แล้ว (อนุญาตให้มีได้แค่ 1 อัน)");
+      showToast("This flow already contains a Start block (only one is allowed).");
       return;
     }
 
     if (type === "end" && blocks.some(b => b.type === "end")) {
-      showToast("Flow นี้มี End Block อยู่แล้ว (อนุญาตให้มีได้แค่ 1 อัน)");
+      showToast("This flow already contains an End block (only one is allowed).)");
       return;
     }
 
@@ -151,15 +152,15 @@ export default function FlowEditorPage() {
 
   const handlePlayClick = () => {
     if (blocks.length < 2) {
-      showToast("ไม่สามารถจำลองได้: ต้องมีอย่างน้อย Start Block และ End Block");
+      showToast("Unable to simulate: A Start block and an End block are required.");
       return;
     }
     if (blocks[0].type !== "start") {
-      showToast("ไม่สามารถจำลองได้: Block ลำดับแรกต้องเป็น 'Start' เสมอ");
+      showToast("Unable to simulate: The first block must always be 'Start'.");
       return;
     }
     if (blocks[blocks.length - 1].type !== "end") {
-      showToast("ไม่สามารถจำลองได้: Block ลำดับสุดท้ายต้องเป็น 'End' เสมอ");
+      showToast("Unable to simulate: The final block must always be 'End'.");
       return;
     }
     setShowSimulateModal(true);
@@ -168,7 +169,7 @@ export default function FlowEditorPage() {
   if (loading || !project) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f0f2f5]">
-        <p className="text-gray-400">กำลังโหลด...</p>
+        <p className="text-gray-400">Loading...</p>
       </div>
     );
   }
@@ -177,23 +178,10 @@ export default function FlowEditorPage() {
     <div className="flex flex-col h-screen bg-[#f0f2f5] overflow-hidden">
 
       {/* ═══════ HEADER ═══════ */}
-      <header className="flex items-center h-[50px] bg-[#34495e] px-4 shrink-0 z-50 shadow-md gap-4">
-        {/* Menu + Logo */}
-        <Link href="/home" className="shrink-0 flex items-center gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
-          <Image src="/FacSimLogo.png" alt="FacSim Logo" width={100} height={12} priority />
-        </Link>
-        <span className="text-white font-semibold text-sm">{project.name}</span>
-        <div className="flex-1" />
-        <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full bg-[#1594dd] flex items-center justify-center text-white font-bold text-xs uppercase shadow-sm">
-            {user?.name?.[0] || user?.email?.[0] || "U"}
-          </div>
-          <span className="text-white/90 text-[13px] font-medium hidden sm:inline-block">
-            {user?.email || "Loading..."}
-          </span>
-        </div>
-      </header>
+      <Header 
+        user={user} 
+        projectName={project?.name} 
+      />
 
       {/* ═══════ TOOLBAR ═══════ */}
       <EditorToolbar
@@ -207,14 +195,14 @@ export default function FlowEditorPage() {
         setSpeed={setSpeed}
         onAutoOptimize={() => {
           if (!selectedFlowId) {
-            showToast("กรุณาเลือก Flow ก่อนใช้ Auto-Optimize");
+            showToast("Please select a flow before using the Optimize feature.");
             return;
           }
           setShowOptimize(true);
         }}
         onDownloadPDF={() => {
           if (!simulationResult) {
-            showToast("คุณต้องรัน Simulation ก่อนสร้างรายงาน PDF");
+            showToast("You must run a simulation before generating a PDF report.");
             return;
           }
           setShowReport(true);
@@ -373,10 +361,10 @@ export default function FlowEditorPage() {
 
       {/* ═══════ MINIMAL TOAST ALERT ═══════ */}
       {toastError && (
-        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed bottom-25 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-bottom-4 duration-300">
           <div className="bg-[#1e293b] text-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-800 rounded-2xl px-5 py-3.5 flex items-center gap-3.5 w-max max-w-[400px]">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 drop-shadow-sm"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            <span className="text-[13.5px] font-medium tracking-wide leading-relaxed">{toastError}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 drop-shadow-sm"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span className="text-[14px] font-medium tracking-wide leading-relaxed">{toastError}</span>
           </div>
         </div>
       )}
