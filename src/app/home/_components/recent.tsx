@@ -19,7 +19,7 @@ export default function Recent({
 }: RecentProps) {
     return (
         <section className="mb-10 bg-[#ffffff] mt-10 p-4 pb-8 rounded-[10px] ">
-            <h2 className="text-[22px] font-bold text-[#34495e] mb-6">Recent Project</h2>
+            <h2 className="text-[24px] font-bold text-[#34495e] mb-6">Recent Project</h2>
             {loadingProjects ? (
                 <div className="flex items-center justify-center py-5">
                     <p className="text-gray-400 text-sm">loading...</p>
@@ -38,7 +38,7 @@ export default function Recent({
                 </div>
             ) : (
                 <div className="flex items-center justify-center py-8">
-                    <p className="text-gray-400 italic">No recent projects</p>
+                    <p className="text-gray-400 text-[17px] italic">You don’t have any projects yet.</p>
                 </div>
             )}
         </section>

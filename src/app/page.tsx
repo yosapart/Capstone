@@ -448,7 +448,8 @@ function AuthModal({
 
               <div className="text-[14px] mt-2.5 ">
                 Didn't receive Code?
-                <span className="ml-1 text-[#1277b5] cursor-pointer hover:underline ">Resend OTP</span>
+                <span className="ml-1 text-[#1277b5] cursor-pointer hover:text-[#0a4e79] transition-all ">Resend OTP</span>
+                {/* #0a4e79 */}
               </div>
             </div>
           </>

@@ -243,26 +243,26 @@ export function AddBlockModal({
             {isEditMode && (
               <button 
                 onClick={handleDelete}
-                className="px-4 py-2 text-[14px] font-semibold text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                className="px-4 py-2 text-[14px] cursor-pointer font-semibold text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
               >
-                Delete block
+                Delete Block
               </button>
             )}
           </div>
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="px-5 py-2.5 text-[14px] font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-xl transition-colors"
+              className="px-5 py-2.5 text-[14px] cursor-pointer font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-xl transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
               disabled={isFormIncomplete || loading}
-              className={`px-7 py-2.5 text-[14px] font-semibold text-white rounded-xl transition-all ${
+              className={`px-7 py-2.5 text-[14px]  font-semibold text-white rounded-xl transition-all ${
                 isFormIncomplete || loading
                   ? "bg-gray-300 cursor-not-allowed opacity-70"
-                  : "bg-[#4CAF50] hover:bg-[#43A047] shadow-[0_4px_12px_rgba(76,175,80,0.3)]"
+                  : "bg-[#4CAF50] hover:bg-[#43A047] cursor-pointer shadow-[0_4px_12px_rgba(76,175,80,0.3)]"
               }`}
             >
               {isEditMode ? "Save Changes" : "Save Block"}
