@@ -65,6 +65,13 @@ export function useSimulation(speed: number, blocks: any[]) {
     const runTick = () => {
       if (!isSimulating) return;
 
+      let rev = 0;
+      let net = 0;
+      if (simulationResult.selling_price_per_unit) {
+        rev = completedItems * simulationResult.selling_price_per_unit;
+        net = rev - currentCost;
+      }
+
       if (completedItems >= target_output) {
         setIsSimulating(false);
         // keep final state to show results
@@ -73,7 +80,10 @@ export function useSimulation(speed: number, blocks: any[]) {
           cost: currentCost,
           electricity: currentElec,
           duration: currentDuration,
-          machineStates: localStates
+          machineStates: { ...localStates },
+          revenue: rev,
+          netProfit: net,
+          sourceProgress: 0
         });
         return;
       }
@@ -167,13 +177,6 @@ export function useSimulation(speed: number, blocks: any[]) {
       // คำนวณ sourceProgress สำหรับจุดเหลืองเส้น Start→M1
       const srcProg = dynamicEmitInterval > 0 ? Math.min(1, timeSinceLastSourceEmitRef.current / dynamicEmitInterval) : 0;
       
-      let rev = 0;
-      let net = 0;
-      if (simulationResult.selling_price_per_unit) {
-         rev = completedItems * simulationResult.selling_price_per_unit;
-         net = rev - currentCost;
-      }
-
       setPlaybackState({
         currentProduce: completedItems,
         cost: currentCost,

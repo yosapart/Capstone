@@ -165,3 +165,26 @@ export async function verifyOtp(email: string, otp: string) {
 
   return { user, token };
 }
+
+// ========== Resend OTP ==========
+export async function resendOtp(email: string) {
+  // 1. ดึง metadata ของ OTP ล่าสุด (กรณีสมัครสมาชิกต้องใช้ข้อมูล name, password)
+  const { data: records, error } = await supabase
+    .from("otps")
+    .select("metadata")
+    .eq("email", email)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (error) {
+    console.error("Resend OTP Error (Fetch):", error);
+    throw error;
+  }
+
+  const metadata = records && records.length > 0 ? records[0].metadata : null;
+
+  // 2. สร้างและส่ง OTP ใหม่ (ฟังก์ชันนี้จะลบตัวเก่าให้อัตโนมัติในบรรทัดที่ 72)
+  await generateAndSendOtp(email, metadata);
+
+  return { message: "OTP has been resent." };
+}

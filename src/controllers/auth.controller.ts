@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { loginUser, registerUser, generateAndSendOtp, verifyOtp } from "@/services/auth.service";
+import { loginUser, registerUser, generateAndSendOtp, verifyOtp, resendOtp } from "@/services/auth.service";
 import { signToken } from "@/lib/authTokens";
 import { registerSchema } from "@/lib/validators/auth";
 import { z } from "zod";
@@ -173,5 +173,27 @@ export async function verifyOtpController(req: Request) {
     }
 
     return NextResponse.json({ message: "An error occurred while verifying OTP." }, { status: 500 });
+  }
+}
+
+// ========== Resend OTP ==========
+export async function resendOtpController(req: Request) {
+  try {
+    const { email } = await req.json();
+
+    if (!email) {
+      return NextResponse.json({ message: "Email is required." }, { status: 400 });
+    }
+
+    const result = await resendOtp(email);
+
+    return NextResponse.json(result);
+
+  } catch (error: any) {
+    console.error("Resend OTP Error:", error);
+    return NextResponse.json(
+      { message: "An error occurred while resending OTP." },
+      { status: 500 }
+    );
   }
 }
