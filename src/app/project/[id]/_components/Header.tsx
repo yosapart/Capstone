@@ -39,7 +39,7 @@ export function Header({ user, projectName = "Project Name" }: HeaderProps){
                         </svg>
                     </button>
                 </Link>
-                <span className="text-white font-semibold text-[16px] ml-5 truncate max-w-[200px]">
+                <span className="text-white font-semibold text-[18px] ml-5 truncate max-w-[200px]">
                     {projectName}
                 </span>
             </div>
@@ -53,7 +53,7 @@ export function Header({ user, projectName = "Project Name" }: HeaderProps){
 
                 <div className="flex flex-col justify-center">
                     {user?.name && (
-                        <span className="text-white text-sm font-medium leading-tight">
+                        <span className="text-white text-[14px] font-medium leading-tight">
                             {displayName}
                         </span>
                     )}

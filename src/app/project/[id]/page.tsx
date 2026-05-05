@@ -282,14 +282,14 @@ export default function FlowEditorPage() {
               <div className="mt-8 flex gap-3">
                 <button
                   onClick={() => setShowCreateFlow(false)}
-                  className="flex-1 py-3 text-[15px] font-semibold text-gray-600 bg-white border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 rounded-[14px] transition-all"
+                  className="flex-1 py-3 text-[15px] cursor-pointer font-semibold text-gray-600 bg-white border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 rounded-[14px] transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleCreateFlowSubmit}
                   disabled={!newFlowName.trim()}
-                  className="flex-1 py-3 text-[15px] font-bold text-white bg-[#4CAF50] hover:bg-[#388E3C] rounded-[14px] shadow-[0_4px_16px_rgba(76,175,80,0.3)] hover:shadow-[0_6px_20px_rgba(76,175,80,0.4)] hover:-translate-y-[1px] active:translate-y-0 transition-all disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0 disabled:cursor-not-allowed"
+                  className="flex-1 py-3 text-[15px] cursor-pointer font-bold text-white bg-[#4CAF50] hover:bg-[#388E3C] rounded-[14px] shadow-[0_4px_16px_rgba(76,175,80,0.3)] hover:shadow-[0_6px_20px_rgba(76,175,80,0.4)] hover:-translate-y-[1px] active:translate-y-0 transition-all disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0 disabled:cursor-not-allowed"
                 >
                   Create Flow
                 </button>

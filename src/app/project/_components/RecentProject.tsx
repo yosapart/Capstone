@@ -14,7 +14,7 @@ export function RecentProjects({ loading, projects, onEdit, onDelete, onView }: 
             <h2 className="text-[24px] font-bold text-[#34495e] mb-4">Recent Project</h2>
             {loading ? (
                 <div className="flex items-center justify-center py-8">
-                    <p className="text-gray-400 text-sm">loading...</p>
+                    <p className="text-gray-400 text-[17px]">Loading...</p>
                 </div>
             ) : projects.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -30,7 +30,7 @@ export function RecentProjects({ loading, projects, onEdit, onDelete, onView }: 
                 </div>
             ) : (
                 <div className="flex items-center justify-center py-8">
-                    <p className="text-gray-400 italic">No recent projects</p>
+                    <p className="text-gray-400 text-[17px] italic">— No recent projects —</p>
                 </div>
             )}
         </section>
