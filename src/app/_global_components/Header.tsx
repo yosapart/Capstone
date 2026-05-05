@@ -33,7 +33,7 @@ export function Header({ user }: HeaderProps){
         <Image src="/FacSimLogo.png" alt="FacSim Logo" width={140} height={16} priority />
       </Link>
 
-      <div className="flex items-center gap-3 ml-auto shrink-0">
+      <div className="flex items-center gap-3 ml-auto mr-2 shrink-0">
         <div className="w-10.5 h-10.5 rounded-full bg-[#1594dd] flex items-center justify-center text-white font-bold text-sm uppercase">
           {user?.name ? user.name.charAt(0) : "U"}
         </div>
@@ -44,7 +44,7 @@ export function Header({ user }: HeaderProps){
             </span>
           )}
           {user?.email && (
-            <span className="text-white text-sm font-medium">{displayEmail}</span>
+            <span className="text-white/80 text-[12px] font-normal leading-tight mt-0.5">{displayEmail}</span>
           )}
               
         </div>

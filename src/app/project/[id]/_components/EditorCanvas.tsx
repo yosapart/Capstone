@@ -233,12 +233,12 @@ export function EditorCanvas({
                   <span className={style.textIcon}>
                     {style.icon}
                   </span>
-                  <span className={`text-xs font-bold ${style.textTitle} uppercase tracking-wide`}>Active Scenario</span>
+                  <span className={`text-[14px] font-bold ${style.textTitle} uppercase tracking-wide`}>Active Scenario</span>
                 </div>
                 <div className="p-3 bg-white">
-                  <div className="text-sm font-semibold text-slate-800">{activeTestcase.name}</div>
+                  <div className="text-[14px] font-semibold text-slate-800">{activeTestcase.name}</div>
                   {activeTestcase.detail && (
-                    <div className="text-xs text-slate-500 mt-1">{activeTestcase.detail}</div>
+                    <div className="text-[13px] text-slate-500 mt-1">{activeTestcase.detail}</div>
                   )}
                 </div>
               </Panel>

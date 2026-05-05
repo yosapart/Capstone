@@ -377,7 +377,9 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                       }`}
                     >
                       <div>
-                        <p className="text-[13px] font-medium text-slate-700">{a.name}</p>
+                        <p className="text-[13px] font-medium text-slate-700">
+                          {a.name.length > 12 ? a.name.substring(0, 12) + "..." : a.name}
+                        </p>
                         <p className="text-[12px] text-slate-400">Step {a.step_order}</p>
                       </div>
                       <div className="text-center text-[13px] text-slate-400">
