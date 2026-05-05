@@ -60,7 +60,7 @@ export default function ProjectPage() {
             />
 
             <main className="flex-1 overflow-y-auto p-8">
-                setting
+                <h1 className="text-3xl font-bold mb-6 text-[#34495e]">Settings</h1>
             </main>
             </div>
         </div>
