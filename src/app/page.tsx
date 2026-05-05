@@ -9,7 +9,7 @@ import { Footer } from "./_components/Footer";
 
 import styles from './page.module.css';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
@@ -84,6 +84,25 @@ function AuthModal({
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
+
+  // 🔥 จัดการการนับถอยหลัง Resend OTP
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (showOtp && resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [showOtp, resendTimer]);
+
+  // เมื่อแสดงหน้า OTP ครั้งแรก ให้เริ่มนับถอยหลังทันที
+  useEffect(() => {
+    if (showOtp) {
+      setResendTimer(10);
+    }
+  }, [showOtp]);
 
   const getNameErrorMessage = (value: string) => {
     if (!value) return "Please enter your username.";
@@ -276,6 +295,32 @@ function AuthModal({
     }
   };
 
+  const handleResendOtp = async () => {
+    if (resendTimer > 0) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/resend-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (res.ok) {
+        setResendTimer(10);
+        setOtp("");
+        setErrors((prev) => ({ ...prev, otp: "" }));
+      } else {
+        const data = await res.json();
+        setErrors((prev) => ({ ...prev, otp: data.message || "Failed to resend OTP." }));
+      }
+    } catch (error) {
+      setErrors((prev) => ({ ...prev, otp: "An error occurred. Please try again." }));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000]">
       <div className="bg-white p-6 rounded-2xl w-[330px] flex flex-col items-center space-y-4 shadow-xl relative overflow-hidden">
@@ -302,8 +347,12 @@ function AuthModal({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-800">Welcome Back!</h3>
-            <p className="text-sm text-gray-500 mt-1">Login successful</p>
+            <h3 className="text-xl font-bold text-gray-800">
+              {mode === "login" ? "Welcome Back!" : "Welcome!"}
+            </h3>
+            <p className="text-sm text-gray-500 mt-1">
+              {mode === "login" ? "Login successful" : "Sign up success"}
+            </p>
             <style>{`
               @keyframes scaleUp { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
               @keyframes spin { to { transform: rotate(360deg); } }
@@ -448,7 +497,18 @@ function AuthModal({
 
               <div className="text-[14px] mt-2.5 ">
                 Didn't receive Code?
-                <span className="ml-1 text-[#1277b5] cursor-pointer hover:underline ">Resend OTP</span>
+                {resendTimer > 0 ? (
+                  <span className="ml-1 text-gray-400 font-medium">
+                    Resend in 00:{resendTimer < 10 ? `0${resendTimer}` : resendTimer}
+                  </span>
+                ) : (
+                  <span
+                    onClick={handleResendOtp}
+                    className="ml-1 text-[#1277b5] cursor-pointer hover:underline font-medium"
+                  >
+                    Resend OTP
+                  </span>
+                )}
               </div>
             </div>
           </>

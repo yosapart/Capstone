@@ -4,7 +4,7 @@ import { z } from "zod";
 export const registerSchema = z.object({
     name: z.string()
         .min(2, "Name must be at least 2 characters")
-        .max(50),
+        .max(50, "ชื่อต้องมีความยาวไม่เกิน 50 ตัวอักษร"),
 
     email: z.string()
         .email("Invalid email format"),
