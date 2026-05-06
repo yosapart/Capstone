@@ -1,19 +1,18 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 
 import { Header } from "@/app/_global_components/Header";
 import { Sidebar } from "@/app/_global_components/Sidebar";
-import { ProjectCard, type Project } from "@/app/_global_components/ProjectCard";
+import { type Project } from "@/app/_global_components/ProjectCard";
 import { CreateProjectModal } from "@/app/_global_components/CreateProjectModal";
 import { DeleteProjectModal } from "@/app/_global_components/DeleteProjectModal";
 import { IconSearch, IconPlus } from "@/app/_components/Icons";
 
 import { RecentProjects } from "@/app/project/_components/RecentProject";
 import { YourProjects } from "@/app/project/_components/YourProject";
+import { filterUserProjects, getSortedProjects, getRecentProjects } from "@/app/project/utils";
 
 interface UserInfo {
   user_id: number;
@@ -37,15 +36,6 @@ export default function HomePage() {
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
   const [search, setSearch] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
-
-  // ฟังก์ชันบันทึกโปรเจกต์ที่เพิ่งเข้าชม
-  const trackRecent = useCallback((id: number) => {
-    const stored = localStorage.getItem("recent_viewed_ids");
-    let ids: number[] = stored ? JSON.parse(stored) : [];
-    // เอา id ใหม่ไว้หน้าสุด, ลบตัวซ้ำ, เก็บแค่ 3 อัน
-    ids = [id, ...ids.filter(x => x !== id)].slice(0, 3);
-    localStorage.setItem("recent_viewed_ids", JSON.stringify(ids));
-  }, []);
 
   // ดึง projects จาก API
   const fetchProjects = useCallback(async () => {
@@ -92,37 +82,9 @@ export default function HomePage() {
   if (!user) return null;
 
   /* ─── กรองและเรียง projects ─── */
-  const userProjects = projects.filter((p) => {
-    const isOwner = p.user_id === user.user_id;
-    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
-    return isOwner && matchesSearch;
-  });
-
-  const sortedProjects = [...userProjects].sort((a, b) => 
-    a.name.localeCompare(b.name, 'th', { sensitivity: 'accent' })
-  );
-
-  // คัดกรอง Recent Projects (เรียงตามการเข้าชมล่าสุดใน localStorage หรือ ID ล่าสุดถ้าไม่มีข้อมูล)
-  const recentProjects = (() => {
-    const stored = typeof window !== 'undefined' ? localStorage.getItem("recent_viewed_ids") : null;
-    const recentIds: number[] = stored ? JSON.parse(stored) : [];
-    
-    // ดึงโปรเจกต์ตามลำดับใน localStorage
-    const viewed = recentIds
-      .map(id => userProjects.find(p => p.project_id === id))
-      .filter((p): p is Project => !!p);
-
-    // ถ้ามีไม่ถึง 3 อัน ให้เอาโปรเจกต์ที่สร้างล่าสุดมาเติม
-    if (viewed.length < 3) {
-      const others = [...userProjects]
-        .sort((a, b) => b.project_id - a.project_id)
-        .filter(p => !recentIds.includes(p.project_id));
-      
-      return [...viewed, ...others].slice(0, 3);
-    }
-
-    return viewed;
-  })();
+  const userProjects = filterUserProjects(projects, user, search);
+  const sortedProjects = getSortedProjects(userProjects);
+  const recentProjects = getRecentProjects(userProjects);
 
   return (
     <div className="flex flex-col h-screen bg-[#f0f2f5] overflow-hidden">
@@ -174,7 +136,7 @@ export default function HomePage() {
             projects={recentProjects}
             onEdit={setProjectToEdit}
             onDelete={setProjectToDelete}
-            onView={trackRecent}
+            onView={(id) => router.push(`/project/${id}`)}
           />
 
           {/* Your Projects */}
@@ -183,7 +145,7 @@ export default function HomePage() {
             projects={sortedProjects}
             onEdit={setProjectToEdit}
             onDelete={setProjectToDelete}
-            onView={trackRecent}
+            onView={(id) => router.push(`/project/${id}`)}
           />
         </main>
       </div>

@@ -121,7 +121,8 @@ export default function HomePage() {
           <Welcome user={user} loadingProjects={loadingProjects} userProjects={userProjects} />
 
           <Recent 
-            recentProjects={recentProjects}
+            allProjects={projects}
+            user={user}
             loadingProjects={loadingProjects}
             onEdit={(proj) => setProjectToEdit(proj)}
             onDelete={(proj) => setProjectToDelete(proj)}

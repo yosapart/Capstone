@@ -181,7 +181,7 @@ export function EditorRightPanel({
                   </svg>
                 </div>
                 <p className="text-gray-400 text-[14px]">No results available.</p>
-                <p className="text-gray-300 text-[12px] mt-1">Press ▶ Play to run the simulation.</p>
+                <p className="text-gray-300 text-[12px] mt-1">Press Play to run the simulation.</p>
               </div>
             ) : (
               <div className="space-y-3">

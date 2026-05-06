@@ -1,5 +1,14 @@
 import { supabase } from "@/lib/db";
 
+export interface Project {
+  project_id: number;
+  user_id: number;
+  name: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+}
+
 // ========== Get All Projects ==========
 export async function getAllProjects() {
   const { data: rows, error } = await supabase.from("projects").select("*");
