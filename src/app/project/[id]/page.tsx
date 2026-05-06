@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
+import { supabase } from "@/lib/db";
+
 import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
@@ -60,7 +60,23 @@ export default function FlowEditorPage() {
         setUser(JSON.parse(stored));
       } catch (e) { }
     }
-  }, []);
+    const updateLastViewed = async () => {
+      try {
+        const { error } = await supabase
+          .from("projects")
+          .update({ updated_at: new Date().toISOString() }) // ส่งเวลาปัจจุบันแบบ ISO
+          .eq("project_id", params.id);
+
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to update last viewed time:", err);
+      }
+    };
+
+    if (params.id) {
+      updateLastViewed();
+    }
+  }, [params.id]);
 
   const showToast = (message: string) => {
     setToastError(message);
