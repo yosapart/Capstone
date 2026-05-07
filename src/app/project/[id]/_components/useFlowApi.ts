@@ -8,7 +8,11 @@ import { FlowData, BlockData, ProjectData } from "./editorTypes";
  * — project, flows, blocks, selectedFlowId, loading
  * — createFlow, createStartEndBlock, reorderBlocks, deleteBlock
  */
-export function useFlowApi(projectId: number, router: { push: (url: string) => void }) {
+export function useFlowApi(
+  projectId: number,
+  router: { push: (url: string) => void },
+  showToast: (message: string) => void
+) {
   const [project, setProject] = useState<ProjectData | null>(null);
   const [flows, setFlows] = useState<FlowData[]>([]);
   const [selectedFlowId, setSelectedFlowId] = useState<number | null>(null);
@@ -98,11 +102,11 @@ export function useFlowApi(projectId: number, router: { push: (url: string) => v
         return true;
       } else {
         const data = await res.json();
-        alert(data.message || "สร้าง Flow ไม่สำเร็จ");
+        showToast(data.message || "Failed to create flow");
         return false;
       }
     } catch {
-      alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+      showToast("Connection error");
       return false;
     }
   };
@@ -126,11 +130,11 @@ export function useFlowApi(projectId: number, router: { push: (url: string) => v
         fetchBlocks();
         return true;
       } else {
-        alert("สร้าง Block ไม่สำเร็จ");
+        showToast("Failed to create block");
         return false;
       }
     } catch {
-      alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+      showToast("Server connection error");
       return false;
     }
   };
@@ -156,13 +160,13 @@ export function useFlowApi(projectId: number, router: { push: (url: string) => v
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        alert("จัดลำดับใหม่ไม่สำเร็จ ระบบจะรีโหลดข้อมูลเดิม");
+        showToast("Failed to reorder. Syncing data...");
         fetchBlocks(); // rollback UI
       } else {
         fetchBlocks(); // sync after normalize
       }
     } catch {
-      alert("เชื่อมต่อไม่สำเร็จ ระบบจะรีโหลดข้อมูลเดิม");
+      showToast("Network error. Reloading flow...");
       fetchBlocks(); // rollback UI
     }
   };
@@ -180,11 +184,11 @@ export function useFlowApi(projectId: number, router: { push: (url: string) => v
         return true;
       } else {
         const data = await res.json();
-        alert(data.message || "ลบ Block ไม่สำเร็จ");
+        showToast(data.message || "Failed to delete block. Please try again.");
         return false;
       }
     } catch {
-      alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+      showToast("Server connection error");
       return false;
     }
   };

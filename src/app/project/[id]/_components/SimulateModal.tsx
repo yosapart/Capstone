@@ -1,14 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { TestcaseData, SimulationResult } from "./editorTypes";
 
+
 interface SimulateModalProps {
   flowId: number;
   flowName: string;
   onClose: () => void;
   onResult: (result: SimulationResult) => void;
+  showToast: (message: string) => void;
 }
 
-export function SimulateModal({ flowId, flowName, onClose, onResult }: SimulateModalProps) {
+export function SimulateModal({ flowId, flowName, onClose, onResult, showToast }: SimulateModalProps) {
   const [testcases, setTestcases] = useState<TestcaseData[]>([]);
   const [targetOutput, setTargetOutput] = useState<number>(100);
   const [sellingPrice, setSellingPrice] = useState<number>(0);
@@ -34,7 +36,10 @@ export function SimulateModal({ flowId, flowName, onClose, onResult }: SimulateM
   }, []);
 
   const handleSimulate = async () => {
-    if (targetOutput <= 0) return;
+    if (targetOutput <= 0) {
+      showToast("Target output must be greater than 0");
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/simulations/run", {
@@ -60,7 +65,7 @@ export function SimulateModal({ flowId, flowName, onClose, onResult }: SimulateM
       onResult(result);
       onClose();
     } catch (error) {
-      alert("Simulation failed");
+      showToast("Simulation failed. Please check your connection.");
     } finally {
       setLoading(false);
     }
