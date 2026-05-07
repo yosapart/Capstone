@@ -258,7 +258,10 @@ export function ReportModal({ projectName, flowName, simulationResult, authorNam
                       <tr key={idx}>
                         <td className="border border-black px-2 py-1 text-center">{step.step_order}</td>
                         <td className="border border-black px-2 py-1 break-all">
-                          {step.name} {step.type === "start" ? "(Start)" : step.type === "end" ? "(End)" : ""}
+                          {step.name.length > 12 
+                            ? step.name.substring(0, 12) + "..." 
+                            : step.name}
+                          {step.type === "start" ? " (Start)" : step.type === "end" ? " (End)" : ""}
                         </td>
                         <td className="border border-black px-2 py-1 text-right">{step.cost !== undefined ? fmt(step.cost) : "-"}</td>
                         <td className="border border-black px-2 py-1 text-right">{step.electricity !== undefined ? fmt(step.electricity) : "-"}</td>

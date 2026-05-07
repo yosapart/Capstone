@@ -10,7 +10,7 @@ import { CreateProjectModal } from "@/app/_global_components/CreateProjectModal"
 import { DeleteProjectModal } from "@/app/_global_components/DeleteProjectModal";
 import { IconSearch, IconPlus } from "@/app/_components/Icons";
 
-import { RecentProjects } from "@/app/project/_components/RecentProject";
+import { RecentProjects } from "@/app/_global_components/RecentProject";
 import { YourProjects } from "@/app/project/_components/YourProject";
 import { filterUserProjects, getSortedProjects, getRecentProjects } from "@/app/project/utils";
 
@@ -22,13 +22,9 @@ interface UserInfo {
 
 export default function HomePage() {
   const router = useRouter();
-  const [user, setUser] = useState<UserInfo | null>(() => {
-    if (typeof window !== "undefined") {
-      const stored = sessionStorage.getItem("user");
-      return stored ? JSON.parse(stored) : null;
-    }
-    return null;
-  });
+  const [user, setUser] = useState<UserInfo | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
   const [activeMenu, setActiveMenu] = useState("home");
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
@@ -54,19 +50,17 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    setIsMounted(true);
     const stored = sessionStorage.getItem("user");
     if (!stored) {
       router.push("/");
       return;
     }
-    try {
-      setUser(JSON.parse(stored));
-    } catch {
-      router.push("/");
-    }
-
+    setUser(JSON.parse(stored));
     fetchProjects();
   }, [router, fetchProjects]);
+
+  if (!isMounted || !user) return null;
 
   const handleLogout = async () => {
     try {

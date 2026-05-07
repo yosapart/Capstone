@@ -43,7 +43,7 @@ export function ProjectCard({ project, onEdit, onDelete, onView }: ProjectCardPr
   };
 
   return (
-    <div className="group bg-white rounded-xl border border-gray-200 px-5 py-4 flex flex-col justify-between hover:shadow-lg hover:border-[#1594dd]/30 hover:scale-105 transition-all duration-300 cursor-pointer">
+    <div className="group bg-white rounded-xl border border-gray-200 px-5 py-4 flex flex-col justify-between hover:shadow-lg hover:border-[#1594dd]/30 hover:scale-105 transition-all duration-300">
       <div className="flex">
         {/* ชื่อ Project — คลิกเข้า Flow Editor */}
         <Link

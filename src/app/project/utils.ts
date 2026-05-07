@@ -25,11 +25,12 @@ export const getSortedProjects = (userProjects: Project[]) => {
   );
 };
 
-export const getRecentProjects = (userProjects: Project[]) => {
-  return [...userProjects]
-    .sort(
-      (a, b) =>
-        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-    )
+export const getRecentProjects = (projects: Project[]) => {
+  return [...projects]
+    .sort((a, b) => {
+      const dateA = new Date(a.updated_at || 0).getTime();
+      const dateB = new Date(b.updated_at || 0).getTime();
+      return dateB - dateA;
+    })
     .slice(0, 3);
 };
