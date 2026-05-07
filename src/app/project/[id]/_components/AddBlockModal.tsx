@@ -8,7 +8,8 @@ interface AddBlockModalProps {
   blockType: { type: string; label: string };
   existingBlock?: any;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: () => void,
+  showToast: (message: string) => void;
 }
 
 export function AddBlockModal({
@@ -18,6 +19,7 @@ export function AddBlockModal({
   existingBlock,
   onClose,
   onSuccess,
+  showToast,
 }: AddBlockModalProps) {
   const isEditMode = !!existingBlock;
   const [name, setName] = useState(existingBlock?.name || "");
@@ -80,13 +82,13 @@ export function AddBlockModal({
         const data = await res.json();
         if (data.errors) {
           const msgs = Object.values(data.errors.fieldErrors).flat().join("\n");
-          alert(msgs);
+          showToast(msgs);
         } else {
-          alert(data.message || "Failed to save block.");
+          showToast(data.message || "Failed to save block.");
         }
       }
     } catch (err) {
-      alert("A server connection error occurred.");
+      showToast("A server connection error occurred.");
     } finally {
       setLoading(false);
     }
@@ -107,11 +109,11 @@ export function AddBlockModal({
         onClose();
       } else {
         const data = await res.json();
-        alert(data.message || "Failed to delete block.");
+        showToast(data.message || "Failed to delete block.");
         console.error("Delete Error details:", data);
       }
     } catch (err) {
-      alert("A server connection error occurred.");
+      showToast("A server connection error occurred.");
     } finally {
       setLoading(false);
     }
