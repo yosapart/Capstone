@@ -16,6 +16,7 @@ import { AddBlockModal } from "@/app/project/[id]/_components/AddBlockModal";
 import { SimulateModal } from "@/app/project/[id]/_components/SimulateModal";
 import { ReportModal } from "@/app/project/[id]/_components/ReportModal";
 import { AutoOptimizeModal } from "@/app/project/[id]/_components/AutoOptimizeModal";
+import { ToastContainer } from "@/app/project/[id]/_components/Toast";
 
 // Custom Hooks
 import { useFlowApi } from "@/app/project/[id]/_components/useFlowApi";
@@ -26,6 +27,7 @@ export default function FlowEditorPage() {
   const router = useRouter();
   const params = useParams();
   const projectId = Number(params.id);
+  const [isMounted, setIsMounted] = useState(false);
 
   const [speed, setSpeed] = useState(1);
 
@@ -50,10 +52,11 @@ export default function FlowEditorPage() {
   const [showOptimize, setShowOptimize] = useState(false);
 
   // Toast Alert state
-  const [toastError, setToastError] = useState<string | null>(null);
+  const [toasts, setToasts] = useState<{ id: number; message: string }[]>([]);
   const [user, setUser] = useState<{ email?: string; name?: string } | null>(null);
 
   useEffect(() => {
+    setIsMounted(true);         // เซตเป็น true เมื่อ Component โหลดบน Client เสร็จแล้ว
     const stored = sessionStorage.getItem("user");
     if (stored) {
       try {
@@ -79,8 +82,19 @@ export default function FlowEditorPage() {
   }, [params.id]);
 
   const showToast = (message: string) => {
-    setToastError(message);
-    setTimeout(() => setToastError(null), 3000);
+    const id = Date.now();
+  
+    setToasts((prev) => {
+      const newList = [...prev, { id, message }];
+      if (newList.length > 3) {
+        return newList.slice(1);
+      }
+      return newList;
+    });
+
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3200);
   };
 
   // ═══════ Custom Hooks ═══════
@@ -89,7 +103,7 @@ export default function FlowEditorPage() {
     setSelectedFlowId,
     fetchBlocks,
     createFlow, createStartEndBlock, reorderBlocks, deleteBlock,
-  } = useFlowApi(projectId, router);
+  } = useFlowApi(projectId, router, showToast);
 
   const {
     isSimulating, simulationResult, playbackState,
@@ -325,6 +339,7 @@ export default function FlowEditorPage() {
           onSuccess={() => {
             fetchBlocks();
           }}
+          showToast={showToast}
         />
       )}
 
@@ -339,6 +354,7 @@ export default function FlowEditorPage() {
           onSuccess={() => {
             fetchBlocks();
           }}
+          showToast={showToast}
         />
       )}
 
@@ -351,6 +367,7 @@ export default function FlowEditorPage() {
           onResult={(result) => {
             startSimulation(result);
           }}
+          showToast={showToast}
         />
       )}
 
@@ -375,15 +392,8 @@ export default function FlowEditorPage() {
         />
       )}
 
-      {/* ═══════ MINIMAL TOAST ALERT ═══════ */}
-      {toastError && (
-        <div className="fixed bottom-25 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="bg-[#1e293b] text-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-800 rounded-2xl px-5 py-3.5 flex items-center gap-3.5 w-max max-w-[400px]">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 drop-shadow-sm"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            <span className="text-[14px] font-medium tracking-wide leading-relaxed">{toastError}</span>
-          </div>
-        </div>
-      )}
+      {isMounted && <ToastContainer toasts={toasts} />}
+
       {/* ╔═══════ AUTO-OPTIMIZE MODAL ═══════ */}
       {showOptimize && (
         <AutoOptimizeModal

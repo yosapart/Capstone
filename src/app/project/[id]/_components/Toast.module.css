@@ -1,0 +1,41 @@
+.container {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+    width: 100px;
+}
+
+.toastItem {
+    pointer-events: auto;
+    width: max-content;
+    animation: 
+        fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+        fadeOut 0.4s ease-in 2.6s forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -10px) scale(0.95);
+  }
+}
