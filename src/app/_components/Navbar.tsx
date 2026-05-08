@@ -1,6 +1,7 @@
 "use client";
 import Link from 'next/link';
 import Image from 'next/image';
+import AuthModal from './AuthModal';
 import { useEffect, useState } from 'react';
 
 interface NavbarProps {
@@ -15,6 +16,8 @@ interface UserInfo {
 
 export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
     const [user, setUser] = useState<UserInfo | null>(null);
+    const [showAuth, setShowAuth] = useState(false);
+    const [modeState, setModeState] = useState<'login' | 'register'>('login');
 
     useEffect(() => {
         const stored = sessionStorage.getItem("user");
@@ -56,6 +59,7 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
     };
 
     return (
+        <>
         <nav className='flex items-center text-[16px] font-bold max-w-full h-[65px] bg-[#34495e] sticky top-0 z-[1000]'>
             <Link href="/" className='block ml-[100px]'>
                 <Image
@@ -69,31 +73,31 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
 
             <ul className="flex gap-[25px] ml-[auto] mr-[25px]">
                 <li className="relative flex h-[65px] w-[130px] items-center justify-center
-                               after:absolute after:bottom-0 after:left-1/2 after:h-[5px] after:w-0 
-                               after:-translate-x-1/2 after:rounded-[10px] after:bg-[#e0e0e0]
-                               after:transition-all after:duration-300 after:ease-in-out 
-                               hover:after:w-full">
+                    after:absolute after:bottom-0 after:left-1/2 after:h-[5px] after:w-0 
+                    after:-translate-x-1/2 after:rounded-[10px] after:bg-[#e0e0e0]
+                    after:transition-all after:duration-300 after:ease-in-out 
+                    hover:after:w-full">
                     <Link href="/" className="flex h-full w-full text-lg items-center justify-center text-white hover:text-blue-400 transition-colors">
                         Features
                     </Link>
                 </li>
 
                 <li className="relative flex h-[65px] w-[170px] items-center justify-center
-                               after:absolute after:bottom-0 after:left-1/2 after:h-[5px] after:w-0 
-                               after:-translate-x-1/2 after:rounded-[10px] after:bg-[#e0e0e0]
-                               after:transition-all after:duration-300 after:ease-in-out 
-                               hover:after:w-full">
+                    after:absolute after:bottom-0 after:left-1/2 after:h-[5px] after:w-0 
+                    after:-translate-x-1/2 after:rounded-[10px] after:bg-[#e0e0e0]
+                    after:transition-all after:duration-300 after:ease-in-out 
+                    hover:after:w-full">
                     <Link href="/" className="flex h-full w-full text-lg items-center justify-center text-white hover:text-blue-400 transition-colors">
                         How it Works
                     </Link>
                 </li>
 
                 <li className="relative flex h-[65px] w-[130px] items-center justify-center
-                               after:absolute after:bottom-0 after:left-1/2 after:h-[5px] after:w-0 
-                               after:-translate-x-1/2 after:rounded-[10px] after:bg-[#e0e0e0]
-                               after:transition-all after:duration-300 after:ease-in-out 
-                               hover:after:w-full">
-                    <Link href="/" className="flex h-full w-full text-lg items-center justify-center text-white hover:text-blue-400 transition-colors">
+                after:absolute after:bottom-0 after:left-1/2 after:h-[5px] after:w-0 
+                after:-translate-x-1/2 after:rounded-[10px] after:bg-[#e0e0e0]
+                after:transition-all after:duration-300 after:ease-in-out 
+                hover:after:w-full">
+                    <Link href="/about-us" className="flex h-full w-full text-lg items-center justify-center text-white hover:text-blue-400 transition-colors">
                         About Us
                     </Link>
                 </li>
@@ -101,18 +105,31 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
 
             <ul className='flex items-center ml-[40px] mr-[100px] gap-[30px]'>
                 <li>
-                    <button onClick={onSignUpClick} className='text-lg text-white cursor-pointer hover:underline hover:underline-offset-3 hover:decoration-2'>
+                    <button onClick={() => {
+                        if (onSignUpClick) { onSignUpClick(); return; }
+                        setModeState('register');
+                        setShowAuth(true);
+                    }} className='text-lg text-white cursor-pointer hover:underline hover:underline-offset-3 hover:decoration-2'>
                         Sign up
                     </button>
                 </li>
 
                 <li>
-                    <button onClick={onLoginClick} className='text-lg text-white bg-[#1594dd] px-10 py-2 rounded-full cursor-pointer hover:bg-[#1973c8] transition-all'>
+                    <button onClick={() => {
+                        if (onLoginClick) { onLoginClick(); return; }
+                        setModeState('login');
+                        setShowAuth(true);
+                    }} className='text-lg text-white bg-[#1594dd] px-10 py-2 rounded-full cursor-pointer hover:bg-[#1973c8] transition-all'>
                         Login
                     </button>
                 </li>
             </ul>
 
         </nav>
+
+        {showAuth && (
+            <AuthModal mode={modeState} onClose={() => setShowAuth(false)} />
+        )}
+        </>
     )
 };
