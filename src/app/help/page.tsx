@@ -53,19 +53,19 @@ export default function ProjectPage() {
                 onLogout={handleLogout}
             />
             <main className="flex-1 overflow-y-auto p-4 md:p-8">
-                <div className="relative w-full h-64 rounded-lg mb-8 bg-cover bg-center"
+                <div className="relative w-full h-50 rounded-lg mb-2 bg-cover bg-center"
                     style={{ backgroundImage: 'url(/dai.png)',
-                        backgroundSize: '65%',
+                        backgroundSize: '35%',
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat',
                     }}> {/*รูปแม่ง generate มาอย่างโง่ โค้ดนี้เก็บไว้ก็ได้เพราะเผื่อเอารูปมาใช้ */ }   
                 </div> 
 
-                <h1 className="text-3xl md:text-5xl font-bold mb-4 md:mb-8 text-center text-[#34495e]">
+                <h1 className="text-3xl md:text-3xl font-bold mb-3 md:mb-5 text-center text-[#34495e]">
                     Need help? We've got your back.
                 </h1>
                     <div>
-                        <h2 className="text-base md:text-base mb-7 md:mb-14 text-center text-[#555]">
+                        <h2 className="text-base md:text-[18px] mb-7 md:mb-10 text-center text-[#555]">
                             helping people who's get struggle with "I don't know where should I go next".
                         </h2>
                     </div>

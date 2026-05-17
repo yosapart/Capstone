@@ -3,9 +3,9 @@ import Image from 'next/image';
 
 export function Footer(){
     return(
-        <div className='bg-[#34495e] h-[24rem] '>
-            <div className='flex pt-[3rem] h-[19rem] '>
-                <div className='ml-[5rem] '>
+        <div className='bg-[#34495e] h-[25rem] '>
+            <div className='flex pt-[3rem] h-[19rem] mr-[2rem] '>
+                <div className='ml-[6.5rem] '>
                     <Link href="/" className='mb-[2.5rem] inline-block '>
                         <Image 
                             src="/logo-w.png" 

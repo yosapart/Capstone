@@ -1,9 +1,8 @@
 "use client";
 import { Navbar } from "./_components/Navbar";
 import { HeroSection } from "./_components/Hero";
-import { DesignSection } from "./_components/Design";
-import { AnalyzeSection } from "./_components/Analyze";
-import { PDFSection } from "./_components/Pdf";
+import { Features } from "./_components/Features";
+import { HowItsWorks } from "./_components/HowItsWork";
 import { CloseSection } from "./_components/Close";
 import { Footer } from "./_components/Footer";
 import AuthModal from "./_components/AuthModal";
@@ -31,6 +30,11 @@ export default function Home() {
     router.push("/home");
   };
 
+  const handleSignUp = () => {
+    setMode("register");
+    setShowAuth(true);
+  };
+
   return (
     <>
       <Navbar
@@ -40,10 +44,9 @@ export default function Home() {
 
       <main>
         <HeroSection onCreateClick={handleCreate} />
-        <DesignSection />
-        <AnalyzeSection />
-        <PDFSection />
-        <CloseSection />
+        <Features />
+        <HowItsWorks/>
+        <CloseSection onCreateClick={handleSignUp} />
       </main>
 
       <Footer />

@@ -114,16 +114,16 @@ export function ReportModal({ projectName, flowName, simulationResult, authorNam
     <div className="fixed inset-0 z-[3000] flex flex-col items-center bg-slate-900/60 backdrop-blur-sm overflow-y-auto print:bg-white print:block">
       
       {/* ─── Web Controls (Fixed Top Right) ─── */}
-      <div className="fixed top-8 right-8 flex gap-3 z-[3100] print:hidden">
+      <div className="fixed top-20 right-10 flex gap-5 z-[3100] print:hidden">
         <button 
           onClick={onClose}
-          className="px-6 py-2.5 cursor-pointer bg-white text-slate-700 font-semibold rounded-full shadow-xl border border-slate-200 hover:bg-slate-50 transition-all active:scale-95"
+          className="px-7 py-2.5 cursor-pointer bg-white text-slate-700 font-semibold rounded-full shadow-xl border border-slate-200 hover:bg-slate-50 transition-all active:scale-95"
         >
           Close
         </button>
         <button 
           onClick={handlePrint}
-          className="px-6 py-2.5 cursor-pointer bg-[#1594dd] text-white font-bold rounded-full shadow-xl hover:bg-[#1277b5] transition-all flex items-center gap-2 active:scale-95"
+          className="px-7 py-2.5 cursor-pointer bg-[#1594dd] text-white font-bold rounded-full shadow-xl hover:bg-[#1277b5] transition-all flex items-center gap-2 active:scale-95"
         >
           Save PDF
         </button>
@@ -147,7 +147,7 @@ export function ReportModal({ projectName, flowName, simulationResult, authorNam
       `}</style>
 
       {/* ─── Render Pages ─── */}
-      <div id="report-printable-area" className="flex flex-col items-center w-full">
+      <div id="report-printable-area" className="flex flex-col items-center w-full mt-12">
         {pageChunks.map((chunk, pageIdx) => (
           <div key={pageIdx} className="paper-sheet">
             

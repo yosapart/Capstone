@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import AuthModal from './AuthModal';
 import { useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 
 interface NavbarProps {
     onLoginClick?: () => void;
@@ -18,6 +19,9 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
     const [user, setUser] = useState<UserInfo | null>(null);
     const [showAuth, setShowAuth] = useState(false);
     const [modeState, setModeState] = useState<'login' | 'register'>('login');
+
+    const pathname = usePathname(); // ดึง Path ปัจจุบัน เช่น "/" หรือ "/about-us"
+    const router = useRouter();
 
     useEffect(() => {
         const stored = sessionStorage.getItem("user");
@@ -58,6 +62,31 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
         window.dispatchEvent(new Event("user-changed"));
     };
 
+    const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+        if (pathname === "/") {
+            // กรณีอยู่หน้าแรกอยู่แล้ว ให้ทำ Smooth Scroll ทันที ไม่ต้องรีโหลดหน้า
+            e.preventDefault();
+            const element = document.getElementById(targetId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        } else if (pathname === "/about-us") {
+            // กรณีอยู่หน้า About Us: ป้องกันการทำงานของลิงก์แบบปกติชั่วคราว
+            e.preventDefault();
+            
+            // สั่งเด้งกลับหน้าแรกพร้อมส่งค่า Hash ติดไปบน URL (เช่น /#features)
+            router.push(`/#${targetId}`);
+
+            // ดักเลื่อนหน้าจอแบบนุ่มนวล (Smooth) หลังจากที่กลับมาหน้าแรกแล้ว
+            setTimeout(() => {
+                const element = document.getElementById(targetId);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 150); // หน่วงเวลาเล็กน้อยเพื่อให้ Next.js เคลียร์ DOM หน้าเก่าเสร็จสมบูรณ์
+        }
+    };
+
     return (
         <>
         <nav className='flex items-center text-[16px] font-bold max-w-full h-[65px] bg-[#34495e] sticky top-0 z-[1000]'>
@@ -77,7 +106,11 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
                     after:-translate-x-1/2 after:rounded-[10px] after:bg-[#e0e0e0]
                     after:transition-all after:duration-300 after:ease-in-out 
                     hover:after:w-full">
-                    <Link href="/" className="flex h-full w-full text-lg items-center justify-center text-white hover:text-blue-400 transition-colors">
+                    <Link 
+                        href="/#features" 
+                        onClick={(e) => handleNavClick(e, 'features')}
+                        className="flex h-full w-full text-lg items-center justify-center text-white hover:text-blue-400 transition-colors"
+                    >
                         Features
                     </Link>
                 </li>
@@ -87,7 +120,11 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
                     after:-translate-x-1/2 after:rounded-[10px] after:bg-[#e0e0e0]
                     after:transition-all after:duration-300 after:ease-in-out 
                     hover:after:w-full">
-                    <Link href="/" className="flex h-full w-full text-lg items-center justify-center text-white hover:text-blue-400 transition-colors">
+                    <Link 
+                        href="/#how-it-works" 
+                        onClick={(e) => handleNavClick(e, 'how-it-works')}
+                        className="flex h-full w-full text-lg items-center justify-center text-white hover:text-blue-400 transition-colors"
+                    >
                         How it Works
                     </Link>
                 </li>
@@ -109,7 +146,7 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
                         if (onSignUpClick) { onSignUpClick(); return; }
                         setModeState('register');
                         setShowAuth(true);
-                    }} className='text-lg text-white cursor-pointer hover:underline hover:underline-offset-3 hover:decoration-2'>
+                    }} className='text-lg text-white cursor-pointer hover:text-[#1594dd] transition-all'>
                         Sign up
                     </button>
                 </li>

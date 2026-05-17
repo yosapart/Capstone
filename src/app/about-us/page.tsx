@@ -38,9 +38,9 @@
   }
 
   const team = [
-    { name: "นาย pea pea", role: "lord of darkness", avatar: "/chat1.png" },
-    { name: "นายคีน คีน", role: "the cookies run king", avatar: "/chatgen1.png" },
-    { name: "นายงู", role: "unknow", avatar: "/chatuse.png" },
+    { name: "นาย pea pea", role: "Lord of Darkness", avatar: "/chat1.png" },
+    { name: "นายคีน คีน", role: "The Cookierun King", avatar: "/chatgen1.png" },
+    { name: "นายงู", role: "The Best Crawler", avatar: "/chatuse.png" },
   ];
 
   const values = [

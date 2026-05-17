@@ -283,7 +283,7 @@ export function EditorRightPanel({
                                 backgroundColor: `${bt?.color || "#666"}30`,
                               }}
                             />
-                             <span className="text-[14px] font-semibold text-[#34495e] truncate whitespace-nowrap block min-w-0">
+                             <span className="text-[14px] font-semibold text-[#34495e] truncate whitespace-nowrap block min-w-0 w-[90px] ">
                                {step.name.length > 15 ? step.name.substring(0, 15) + "..." : step.name}
                              </span>
                           </div>
