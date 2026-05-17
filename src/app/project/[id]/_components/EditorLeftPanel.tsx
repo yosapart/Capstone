@@ -14,7 +14,7 @@ export function EditorLeftPanel({ onAddBlock }: EditorLeftPanelProps) {
           <button
             key={bt.type}
             onClick={() => onAddBlock(bt.type, bt.label)}
-            className="flex flex-col items-center justify-center p-2.5 rounded-lg border-2 hover:shadow-md transition-all cursor-grab active:cursor-grabbing"
+            className="flex flex-col items-center justify-center p-2.5 rounded-lg border-2 hover:shadow-md transition-all cursor-pointer active:cursor-grabbing"
             style={{ borderColor: bt.border, backgroundColor: `${bt.color}15` }}
             title={bt.label}
           >

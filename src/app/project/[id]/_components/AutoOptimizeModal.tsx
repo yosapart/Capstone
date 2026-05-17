@@ -58,6 +58,7 @@ const MODES: { mode: OptMode; label: string; desc: string }[] = [
 
 export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModalProps) {
   const [targetUnits, setTargetUnits] = useState(100);
+  const [isOpen, setIsOpen] = useState(false);
   const [timeLimitMinutes, setTimeLimitMinutes] = useState(60);
   const [sellingPrice, setSellingPrice] = useState<number>(0);
   const [optMode, setOptMode] = useState<OptMode>("profit");
@@ -158,26 +159,72 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
           {!result && !compareResults && (
             <>
               {/* Mode Selector */}
-              <div className="space-y-2 pt-2.5 border-t border-slate-100">
+              <div className="space-y-3 pt-3 border-t border-slate-100 relative">
                 <label className="text-[16px] font-medium text-slate-600">
                   Optimization Goal
                 </label>
-                <div className="grid grid-cols-2 gap-2 p-1 mt-1 bg-slate-100 rounded-xl">
-                  {MODES.map(({ mode, label }) => (
-                    <button
-                      key={mode}
-                      onClick={() => setOptMode(mode)}
-                      className={`py-2 text-[14px] cursor-pointer font-medium rounded-lg transition-all ${
-                        optMode === mode
-                          ? "bg-white text-slate-900 shadow-sm"
-                          : "text-slate-400 hover:text-slate-700"
+                <div className="relative mt-2">
+                  {/* หัวข้อ Dropdown หลัก */}
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(!isOpen)}
+                    className={`w-full flex items-center justify-between bg-slate-50 border ${
+                      isOpen ? "border-slate-400 ring-2 ring-slate-900/5" : "border-slate-200"
+                    } rounded-xl p-2.5 text-sm font-medium text-slate-800 outline-none cursor-pointer transition-all`}
+                  >
+                    <span>{MODES.find((m) => m.mode === optMode)?.label}</span>
+                    {/* ลูกศรที่สามารถหมุน ขึ้น-ลง ได้ด้วย transition */}
+                    <svg
+                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                        isOpen ? "rotate-180" : "rotate-0"
                       }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      {label}
-                    </button>
-                  ))}
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+
+                  {/* รายการตัวเลือกแบบลอยตัว (Custom Menu เหมือนรูปขวา) */}
+                  {isOpen && (
+                    <>
+                      {/* Backdrop เล็กๆ ป้องกันการกดซ้อนและใช้ปิดเมื่อคลิกข้างนอกกล่อง */}
+                      <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
+                      
+                      <div className="absolute left-0 right-0 mt-1.5 bg-white border border-slate-100 rounded-xl shadow-xl p-1 z-20 max-h-[200px] overflow-y-auto animate-in fade-in slide-in-from-top-1 duration-150">
+                        {MODES.map(({ mode, label }) => {
+                          const isSelected = optMode === mode;
+                          return (
+                            <button
+                              key={mode}
+                              type="button"
+                              onClick={() => {
+                                setOptMode(mode);
+                                setIsOpen(false);
+                              }}
+                              className={`w-full text-left px-3 py-2.5 text-sm rounded-lg cursor-pointer transition-colors flex items-center justify-between ${
+                                isSelected
+                                  ? "bg-slate-100 text-slate-900 font-semibold"
+                                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium"
+                              }`}
+                            >
+                              <span>{label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
                 </div>
-                <p className="text-[13px] h-[50px] text-slate-400 ml-1">
+                
+                {/* คำอธิบายของโหมดที่เลือก */}
+                <p className="text-[13px] h-[50px] text-slate-400 ml-1 mt-1.5 leading-relaxed">
                   {MODES.find((m) => m.mode === optMode)?.desc}
                 </p>
               </div>
@@ -185,31 +232,31 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
               {/* Inputs */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-[13px] font-medium text-slate-600">
+                  <label className="text-[14px] font-medium text-slate-600">
                     Target Units
                   </label>
                   <input
                     type="number"
                     min={1}
-                    className="w-full bg-slate-50 mt-1 ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 rounded-xl p-2.5 text-sm outline-none"
-                    value={targetUnits}
-                    onChange={(e) => setTargetUnits(Number(e.target.value))}
+                    className="w-full bg-slate-50 mt-1 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all"
+                    value={targetUnits || ""} 
+                    onChange={(e) => setTargetUnits(e.target.value === "" ? 0 : Number(e.target.value))}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[13px] font-medium text-slate-600">
+                  <label className="text-[14px] font-medium text-slate-600">
                     Time Limit (min)
                   </label>
                   <input
                     type="number"
                     min={1}
-                    className="w-full bg-slate-50 mt-1 ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 rounded-xl p-2.5 text-sm outline-none"
-                    value={timeLimitMinutes}
-                    onChange={(e) => setTimeLimitMinutes(Number(e.target.value))}
+                    className="w-full bg-slate-50 mt-1 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all"
+                    value={timeLimitMinutes || ""} 
+                    onChange={(e) => setTimeLimitMinutes(e.target.value === "" ? 0 : Number(e.target.value))}
                   />
                 </div>
                 <div className={'space-y-1.5 col-span-2'}>
-                  <label className="text-[13px] font-medium text-slate-600">
+                  <label className="text-[14px] font-medium text-slate-600">
                     Selling Price / Unit{" "}
                     {(optMode === "compare" || optMode === "profit") && (
                       <span className="text-red-500">*</span>
@@ -219,9 +266,9 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                     type="number"
                     min={0}
                     placeholder={(optMode === "compare" || optMode === "profit") ? "e.g., 250" : "Optional"}
-                    className="w-full bg-slate-50 mt-1 ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 rounded-xl p-2.5 text-sm outline-none"
+                    className="w-full bg-slate-50 mt-1 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all"
                     value={sellingPrice || ""}
-                    onChange={(e) => setSellingPrice(Number(e.target.value))}
+                    onChange={(e) => setSellingPrice(e.target.value === "" ? 0 : Number(e.target.value))}
                   />
                 </div>
 
@@ -390,8 +437,12 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                           {a.suggestedPeople}
                         </span>
                         {changed && (
-                          <span className="text-[12px] text-emerald-600 ml-1">
-                            +{a.suggestedPeople - a.originalPeople}
+                          <span className="text-[12px] text-emerald-600 ml-1 font-bold">
+                            {(() => {
+                              const diff = a.suggestedPeople - a.originalPeople;
+                              if (diff > 0) return `+${diff}`;
+                              return diff;
+                            })()}
                           </span>
                         )}
                       </div>

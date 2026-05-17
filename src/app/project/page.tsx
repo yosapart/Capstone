@@ -12,6 +12,7 @@ import { IconSearch, IconPlus } from "@/app/_components/Icons";
 
 import { RecentProjects } from "@/app/_global_components/RecentProject";
 import { YourProjects } from "@/app/project/_components/YourProject";
+import { SearchResults } from "@/app/project/_components/SearchResults";
 import { filterUserProjects, getSortedProjects, getRecentProjects } from "@/app/project/utils";
 
 interface UserInfo {
@@ -30,7 +31,7 @@ export default function HomePage() {
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
-  const [search, setSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   // ดึง projects จาก API
@@ -76,9 +77,12 @@ export default function HomePage() {
   if (!user) return null;
 
   /* ─── กรองและเรียง projects ─── */
-  const userProjects = filterUserProjects(projects, user, search);
+  const userProjects = filterUserProjects(projects, user, searchQuery);
   const sortedProjects = getSortedProjects(userProjects);
   const recentProjects = getRecentProjects(userProjects);
+  const searchedUserProjects = sortedProjects.filter((p) =>
+    p.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
+  );
 
   return (
     <div className="flex flex-col h-screen bg-[#f0f2f5] overflow-hidden">
@@ -106,8 +110,8 @@ export default function HomePage() {
               <input
                 type="text"
                 placeholder="Search your project"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="bg-transparent text-gray-800 placeholder-gray-400 outline-none w-full text-sm"
               />
             </div>
@@ -124,23 +128,35 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Recent Projects */}
-          <RecentProjects 
-            loading={loadingProjects}
-            projects={recentProjects}
-            onEdit={setProjectToEdit}
-            onDelete={setProjectToDelete}
-            onView={(id) => router.push(`/project/${id}`)}
-          />
+          {searchQuery.trim() === "" ? (
+            <>
+              <RecentProjects 
+                loading={loadingProjects}
+                projects={recentProjects}
+                onEdit={setProjectToEdit}
+                onDelete={setProjectToDelete}
+                onView={(id) => router.push(`/project/${id}`)}
+              />
 
-          {/* Your Projects */}
-          <YourProjects 
-            loading={loadingProjects}
-            projects={sortedProjects}
-            onEdit={setProjectToEdit}
-            onDelete={setProjectToDelete}
-            onView={(id) => router.push(`/project/${id}`)}
-          />
+              <YourProjects 
+                loading={loadingProjects}
+                projects={sortedProjects}
+                onEdit={setProjectToEdit}
+                onDelete={setProjectToDelete}
+                onView={(id) => router.push(`/project/${id}`)}
+              />
+            </>
+          ) : (
+            <SearchResults 
+              loading={loadingProjects}
+              searchQuery={searchQuery}
+              projects={searchedUserProjects} // ส่งอาเรย์โปรเจกต์ที่ผ่านการกรองแล้วเข้าไป
+              onEdit={setProjectToEdit}
+              onDelete={setProjectToDelete}
+              onView={(id) => router.push(`/project/${id}`)}
+              onClearSearch={() => setSearchQuery("")}
+            />
+          )}
         </main>
       </div>
 

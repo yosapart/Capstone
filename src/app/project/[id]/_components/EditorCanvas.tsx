@@ -87,28 +87,31 @@ export function EditorCanvas({
           data: {
             type: block.type,
             label: (
-              <div className="flex flex-col w-full" style={{ minWidth: 130 }}>
+              <div className="flex flex-col w-full " style={{ minWidth: 130 }}>
                 <div className="px-2 py-1 flex items-center gap-2">
                   <div
                     className="w-3 h-3 rounded-sm border-2 shrink-0"
                     style={{ borderColor: bt?.border || "#999", backgroundColor: `${bt?.color || "#666"}30` }}
                   />
-                  <span className="text-xs font-bold text-[#34495e] break-all whitespace-normal">
+                  <span className="text-sm font-bold text-[#34495e] break-all whitespace-normal">
                     {block.name}
                   </span>
                 </div>
                 {isSimulating && block.type === "process" && machineState && (
                   <div className="px-2 pb-1.5 pt-0.5 flex flex-col gap-1 text-[10px] border-t border-gray-100">
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center mt-1.5 text-[12.5px]">
                       <span className="text-gray-400">Queue</span>
                       <span className="font-bold text-[#34495e]">{machineState.queue}/10</span>
                     </div>
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center text-[12.5px]">
                       <span className="text-gray-400">Status</span>
-                      <span className={`font-semibold uppercase px-1 rounded text-[8px] ${machineState.status === "working" ? "bg-green-100 text-green-700" :
-                        machineState.status === "blocked" ? "bg-red-100 text-red-600 animate-pulse" :
+                      <span 
+                        className={`inline-flex items-center justify-center font-semibold uppercase px-2 py-0.5 min-w-[45px] rounded text-[8.5px] text-center ${
+                          machineState.status === "working" ? "bg-green-100 text-green-700" :
+                          machineState.status === "blocked" ? "bg-red-100 text-red-600 animate-pulse" :
                           "bg-gray-100 text-gray-500"
-                        }`}>
+                        }`}
+                      >
                         {machineState.status}
                       </span>
                     </div>

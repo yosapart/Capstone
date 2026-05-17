@@ -10,7 +10,7 @@ interface RecentProjectsProps {
 
 export function RecentProjects({ loading, projects, onEdit, onDelete, onView }: RecentProjectsProps) {
     return (
-        <section className="mb-10 bg-[#ffffff] mt-10 p-4 pb-8 rounded-[10px]">
+        <section className="mb-10 bg-[#ffffff] mt-10 p-6 pb-8 rounded-[10px]">
             <h2 className="text-[24px] font-bold text-[#34495e] mb-4">Recent Project</h2>
             {loading ? (
                 <div className="flex items-center justify-center py-13">

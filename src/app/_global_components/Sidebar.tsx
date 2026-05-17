@@ -1,4 +1,4 @@
-import { IconHome, IconFolder, IconSettings, IconHelp, IconLogout } from "../_components/Icons";
+import { IconHome, IconFolder,  IconHelp, IconLogout } from "../_components/Icons";
 import { useRouter } from "next/navigation";
 import { usePathname } from 'next/navigation';
 
@@ -15,7 +15,7 @@ export function Sidebar({ activeMenu, onMenuChange, onLogout }: SidebarProps) {
     <aside className="w-[240px] bg-white border-r border-gray-200 flex flex-col shrink-0">
 
       <nav className="flex flex-col px-4 pt-6">
-        <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-3">Menu</span>
+        <span className="text-[12px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-3">Menu</span>
 
         <SidebarItem
           icon={<IconHome />}
@@ -34,13 +34,8 @@ export function Sidebar({ activeMenu, onMenuChange, onLogout }: SidebarProps) {
       <div className="mx-6 my-4 border-t border-gray-200" />
 
       <nav className="flex flex-col px-4">
-        <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-3">General</span>
-        <SidebarItem
-          icon={<IconSettings />}
-          label="Setting"
-          active={pathname === "/setting"}
-          onClick={() => onMenuChange("setting")}
-        />
+        <span className="text-[12px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-3">General</span>
+        
         <SidebarItem
           icon={<IconHelp />}
           label="Help"
@@ -88,7 +83,7 @@ function SidebarItem({
           onClick();
         }}
         className={`
-          flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all mb-1 cursor-pointer
+          flex text-[14px] items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all mb-1 cursor-pointer
           ${active
             ? "bg-[#1594dd]/10 text-[#1594dd]"
             : danger

@@ -308,7 +308,7 @@ export default function AuthModal({
       onClick={onClose}
     >
       <div
-        className="bg-white p-6 rounded-2xl w-[330px] flex flex-col items-center space-y-4 shadow-xl relative overflow-hidden"
+        className="bg-white p-6 rounded-2xl w-[370px] flex flex-col items-center space-y-4 shadow-xl relative overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {loading && !success && (
@@ -530,7 +530,7 @@ export default function AuthModal({
             <div className="flex flex-col items-center">
               <button
                 onClick={handleSubmit}
-                className="mt-2 bg-[#1594dd] text-white px-8 py-2 rounded-full font-semibold"
+                className="my-2 bg-[#1594dd] h-[2.75rem] cursor-pointer text-white px-8 py-2 rounded-full font-semibold hover:bg-[#1973c8] transition-all"
               >
                 {mode === 'login'
                   ? 'Login'
@@ -562,14 +562,14 @@ export default function AuthModal({
             <div className="flex items-center gap-3 mt-4">
               <button
                 onClick={handleSubmit}
-                className="text-sm text-gray-500 underline"
+                className="text-sm text-gray-500 underline cursor-pointer"
               >
                 Verify
               </button>
 
               <button
                 onClick={handleResendOtp}
-                className="text-sm text-gray-500"
+                className="text-sm text-gray-500 cursor-pointer"
               >
                 {resendTimer > 0
                   ? `Resend (${resendTimer})`
