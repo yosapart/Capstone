@@ -67,22 +67,47 @@ export function useSimulation(speed: number, blocks: any[]) {
 
       let rev = 0;
       let net = 0;
+      let oppGain = 0;
+      let penalty = 0;
       if (simulationResult.selling_price_per_unit) {
         rev = completedItems * simulationResult.selling_price_per_unit;
-        net = rev - currentCost;
+        
+        const timeLimit = simulationResult.time_limit_minutes || 0;
+        const currentDurationMinutes = currentDuration; // currentDuration is already in minutes
+        if (timeLimit > 0) {
+          const timeSaved = Math.max(0, timeLimit - currentDurationMinutes);
+          const throughputRate = currentDurationMinutes > 0 ? completedItems / currentDurationMinutes : 0;
+          
+          const totalMaterialCostPerUnit = blocks.reduce((sum, b) => sum + (Number(b.cost_per_unit) || 0), 0);
+          const marginalProfitPerUnit = simulationResult.selling_price_per_unit - totalMaterialCostPerUnit;
+          
+          const rawOpportunityGain = simulationResult.selling_price_per_unit > 0 && marginalProfitPerUnit > 0
+            ? timeSaved * throughputRate * marginalProfitPerUnit
+            : 0;
+            
+          const maxOpportunityGain = timeLimit > 0 ? (timeSaved / timeLimit) * rev : 0;
+          oppGain = Math.min(rawOpportunityGain, maxOpportunityGain);
+          
+          const overdueMinutes = Math.max(0, currentDurationMinutes - timeLimit);
+          penalty = (overdueMinutes / 60) * 0.005 * rev;
+        }
+
+        net = rev + oppGain - currentCost - penalty;
       }
 
       if (completedItems >= target_output) {
         setIsSimulating(false);
-        // keep final state to show results
+        // keep final state to show exact precise simulation result values so they match the PDF perfectly!
         setPlaybackState({
           currentProduce: completedItems,
-          cost: currentCost,
-          electricity: currentElec,
-          duration: currentDuration,
+          cost: simulationResult.total_cost,
+          electricity: simulationResult.total_electricity,
+          duration: simulationResult.total_duration,
           machineStates: { ...localStates },
-          revenue: rev,
-          netProfit: net,
+          revenue: simulationResult.total_revenue ?? rev,
+          opportunityGain: simulationResult.opportunity_gain ?? oppGain,
+          overduePenalty: simulationResult.overdue_penalty ?? penalty,
+          netProfit: simulationResult.net_profit ?? net,
           sourceProgress: 0
         });
         return;
@@ -185,6 +210,8 @@ export function useSimulation(speed: number, blocks: any[]) {
         machineStates: { ...localStates },
         sourceProgress: srcProg,
         revenue: rev,
+        opportunityGain: oppGain,
+        overduePenalty: penalty,
         netProfit: net,
       });
     };
@@ -198,7 +225,7 @@ export function useSimulation(speed: number, blocks: any[]) {
   const startSimulation = (result: SimulationResult) => {
     setSimulationResult(result);
     if (result.mode === "realtime") {
-      setPlaybackState({ currentProduce: 0, cost: 0, electricity: 0, duration: 0, sourceProgress: 0, revenue: 0, netProfit: 0 });
+      setPlaybackState({ currentProduce: 0, cost: 0, electricity: 0, duration: 0, sourceProgress: 0, revenue: 0, opportunityGain: 0, overduePenalty: 0, netProfit: 0 });
       setIsSimulating(true);
     } else {
       setPlaybackState(null);

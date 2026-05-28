@@ -32,8 +32,8 @@ interface EditorCanvasProps {
 }
 
 const getTestcaseStyle = (type?: string) => {
-  switch(type) {
-    case 'labor': return { 
+  switch (type) {
+    case 'labor': return {
       bg: 'bg-blue-50', border: 'border-blue-200', textTitle: 'text-blue-800', textIcon: 'text-blue-600', boxBorder: 'border-blue-200',
       icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
     };
@@ -105,19 +105,18 @@ export function EditorCanvas({
                     </div>
                     <div className="flex justify-between items-center text-[12.5px]">
                       <span className="text-gray-400">Status</span>
-                      <span 
-                        className={`inline-flex items-center justify-center font-semibold uppercase px-2 py-0.5 min-w-[45px] rounded text-[8.5px] text-center ${
-                          machineState.status === "working" ? "bg-green-100 text-green-700" :
-                          machineState.status === "blocked" ? "bg-red-100 text-red-600 animate-pulse" :
-                          "bg-gray-100 text-gray-500"
-                        }`}
+                      <span
+                        className={`inline-flex items-center justify-center font-semibold uppercase px-2 py-0.5 min-w-[45px] rounded text-[8.5px] text-center ${machineState.status === "working" ? "bg-green-100 text-green-700" :
+                            machineState.status === "blocked" ? "bg-red-100 text-red-600 animate-pulse" :
+                              "bg-gray-100 text-gray-500"
+                          }`}
                       >
                         {machineState.status}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-1 overflow-hidden mt-0.5">
                       <div
-                        className="bg-[#1594dd] h-1 rounded-full transition-all duration-75"
+                        className="bg-[#5d88bd] h-1 rounded-full transition-all duration-75"
                         style={{ width: `${machineState.progress * 100}%` }}
                       />
                     </div>
@@ -186,7 +185,7 @@ export function EditorCanvas({
   }, [blocks, setEdges, isSimulating, machineStates, sourceProgress, speed]);
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge({ ...params, animated: true, style: { stroke: "#1594dd", strokeWidth: 2 } }, eds)),
+    (params: Connection) => setEdges((eds) => addEdge({ ...params, animated: true, style: { stroke: "#5d88bd", strokeWidth: 2 } }, eds)),
     [setEdges],
   );
 
@@ -225,7 +224,7 @@ export function EditorCanvas({
         <Background gap={20} size={1} />
         <Controls />
         <MiniMap nodeStrokeWidth={3} zoomable pannable />
-        
+
         {/* Testcase Box Overlay */}
         {activeTestcase && activeTestcase.name !== "none" && (
           (() => {

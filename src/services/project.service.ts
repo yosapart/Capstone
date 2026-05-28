@@ -11,9 +11,43 @@ export interface Project {
 
 // ========== Get All Projects ==========
 export async function getAllProjects() {
-  const { data: rows, error } = await supabase.from("projects").select("*");
+  const { data: rows, error } = await supabase
+    .from("projects")
+    .select(`
+      *,
+      flows (
+        name,
+        blocks (
+          block_id
+        )
+      )
+    `);
+
   if (error) throw error;
-  return rows;
+
+  return rows.map((project: any) => {
+    const flowsStats: { name: string; block_count: number }[] = [];
+    let totalBlockCount = 0;
+
+    if (project.flows && project.flows.length > 0) {
+      project.flows.forEach((flow: any) => {
+        const count = flow.blocks ? flow.blocks.length : 0;
+        totalBlockCount += count;
+        if (flow.name) {
+          flowsStats.push({ name: flow.name, block_count: count });
+        }
+      });
+    }
+
+    // Remove the nested flows object to keep the payload clean
+    const { flows, ...projectData } = project;
+
+    return {
+      ...projectData,
+      flows_stats: flowsStats,
+      block_count: totalBlockCount,
+    };
+  });
 }
 
 // ========== Create Project ==========

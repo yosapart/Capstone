@@ -18,24 +18,20 @@ interface DeleteProjectModalProps {
 
 export function DeleteProjectModal({ project, onClose, onDeleted }: DeleteProjectModalProps) {
   const [loading, setLoading] = useState(false);
+  const [countdown, setCountdown] = useState(2);
   const [isDeleteReady, setIsDeleteReady] = useState(false);
-  const [isFilling, setIsFilling] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
-    const fillTimer = setTimeout(() => {
-      setIsFilling(true);
-    }, 50);
-
-    const timer = setTimeout(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else {
       setIsDeleteReady(true);
-    }, 2000);
-
-    return () => {
-      clearTimeout(fillTimer);
-      clearTimeout(timer);
-    };
-  }, []); 
+    }
+  }, [countdown]);
 
   const handleDelete = async () => {
     setDeleteError("");
@@ -60,26 +56,26 @@ export function DeleteProjectModal({ project, onClose, onDeleted }: DeleteProjec
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center z-[2001]" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-[2001]" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl w-full max-w-[400px] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col p-7 mx-4"
+        className="bg-white rounded-[24px] w-full max-w-[420px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col p-8 mx-4"
         onClick={(e) => e.stopPropagation()}
-        style={{ animation: "modalIn 0.25s cubic-bezier(0, 0, 0.2, 1)" }}
+        style={{ animation: "modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)" }}
       >
        {deleteError ? (
           <div className="flex flex-col items-center text-center py-2">
-            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4">
-              <IconAlertTriangle size={30} />
+            <div className="w-12 h-12 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mb-4">
+              <IconAlertTriangle size={24} />
             </div>
             
-            <h3 className="text-[24px] font-bold text-gray-900 tracking-tight mb-2">Error</h3>
-            <p className="text-[16px] text-gray-500 mb-8 leading-relaxed">
+            <h3 className="text-[22px] font-bold text-gray-900 tracking-tight mb-2">Error</h3>
+            <p className="text-[15px] text-gray-500 mb-6 leading-relaxed">
               {deleteError}
             </p>
             
             <button
               onClick={onClose}
-              className="w-full py-2.5 bg-gray-900 hover:bg-gray-800 text-[16px] text-white font-semibold rounded-xl transition-all shadow-sm"
+              className="w-full py-2.5 bg-gray-900 hover:bg-gray-800 text-[14px] text-white font-bold rounded-xl transition-all shadow-sm active:scale-[0.98]"
             >
               OK
             </button>
@@ -88,18 +84,19 @@ export function DeleteProjectModal({ project, onClose, onDeleted }: DeleteProjec
           <>
             {/* Loading Overlay */}
             {loading && (
-              <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex items-center justify-center z-10">
-                <div className="w-6 h-6 border-2 border-gray-200 border-t-red-500 rounded-full animate-spin" />
+              <div className="absolute inset-0 bg-white/60 backdrop-blur-md flex flex-col items-center justify-center z-10">
+                <div className="w-8 h-8 rounded-full border-4 border-gray-100 border-t-red-500 animate-spin" />
+                <p className="text-sm text-gray-500 mt-3 font-medium">Deleting...</p>
               </div>
             )}
 
             <div className="mb-2">
-              <h3 className="text-[24px] font-bold text-gray-900 tracking-tight">Delete Project</h3>
+              <h3 className="text-[22px] font-bold text-gray-900 tracking-tight">Delete Project</h3>
             </div>
             
-            <div className="mb-8">
-              <p className="text-[16px] text-gray-500 leading-relaxed font-normal">
-                Are you sure you want to delete the project <span className="font-medium text-gray-900">"{project.name}"</span>? 
+            <div className="mb-6">
+              <p className="text-[15px] text-slate-500 leading-relaxed font-normal">
+                Are you sure you want to delete the project <span className="font-semibold text-gray-900">"{project.name}"</span>? 
                 This action cannot be undone, and all data will be permanently deleted.
               </p>
             </div>
@@ -108,29 +105,20 @@ export function DeleteProjectModal({ project, onClose, onDeleted }: DeleteProjec
               <button
                 onClick={onClose}
                 disabled={loading}
-                className="px-4 py-2 text-[14px] font-medium text-gray-500 cursor-pointer hover:text-gray-800 hover:bg-gray-50 rounded-xl transition-all"
+                className="px-5 py-2.5 text-[14px] font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-all duration-200"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
                 disabled={loading || !isDeleteReady}
-                className={`relative overflow-hidden px-6 py-2 text-[14px] font-semibold text-white rounded-xl transition-all shadow-sm ${
+                className={`px-6 py-2.5 text-[14px] font-bold rounded-xl transition-all duration-300 active:scale-95 ${
                   !isDeleteReady
-                    ? "bg-gray-400 cursor-not-allowed opacity-70"
-                    : "bg-[#ef4444] hover:bg-[#dc2626] shadow-red-200 cursor-pointer"
+                    ? "bg-red-50 text-red-400 border border-red-100 cursor-not-allowed"
+                    : "bg-red-500 hover:bg-red-600 text-white shadow-[0_4px_12px_rgba(239,68,68,0.25)] hover:shadow-[0_6px_16px_rgba(239,68,68,0.35)] cursor-pointer"
                   } ${loading ? "opacity-50 cursor-wait" : ""}`}
               >
-                {!isDeleteReady && (
-                  <div
-                    className="absolute left-0 top-0 h-full bg-[#ef4444] transition-all ease-linear"
-                    style={{
-                      width: isFilling ? "100%" : "0%",
-                      transitionDuration: "2000ms",
-                    }}
-                  />
-                )}
-                <span className="relative z-10">Delete</span>
+                {isDeleteReady ? "Delete" : `Delete (${countdown}s)`}
               </button>
             </div>
           </>

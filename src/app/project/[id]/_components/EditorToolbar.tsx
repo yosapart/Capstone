@@ -53,7 +53,7 @@ export function EditorToolbar({
       <div className="relative min-w-[140px]" ref={flowRef}>
         <button
           onClick={() => setIsFlowOpen(!isFlowOpen)}
-          className={`w-full flex items-center justify-between bg-white border rounded-[8px] px-3 py-1.5 text-[13px] font-medium text-gray-700 outline-none transition-all cursor-pointer ${isFlowOpen ? "border-[#8F9E8B] ring-[3px] ring-[#8F9E8B]/10" : "border-gray-200 hover:border-gray-300"
+          className={`w-full flex items-center justify-between bg-white border rounded-[8px] px-3 py-1.5 text-[13px] font-medium text-gray-700 outline-none transition-all cursor-pointer ${isFlowOpen ? "border-[#5d88bd] ring-[3px] ring-[#5d88bd]/10" : "border-gray-200 hover:border-gray-300"
             }`}
         >
           <span className="truncate">
@@ -80,7 +80,7 @@ export function EditorToolbar({
                   setIsFlowOpen(false);
                 }}
                 className={`w-full text-left px-3 py-2 text-[13px] cursor-pointer rounded-lg transition-colors ${selectedFlowId === f.flow_id
-                  ? "bg-[#8F9E8B]/15 text-[#5A6956] font-semibold"
+                  ? "bg-[#5d88bd]/10 text-[#4a729e] font-semibold"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
               >
@@ -93,7 +93,7 @@ export function EditorToolbar({
 
       <button
         onClick={onNewFlow}
-        className="text-[13px] font-medium text-[#7A8B76] cursor-pointer hover:text-[#5A6956] bg-[#7A8B76]/10 hover:bg-[#7A8B76]/20 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+        className="text-[13px] font-medium text-[#5d88bd] cursor-pointer hover:text-[#4a729e] bg-[#5d88bd]/10 hover:bg-[#5d88bd]/20 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
       >
         <span>+</span> New Flow
       </button>
@@ -121,7 +121,7 @@ export function EditorToolbar({
         <div className="relative" ref={speedRef}>
           <button
             onClick={() => setIsSpeedOpen(!isSpeedOpen)}
-            className={`w-[70px] flex items-center justify-between bg-white border rounded-[8px] px-2.5 py-1 text-[13px] font-medium text-gray-600 outline-none transition-all cursor-pointer ${isSpeedOpen ? "border-[#8F9E8B] ring-[3px] ring-[#8F9E8B]/10" : "border-gray-200 hover:border-gray-300"
+            className={`w-[70px] flex items-center justify-between bg-white border rounded-[8px] px-2.5 py-1 text-[13px] font-medium text-gray-600 outline-none transition-all cursor-pointer ${isSpeedOpen ? "border-[#5d88bd] ring-[3px] ring-[#5d88bd]/10" : "border-gray-200 hover:border-gray-300"
               }`}
           >
             <span>{speed}x</span>
@@ -138,7 +138,7 @@ export function EditorToolbar({
                     setIsSpeedOpen(false);
                   }}
                   className={`w-full text-left px-2.5 py-1.5 cursor-pointer text-[13px] rounded-lg transition-colors ${speed === v
-                    ? "bg-[#8F9E8B]/15 text-[#5A6956] font-semibold"
+                    ? "bg-[#5d88bd]/10 text-[#4a729e] font-semibold"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     }`}
                 >
@@ -183,8 +183,8 @@ export function EditorToolbar({
           px-4 py-2 rounded-xl shadow-sm 
           transition-all duration-200
           cursor-pointer
-          hover:bg-blue-500 hover:border-blue-500 hover:text-white
-          hover:shadow-[0_0_12px_rgba(59,130,246,0.5)]"
+          hover:bg-[#5d88bd] hover:border-[#5d88bd] hover:text-white
+          hover:shadow-[0_0_12px_rgba(93,136,189,0.4)]"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
           <polyline points="14 2 14 8 20 8"></polyline>

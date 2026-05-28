@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 const STEPS = [
     {
@@ -36,14 +37,21 @@ export function HowItsWorks(){
     }, []);
 
     return(
-        <section id="how-it-works" className='flex flex-col text-white w-[76%] h-200 mx-auto my-[5rem] rounded-[25px] bg-[#34495E] p-14 gap-[3rem] scroll-mt-[130px]'>
-            <div>
-                <h1 className='text-5xl font-bold mb-2 '>How it Works</h1>
-                <h2 className='text-[18px] '>Start simulating and improving your factory in 3 easy steps.</h2>
+        <motion.section 
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8 }}
+            id="how-it-works" 
+            className='flex flex-col text-gray-900 w-full max-w-7xl mx-auto my-[5rem] rounded-[2rem] bg-gray-50 border border-gray-200 p-8 lg:p-14 gap-[3rem] scroll-mt-[130px] shadow-sm'
+        >
+            <div className="text-center">
+                <h1 className='text-4xl lg:text-5xl font-bold mb-4 tracking-tight'>How it Works</h1>
+                <h2 className='text-lg lg:text-xl text-gray-500 font-medium'>Start simulating and improving your factory in 3 easy steps.</h2>
             </div>
 
             <div className='flex justify-center items-center w-full'>
-                <div className='relative w-full h-[380px] rounded-xl overflow-hidden shadow-2xl border border-white/10'>
+                <div className='relative w-full h-[380px] rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-white'>
                 
                 {STEPS.map((step, index) => {
                     const isActive = index === activeIndex;
@@ -68,7 +76,7 @@ export function HowItsWorks(){
                 </div>
             </div>
 
-            <div className='grid grid-cols-3 gap-6 w-full'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-8 w-full mt-4'>
                 {STEPS.map((step, index) => {
                     const isActive = index === activeIndex;
 
@@ -78,25 +86,22 @@ export function HowItsWorks(){
                             className="flex flex-col gap-4 cursor-pointer group"
                             onClick={() => setActiveIndex(index)}
                         >
-                            {/* บังคับ Re-render เส้นใหม่ทุกครั้งด้วย key={activeIndex} */}
                             <div 
                                 key={`line-${activeIndex}-${index}`} 
-                                className="w-full h-[7px] bg-white/10 rounded-full overflow-hidden relative"
+                                className="w-full h-[6px] bg-gray-200 rounded-full overflow-hidden relative"
                             >
                                 {isActive ? (
-                                    // ใช้สไตล์แบบ Inline Animation ยิงตรงเข้าสู่เลเยอร์ CSS เพื่อให้มันเริ่มนับ 0->100% ทุกครั้งที่สร้างก้อนนี้ขึ้นมาใหม่
                                     <div 
-                                        className="absolute top-0 left-0 h-full bg-[#1594DD] origin-left"
+                                        className="absolute top-0 left-0 h-full bg-[#5d88bd] origin-left"
                                         style={{
                                             animation: 'loadingBar 5s linear forwards'
                                         }}
                                     />
                                 ) : (
-                                    <div className="absolute top-0 left-0 h-full w-0 bg-[#1594DD]" />
+                                    <div className="absolute top-0 left-0 h-full w-0 bg-[#5d88bd]" />
                                 )}
                             </div>
 
-                            {/* เขียน CSS Keyframe เล็กๆ แปะไว้ในใจกลางแอนิเมชัน */}
                             <style>{`
                                 @keyframes loadingBar {
                                     from { width: 0%; }
@@ -104,18 +109,17 @@ export function HowItsWorks(){
                                 }
                             `}</style>
 
-                            {/* ข้อความคำอธิบาย */}
-                            <div className={`text-center transition-all duration-500 ${
-                                isActive ? 'opacity-100 scale-[1.02]' : 'opacity-30 group-hover:opacity-60'
+                            <div className={`text-center md:text-left transition-all duration-500 ${
+                                isActive ? 'opacity-100' : 'opacity-40 group-hover:opacity-70'
                             }`}>
-                                <h3 className='text-[17px] font-bold my-2'>{step.title}</h3>
-                                <p className='text-[14px] leading-relaxed'>{step.description}</p>
+                                <h3 className='text-lg font-bold mb-2'>{step.title}</h3>
+                                <p className='text-sm lg:text-[15px] leading-relaxed text-gray-600 font-medium'>{step.description}</p>
                             </div>
                         </div>
                     );
                 })}
             </div>
             
-        </section>
+        </motion.section>
     )
 }

@@ -119,8 +119,22 @@ export function AddBlockModal({
     }
   };
 
-  const inputClassName = "w-full bg-[#fbfbf9] border border-[#e8e8e3] rounded-xl px-4 py-2.5 text-[15px] text-gray-800 outline-none focus:bg-white focus:ring-4 focus:ring-[#8F9E8B]/15 focus:border-[#8F9E8B] transition-all duration-300";
-  const labelClassName = "block text-[13px] font-medium text-gray-500 mb-1.5";
+  const inputClassName = "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[15px] text-gray-800 outline-none focus:bg-white focus:ring-4 focus:ring-[#5d88bd]/15 focus:border-[#5d88bd] transition-all duration-300";
+  const labelClassName = "text-[13px] font-bold text-slate-500 uppercase tracking-wide";
+
+  const getIconPath = () => {
+    switch (blockType.type) {
+      case "start":
+        return "/icons/conveyor-belt.png";
+      case "process":
+        return "/icons/factory-machine.png";
+      case "end":
+        return "/icons/logistics.png";
+      default:
+        return null;
+    }
+  };
+  const iconPath = getIconPath();
 
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-[2000]" onClick={onClose}>
@@ -131,30 +145,47 @@ export function AddBlockModal({
       >
         {loading && (
           <div className="absolute inset-0 bg-white/60 backdrop-blur-md flex flex-col items-center justify-center z-10">
-            <div className="w-8 h-8 rounded-full border-4 border-gray-100 border-t-[#8F9E8B] animate-spin" />
-            <p className="text-sm text-gray-500 mt-3 font-medium">In progress...</p>
+            <div className="w-8 h-8 rounded-full border-4 border-gray-100 border-t-[#5d88bd] animate-spin" />
+            <p className="text-sm text-gray-500 mt-3 font-medium">Processing...</p>
           </div>
         )}
 
-        <div className="px-8 pt-8 pb-2 shrink-0 flex justify-between items-start">
+        {/* Header */}
+        <div className="px-8 pt-8 pb-4 shrink-0 flex items-start justify-between relative">
           <div>
-            <h2 className="text-[22px] font-medium text-gray-800 tracking-tight">
-              {isEditMode ? "Edit Block" : "Add Block"}<span className="text-gray-400 font-light ml-2">/ {blockType.label}</span>
+            {iconPath && (
+              <div className="w-12 h-12 rounded-2xl bg-[#5d88bd]/10 flex items-center justify-center mb-4 p-2.5">
+                <img src={iconPath} alt={blockType.label} className="w-full h-full object-contain" />
+              </div>
+            )}
+            <h2 className="text-[24px] font-bold text-gray-900 tracking-tight flex items-center gap-2.5">
+              {isEditMode ? "Edit Block" : "Add New Block"}
+              <span className="text-[#5d88bd] font-semibold text-[13px] uppercase tracking-wide bg-[#5d88bd]/10 px-2.5 py-1 rounded-lg">
+                {blockType.label}
+              </span>
             </h2>
-            <p className="text-[14px] text-gray-400 mt-1 font-light">
-              {isEditMode ? "Edit details for this process." : `Define process details ${blockType.label}`}
+            <p className="text-[14px] text-slate-500 mt-2 font-medium">
+              {isEditMode ? "Modify details and configurations for this flow step." : `Define specifications for this new ${blockType.label} step.`}
             </p>
           </div>
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
 
-        <div className="px-8 py-6 overflow-y-auto space-y-5">
+        {/* Body */}
+        <div className="px-8 py-2 overflow-y-auto space-y-5">
+          {/* Block Name */}
           <div>
-            <label className={labelClassName}>
-              Block Name <span className="text-[#d97777]">*</span>
-            </label>
+            <div className="flex justify-between items-center mb-1.5">
+              <label className={labelClassName}>Block Name</label>
+              <span className="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                Required
+              </span>
+            </div>
             <input
               type="text"
-              placeholder="e.g., Boiler No. 1"
+              placeholder="Boiler No. 1"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className={inputClassName}
@@ -162,8 +193,14 @@ export function AddBlockModal({
             />
           </div>
 
+          {/* Description */}
           <div>
-            <label className={labelClassName}>Description</label>
+            <div className="flex justify-between items-center mb-1.5">
+              <label className={labelClassName}>Description</label>
+              <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                Optional
+              </span>
+            </div>
             <textarea
               placeholder="More information..."
               value={description}
@@ -175,24 +212,35 @@ export function AddBlockModal({
 
           {blockType.type === "process" && (
             <>
+              {/* Cost & Electricity */}
               <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <label className={labelClassName}>Cost per Unit <span className="text-[#d97777]">*</span></label>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label className={labelClassName}>Cost per Unit</label>
+                    <span className="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                      Required
+                    </span>
+                  </div>
                   <input
                     type="number"
                     min="0"
-                    placeholder="e.g., 150"
+                    placeholder="150"
                     value={costPerUnit}
                     onChange={(e) => setCostPerUnit(e.target.valueAsNumber || (e.target.value === "" ? "" : 0))}
                     className={inputClassName}
                   />
                 </div>
                 <div>
-                  <label className={labelClassName}>Electricity / Unit <span className="text-[#d97777]">*</span></label>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label className={labelClassName}>Electricity / Unit</label>
+                    <span className="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                      Required
+                    </span>
+                  </div>
                   <input
                     type="number"
                     min="0"
-                    placeholder="e.g., 10.5"
+                    placeholder="4.2"
                     value={electricityPerUnit}
                     onChange={(e) => setElectricityPerUnit(e.target.valueAsNumber || (e.target.value === "" ? "" : 0))}
                     className={inputClassName}
@@ -200,9 +248,15 @@ export function AddBlockModal({
                 </div>
               </div>
 
+              {/* People & Cost per Person */}
               <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <label className={labelClassName}>Number of People <span className="text-[#d97777]">*</span></label>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label className={labelClassName}>Number of People</label>
+                    <span className="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                      Required
+                    </span>
+                  </div>
                   <input
                     type="number"
                     min="0"
@@ -213,7 +267,12 @@ export function AddBlockModal({
                   />
                 </div>
                 <div>
-                  <label className={labelClassName}>Cost per Person <span className="text-[#d97777]">*</span></label>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label className={labelClassName}>Cost per Person</label>
+                    <span className="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                      Required
+                    </span>
+                  </div>
                   <input
                     type="number"
                     min="0"
@@ -225,8 +284,14 @@ export function AddBlockModal({
                 </div>
               </div>
 
+              {/* Duration */}
               <div>
-                <label className={labelClassName}>Duration (minutes) <span className="text-[#d97777]">*</span></label>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className={labelClassName}>Duration (minutes)</label>
+                  <span className="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                    Required
+                  </span>
+                </div>
                 <input
                   type="number"
                   min="0"
@@ -240,36 +305,25 @@ export function AddBlockModal({
           )}
         </div>
 
-        <div className="px-8 py-5 flex items-center justify-between shrink-0 bg-white border-t border-[#f4f4f4]">
-          <div>
-            {isEditMode && (
-              <button 
-                onClick={handleDelete}
-                className="px-4 py-2 text-[14px] cursor-pointer font-semibold text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
-              >
-                Delete Block
-              </button>
-            )}
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={onClose}
-              className="px-5 py-2.5 text-[14px] cursor-pointer font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-xl transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={isFormIncomplete || loading}
-              className={`px-7 py-2.5 text-[14px]  font-semibold text-white rounded-xl transition-all ${
-                isFormIncomplete || loading
-                  ? "bg-gray-300 cursor-not-allowed opacity-70"
-                  : "bg-[#4CAF50] hover:bg-[#43A047] cursor-pointer shadow-[0_4px_12px_rgba(76,175,80,0.3)]"
-              }`}
-            >
-              {isEditMode ? "Save Changes" : "Save Block"}
-            </button>
-          </div>
+        {/* Footer */}
+        <div className="px-8 py-5 flex items-center justify-end shrink-0 bg-slate-50/80 border-t border-slate-100 gap-3">
+          <button
+            onClick={onClose}
+            className="px-5 py-2.5 text-[14px] font-bold text-slate-600 hover:text-gray-900 hover:bg-slate-200/50 rounded-xl transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={isFormIncomplete || loading}
+            className={`px-7 py-2.5 text-[14px] font-bold text-white rounded-xl transition-all ${
+              isFormIncomplete || loading
+                ? "bg-slate-300 cursor-not-allowed opacity-70"
+                : "bg-[#5d88bd] hover:bg-[#4a729e] cursor-pointer shadow-[0_4px_12px_rgba(93,136,189,0.3)]"
+            }`}
+          >
+            {isEditMode ? "Save Changes" : "Save Block"}
+          </button>
         </div>
       </div>
     </div>

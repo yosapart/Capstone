@@ -4,6 +4,7 @@ import Image from 'next/image';
 import AuthModal from './AuthModal';
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface NavbarProps {
     onLoginClick?: () => void;
@@ -20,20 +21,15 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
     const [showAuth, setShowAuth] = useState(false);
     const [modeState, setModeState] = useState<'login' | 'register'>('login');
 
-    const pathname = usePathname(); // ดึง Path ปัจจุบัน เช่น "/" หรือ "/about-us"
+    const pathname = usePathname();
     const router = useRouter();
 
     useEffect(() => {
         const stored = sessionStorage.getItem("user");
         if (stored) {
-            try {
-                setUser(JSON.parse(stored));
-            } catch {
-                setUser(null);
-            }
+            try { setUser(JSON.parse(stored)); } catch { setUser(null); }
         }
 
-        // Listen for login/logout events from other components
         const handleStorage = () => {
             const s = sessionStorage.getItem("user");
             if (s) {
@@ -64,109 +60,102 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
 
     const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
         if (pathname === "/") {
-            // กรณีอยู่หน้าแรกอยู่แล้ว ให้ทำ Smooth Scroll ทันที ไม่ต้องรีโหลดหน้า
             e.preventDefault();
             const element = document.getElementById(targetId);
             if (element) {
                 element.scrollIntoView({ behavior: 'smooth' });
             }
         } else if (pathname === "/about-us") {
-            // กรณีอยู่หน้า About Us: ป้องกันการทำงานของลิงก์แบบปกติชั่วคราว
             e.preventDefault();
-            
-            // สั่งเด้งกลับหน้าแรกพร้อมส่งค่า Hash ติดไปบน URL (เช่น /#features)
             router.push(`/#${targetId}`);
-
-            // ดักเลื่อนหน้าจอแบบนุ่มนวล (Smooth) หลังจากที่กลับมาหน้าแรกแล้ว
             setTimeout(() => {
                 const element = document.getElementById(targetId);
                 if (element) {
                     element.scrollIntoView({ behavior: 'smooth' });
                 }
-            }, 150); // หน่วงเวลาเล็กน้อยเพื่อให้ Next.js เคลียร์ DOM หน้าเก่าเสร็จสมบูรณ์
+            }, 150);
         }
     };
 
     return (
         <>
-        <nav className='flex items-center text-[16px] font-bold max-w-full h-[65px] bg-[#34495e] sticky top-0 z-[1000]'>
-            <Link href="/" className='block ml-[100px]'>
+        <motion.nav 
+            initial={{ y: -100 }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.5 }}
+            className='flex items-center text-[15px] font-semibold max-w-full h-[70px] bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-[1000] px-[5%] lg:px-[10%]'
+        >
+            <Link href="/" className='flex items-center gap-2'>
                 <Image
-                    src="/FacSimLogo.png"
-                    alt="FacSim Logo"
-                    width={175}
-                    height={18}
+                    src="/logo.png"
+                    alt="FacSim Logo Icon"
+                    width={36}
+                    height={36}
                     priority
+                    className="opacity-90 hover:opacity-100 transition-opacity" 
                 />
+                <span className="font-bold text-xl tracking-tight text-gray-900">FacSim</span>
             </Link>
 
-            <ul className="flex gap-[25px] ml-[auto] mr-[25px]">
-                <li className="relative flex h-[65px] w-[130px] items-center justify-center
-                    after:absolute after:bottom-0 after:left-1/2 after:h-[5px] after:w-0 
-                    after:-translate-x-1/2 after:rounded-[10px] after:bg-[#e0e0e0]
-                    after:transition-all after:duration-300 after:ease-in-out 
-                    hover:after:w-full">
+            <ul className="flex gap-[32px] ml-auto mr-[40px]">
+                <li>
                     <Link 
                         href="/#features" 
                         onClick={(e) => handleNavClick(e, 'features')}
-                        className="flex h-full w-full text-lg items-center justify-center text-white hover:text-blue-400 transition-colors"
+                        className="text-gray-600 hover:text-[#5d88bd] transition-colors py-2 relative group font-medium"
                     >
                         Features
+                        <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-[#5d88bd] transition-all duration-300 group-hover:w-full"></span>
                     </Link>
                 </li>
-
-                <li className="relative flex h-[65px] w-[170px] items-center justify-center
-                    after:absolute after:bottom-0 after:left-1/2 after:h-[5px] after:w-0 
-                    after:-translate-x-1/2 after:rounded-[10px] after:bg-[#e0e0e0]
-                    after:transition-all after:duration-300 after:ease-in-out 
-                    hover:after:w-full">
+                <li>
                     <Link 
                         href="/#how-it-works" 
                         onClick={(e) => handleNavClick(e, 'how-it-works')}
-                        className="flex h-full w-full text-lg items-center justify-center text-white hover:text-blue-400 transition-colors"
+                        className="text-gray-600 hover:text-[#5d88bd] transition-colors py-2 relative group font-medium"
                     >
                         How it Works
+                        <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-[#5d88bd] transition-all duration-300 group-hover:w-full"></span>
                     </Link>
                 </li>
-
-                <li className="relative flex h-[65px] w-[130px] items-center justify-center
-                after:absolute after:bottom-0 after:left-1/2 after:h-[5px] after:w-0 
-                after:-translate-x-1/2 after:rounded-[10px] after:bg-[#e0e0e0]
-                after:transition-all after:duration-300 after:ease-in-out 
-                hover:after:w-full">
-                    <Link href="/about-us" className="flex h-full w-full text-lg items-center justify-center text-white hover:text-blue-400 transition-colors">
+                <li>
+                    <Link 
+                        href="/about-us" 
+                        className="text-gray-600 hover:text-[#5d88bd] transition-colors py-2 relative group font-medium"
+                    >
                         About Us
+                        <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-[#5d88bd] transition-all duration-300 group-hover:w-full"></span>
                     </Link>
                 </li>
             </ul>
 
-            <ul className='flex items-center ml-[40px] mr-[100px] gap-[30px]'>
-                <li>
-                    <button onClick={() => {
-                        if (onSignUpClick) { onSignUpClick(); return; }
-                        setModeState('register');
-                        setShowAuth(true);
-                    }} className='text-lg text-white cursor-pointer hover:text-[#1594dd] transition-all'>
-                        Sign up
-                    </button>
-                </li>
-
+            <ul className='flex items-center gap-[12px]'>
                 <li>
                     <button onClick={() => {
                         if (onLoginClick) { onLoginClick(); return; }
                         setModeState('login');
                         setShowAuth(true);
-                    }} className='text-lg text-white bg-[#1594dd] px-10 py-2 rounded-full cursor-pointer hover:bg-[#1973c8] transition-all'>
+                    }} className='text-[15px] font-semibold text-gray-900 px-5 py-2.5 rounded-full hover:bg-gray-100 transition-all'>
                         Login
                     </button>
                 </li>
+                <li>
+                    <button onClick={() => {
+                        if (onSignUpClick) { onSignUpClick(); return; }
+                        setModeState('register');
+                        setShowAuth(true);
+                    }} className='text-[15px] font-semibold text-white bg-gray-900 px-6 py-2.5 rounded-full cursor-pointer hover:bg-gray-800 transition-all shadow-md hover:shadow-lg'>
+                        Sign up
+                    </button>
+                </li>
             </ul>
+        </motion.nav>
 
-        </nav>
-
-        {showAuth && (
-            <AuthModal mode={modeState} onClose={() => setShowAuth(false)} />
-        )}
+        <AnimatePresence>
+            {showAuth && (
+                <AuthModal mode={modeState} onClose={() => setShowAuth(false)} />
+            )}
+        </AnimatePresence>
         </>
     )
-};
+}

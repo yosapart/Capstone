@@ -83,7 +83,7 @@ export default function FlowEditorPage() {
 
   const showToast = (message: string) => {
     const id = Date.now();
-  
+
     setToasts((prev) => {
       const newList = [...prev, { id, message }];
       if (newList.length > 3) {
@@ -139,6 +139,10 @@ export default function FlowEditorPage() {
   };
 
   const handleAddBlockClick = async (type: string, label: string) => {
+    if (isSimulating) {
+      showToast("กรุณากดหยุดก่อนทำการแก้ไขโครงสร้างโรงงาน");
+      return;
+    }
     if (!selectedFlowId) {
       showToast("Please create a flow first.");
       return;
@@ -166,6 +170,10 @@ export default function FlowEditorPage() {
 
   // Node click handler for Editing
   const handleNodeClick = (nodeId: string) => {
+    if (isSimulating) {
+      showToast("กรุณากดหยุดก่อนทำการแก้ไข block");
+      return;
+    }
     const block = blocks.find((b) => b.block_id === Number(nodeId));
     if (block) {
       setBlockToEdit(block);
@@ -174,6 +182,10 @@ export default function FlowEditorPage() {
 
   // Direct Delete Block from Panel
   const handleDeleteBlock = async (blockId: number) => {
+    if (isSimulating) {
+      showToast("กรุณากดหยุดก่อนทำการแก้ไขโครงสร้างโรงงาน");
+      return;
+    }
     const success = await deleteBlock(blockId);
     if (success && blockToEdit?.block_id === blockId) {
       setBlockToEdit(null); // Close modal if deleting the currently editing block
@@ -208,9 +220,9 @@ export default function FlowEditorPage() {
     <div className="flex flex-col h-screen bg-[#f0f2f5] overflow-hidden">
 
       {/* ═══════ HEADER ═══════ */}
-      <Header 
-        user={user} 
-        projectName={project?.name} 
+      <Header
+        user={user}
+        projectName={project?.name}
       />
 
       {/* ═══════ TOOLBAR ═══════ */}
@@ -362,6 +374,7 @@ export default function FlowEditorPage() {
       {showSimulateModal && selectedFlowId && (
         <SimulateModal
           flowId={selectedFlowId}
+          blocks={blocks}
           flowName={flows.find((f) => f.flow_id === selectedFlowId)?.name || ""}
           onClose={() => setShowSimulateModal(false)}
           onResult={(result) => {

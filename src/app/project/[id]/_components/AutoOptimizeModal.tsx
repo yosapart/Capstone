@@ -42,12 +42,12 @@ const MODES: { mode: OptMode; label: string; desc: string }[] = [
   {
     mode: "cost",
     label: "Lowest Cost",
-    desc: "Resets staff to 1 and hires only at the most critical and cost-effective points.",
+    desc: "Starts from current staff, can both reduce excess workers and hire at bottlenecks to find the cheapest plan that meets your deadline.",
   },
   {
     mode: "profit",
     label: "Max Profit",
-    desc: "Analyzes every action using marginal profit calculation: Profit = Revenue - (Labor + Electricity + Material) to find the optimal profitability point.",
+    desc: "Starts from current staff and evaluates adding or reducing workers using marginal profit + opportunity gain analysis to find the most profitable point.",
   },
   {
     mode: "compare",
@@ -57,10 +57,10 @@ const MODES: { mode: OptMode; label: string; desc: string }[] = [
 ];
 
 export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModalProps) {
-  const [targetUnits, setTargetUnits] = useState(100);
+  const [targetUnits, setTargetUnits] = useState<number | "">("");
   const [isOpen, setIsOpen] = useState(false);
-  const [timeLimitMinutes, setTimeLimitMinutes] = useState(60);
-  const [sellingPrice, setSellingPrice] = useState<number>(0);
+  const [timeLimitMinutes, setTimeLimitMinutes] = useState<number | "">("");
+  const [sellingPrice, setSellingPrice] = useState<number | "">("");
   const [optMode, setOptMode] = useState<OptMode>("profit");
 
   const [result, setResult] = useState<OptimizerResult | null>(null);
@@ -85,9 +85,9 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
     setRunning(true);
     setTimeout(() => {
       const cfg = {
-        targetUnits,
-        timeLimitMinutes,
-        sellingPricePerUnit: sellingPrice,
+        targetUnits: Number(targetUnits) || 0,
+        timeLimitMinutes: Number(timeLimitMinutes) || 0,
+        sellingPricePerUnit: Number(sellingPrice) || 0,
         // electricity cost is already encoded in each block's electricity_per_unit field
         // budget is not constrained here — optimizer finds the profit-optimal point
       };
@@ -149,8 +149,8 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
             {compareResults
               ? "Select preferred strategy"
               : result
-              ? "Analysis Results"
-              : "Optimize workforce based on targets."}
+                ? "Analysis Results"
+                : "Optimize workforce based on targets."}
           </p>
         </div>
 
@@ -168,16 +168,14 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                   <button
                     type="button"
                     onClick={() => setIsOpen(!isOpen)}
-                    className={`w-full flex items-center justify-between bg-slate-50 border ${
-                      isOpen ? "border-slate-400 ring-2 ring-slate-900/5" : "border-slate-200"
-                    } rounded-xl p-2.5 text-sm font-medium text-slate-800 outline-none cursor-pointer transition-all`}
+                    className={`w-full flex items-center justify-between bg-slate-50 border ${isOpen ? "border-slate-400 ring-2 ring-slate-900/5" : "border-slate-200"
+                      } rounded-xl p-2.5 text-sm font-medium text-slate-800 outline-none cursor-pointer transition-all`}
                   >
                     <span>{MODES.find((m) => m.mode === optMode)?.label}</span>
                     {/* ลูกศรที่สามารถหมุน ขึ้น-ลง ได้ด้วย transition */}
                     <svg
-                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                        isOpen ? "rotate-180" : "rotate-0"
-                      }`}
+                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : "rotate-0"
+                        }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -196,7 +194,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                     <>
                       {/* Backdrop เล็กๆ ป้องกันการกดซ้อนและใช้ปิดเมื่อคลิกข้างนอกกล่อง */}
                       <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-                      
+
                       <div className="absolute left-0 right-0 mt-1.5 bg-white border border-slate-100 rounded-xl shadow-xl p-1 z-20 max-h-[200px] overflow-y-auto animate-in fade-in slide-in-from-top-1 duration-150">
                         {MODES.map(({ mode, label }) => {
                           const isSelected = optMode === mode;
@@ -208,11 +206,10 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                                 setOptMode(mode);
                                 setIsOpen(false);
                               }}
-                              className={`w-full text-left px-3 py-2.5 text-sm rounded-lg cursor-pointer transition-colors flex items-center justify-between ${
-                                isSelected
+                              className={`w-full text-left px-3 py-2.5 text-sm rounded-lg cursor-pointer transition-colors flex items-center justify-between ${isSelected
                                   ? "bg-slate-100 text-slate-900 font-semibold"
                                   : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium"
-                              }`}
+                                }`}
                             >
                               <span>{label}</span>
                             </button>
@@ -222,7 +219,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                     </>
                   )}
                 </div>
-                
+
                 {/* คำอธิบายของโหมดที่เลือก */}
                 <p className="text-[13px] h-[50px] text-slate-400 ml-1 mt-1.5 leading-relaxed">
                   {MODES.find((m) => m.mode === optMode)?.desc}
@@ -238,9 +235,10 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                   <input
                     type="number"
                     min={1}
-                    className="w-full bg-slate-50 mt-1 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all"
-                    value={targetUnits || ""} 
-                    onChange={(e) => setTargetUnits(e.target.value === "" ? 0 : Number(e.target.value))}
+                    placeholder="100"
+                    className="w-full bg-slate-50 mt-1 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    value={targetUnits}
+                    onChange={(e) => setTargetUnits(e.target.value === "" ? "" : Number(e.target.value))}
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -250,25 +248,23 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                   <input
                     type="number"
                     min={1}
-                    className="w-full bg-slate-50 mt-1 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all"
-                    value={timeLimitMinutes || ""} 
-                    onChange={(e) => setTimeLimitMinutes(e.target.value === "" ? 0 : Number(e.target.value))}
+                    placeholder="480 (8 hrs)"
+                    className="w-full bg-slate-50 mt-1 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    value={timeLimitMinutes}
+                    onChange={(e) => setTimeLimitMinutes(e.target.value === "" ? "" : Number(e.target.value))}
                   />
                 </div>
                 <div className={'space-y-1.5 col-span-2'}>
                   <label className="text-[14px] font-medium text-slate-600">
-                    Selling Price / Unit{" "}
-                    {(optMode === "compare" || optMode === "profit") && (
-                      <span className="text-red-500">*</span>
-                    )}
+                    Selling Price / Unit
                   </label>
                   <input
                     type="number"
                     min={0}
-                    placeholder={(optMode === "compare" || optMode === "profit") ? "e.g., 250" : "Optional"}
-                    className="w-full bg-slate-50 mt-1 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all"
-                    value={sellingPrice || ""}
-                    onChange={(e) => setSellingPrice(e.target.value === "" ? 0 : Number(e.target.value))}
+                    placeholder="250 bath"
+                    className="w-full bg-slate-50 mt-1 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    value={sellingPrice}
+                    onChange={(e) => setSellingPrice(e.target.value === "" ? "" : Number(e.target.value))}
                   />
                 </div>
 
@@ -291,81 +287,75 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                     <button
                       key={label}
                       onClick={() => handleChooseCompare(res)}
-                      className={`w-full text-left rounded-xl border p-3.5 cursor-pointer transition-all hover:shadow-md ${
-                        isBest
+                      className={`w-full text-left rounded-xl border p-3.5 cursor-pointer transition-all hover:shadow-md ${isBest
                           ? "border-emerald-300 bg-emerald-50 ring-2 ring-emerald-100"
                           : "border-slate-200 bg-white hover:border-slate-300"
-                      }`}
+                        }`}
                     >
-                      <div className="flex justify-between items-center mb-2.5">
-                        <span
-                          className={`text-[14px] font-semibold ${
-                            isBest ? "text-emerald-800" : "text-slate-700"
-                          }`}
-                        >
-                          {label}
-                        </span>
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="text-left">
+                          <span
+                            className={`text-base font-bold tracking-tight ${isBest ? "text-emerald-800" : "text-slate-800"
+                              }`}
+                          >
+                            {label}
+                          </span>
+                          <p className="text-[12px] text-slate-500 mt-0.5 leading-tight">
+                            {label === "Fastest Time" && "Completes production as fast as possible"}
+                            {label === "Lowest Cost" && "Minimizes overall operational expenses"}
+                            {label === "Max Profit" && "Maximizes total net profit"}
+                          </p>
+                        </div>
                         {isBest && (
-                          <span className="text-[12px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5  rounded-full">
-                            Recommended 
+                          <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 shadow-sm rounded-full uppercase tracking-wide">
+                            Recommended
                           </span>
                         )}
                       </div>
-                      <div className="grid grid-cols-3 gap-1 text-center">
-                        <div>
-                          <p className="text-[11px] text-slate-600 uppercase">Time</p>
-                          <p className="text-[13px] font-semibold text-slate-700">
-                            {res.totalTime.toFixed(0)}m
+
+                      <div className="flex justify-between items-center bg-white/60 rounded-xl p-3 shadow-sm border border-slate-100/50">
+                        <div className="text-center flex-1 border-r border-slate-200/60">
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Time</p>
+                          <p className="text-[15px] font-bold text-slate-700">
+                            {res.totalTime.toFixed(0)}<span className="text-xs font-medium text-slate-500 ml-0.5">m</span>
                           </p>
                         </div>
-                        <div>
-                          <p className="text-[11px] text-slate-600 uppercase">Cost</p>
-                          <p className="text-[13px] font-semibold text-slate-700">
-                            {fmtB(res.totalCost)}
+                        <div className="text-center flex-1 border-r border-slate-200/60">
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Cost</p>
+                          <p className="text-[15px] font-bold text-slate-700">
+                            {fmtB(res.totalCost)}<span className="text-xs font-medium text-slate-500 ml-0.5">฿</span>
                           </p>
                         </div>
-                        <div>
-                          <p className="text-[11px] text-slate-600 uppercase">Profit</p>
+                        <div className="text-center flex-1">
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Profit</p>
                           <p
-                            className={`text-[13px] font-bold ${profitColor(
+                            className={`text-[15px] font-bold ${profitColor(
                               res.netProfit
                             )}`}
                           >
                             {res.netProfit >= 0 ? "+" : ""}
-                            {fmtB(res.netProfit)}
+                            {fmtB(res.netProfit)}<span className="text-xs font-medium opacity-70 ml-0.5">฿</span>
                           </p>
                         </div>
                       </div>
-                      {/* Breakdown */}
-                      <div className="grid grid-cols-3 gap-1 mt-1.5 text-center border-t border-slate-200 pt-1.5">
-                        <div>
-                          <p className="text-[12px] text-slate-400">Labor</p>
-                          <p className="text-[11px] text-slate-500">{fmtB(res.laborCost)}</p>
-                        </div>
-                        <div>
-                          <p className="text-[12px] text-slate-400">Electricity</p>
-                          <p className="text-[11px] text-slate-500">{fmtB(res.electricityCost)}</p>
-                        </div>
-                        <div>
-                          <p className="text-[12px] text-slate-400">Materials</p>
-                          <p className="text-[11px] text-slate-500">{fmtB(res.materialCost)}</p>
-                        </div>
-                      </div>
-                      {/* Worker tags */}
-                      <div className={`flex flex-nowrap gap-2 overflow-x-auto ${styles['custom-scrollbar']}`}>
-                        {res.allocations.map((a) => (
-                          <span
-                            key={a.block_id}
-                            className={`text-[11px] my-1.5 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 ${
-                              a.suggestedPeople !== a.originalPeople
-                                ? "bg-slate-900 text-white"
-                                : "bg-slate-100 text-slate-400"
-                            }`}
-                          >
-                            {a.name}: {a.originalPeople}→{a.suggestedPeople}
-                          </span>
-                        ))}
-                      </div>
+
+                      {/* Worker change summary */}
+                      {(() => {
+                        const changed = res.allocations.filter((a) => a.suggestedPeople !== a.originalPeople).length;
+                        return (
+                          <div className="mt-3.5 text-center">
+                            {changed > 0 ? (
+                              <span className="text-[12px] font-medium text-slate-500 bg-slate-100/80 px-3 py-1 rounded-full">
+                                Requires adjustment in {changed} department{changed > 1 ? "s" : ""}
+                              </span>
+                            ) : (
+                              <span className="text-[12px] font-medium text-slate-400">
+                                No workforce changes needed
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </button>
                   );
                 })}
@@ -376,119 +366,186 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
           {result && (
             <div className="space-y-3 pt-2 border-t border-slate-100">
               {/* Status */}
-              <div
-                className={`rounded-xl p-3 ${
-                  result.withinTimeLimit
-                    ? "bg-emerald-50 ring-1 ring-emerald-100"
-                    : result.earlyStop
-                    ? "bg-blue-50 ring-1 ring-blue-100"
-                    : "bg-amber-50 ring-1 ring-amber-100"
-                }`}
-              >
-                <p
-                  className={`text-[14px] font-semibold ${
-                    result.withinTimeLimit
-                      ? "text-emerald-700"
-                      : result.earlyStop
-                      ? "text-blue-700"
-                      : "text-amber-700"
-                  }`}
-                >
-                  {result.withinTimeLimit ? "✓ Target Achieved" : result.earlyStop ? "⏸ Auto-increment Stopped" : "⚠ Deadline Not Met"}
-                </p>
-                <p className="text-[13px] text-slate-500 mt-0.5">{result.stopReason}</p>
-                <p className="text-[13px] text-slate-500 mt-0.5">
-                  Time{" "}
-                  <span className="font-semibold text-slate-700">
-                    {result.totalTime.toFixed(1)} mins
-                  </span>{" "}
-                  (Target {timeLimitMinutes} mins)
-                </p>
+              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="flex items-start gap-4">
+                  <div
+                    className={`mt-1.5 w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                      result.withinTimeLimit
+                        ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"
+                        : result.earlyStop
+                        ? "bg-slate-400"
+                        : "bg-amber-500"
+                    }`}
+                  />
+                  <div className="flex-1">
+                    <h3 className="text-[16px] font-semibold tracking-tight text-slate-900">
+                      {result.withinTimeLimit
+                        ? "Optimization Successful"
+                        : result.earlyStop
+                        ? "Optimization Stopped"
+                        : "Deadline Not Met"}
+                    </h3>
+                    <p className="text-[13.5px] text-slate-500 mt-1 leading-relaxed">
+                      {result.withinTimeLimit
+                        ? "We found the best workforce setup to maximize your profit while meeting the deadline."
+                        : result.stopReason}
+                    </p>
+
+                    <div className="flex flex-wrap gap-8 mt-5 pt-5 border-t border-slate-100">
+                      <div>
+                        <p className="text-[11px] font-medium text-slate-400 mb-1">Estimated Time</p>
+                        <p className="text-[15px] font-semibold text-slate-800 tracking-tight">
+                          {result.totalTime.toFixed(1)} <span className="text-xs text-slate-400 font-normal">mins</span>
+                        </p>
+                      </div>
+                      {result.timeSaved > 0 && (
+                        <div>
+                          <p className="text-[11px] font-medium text-slate-400 mb-1">Time Saved</p>
+                          <p className="text-[15px] font-semibold text-emerald-600 tracking-tight">
+                            {result.timeSaved.toFixed(1)} <span className="text-xs text-emerald-600/70 font-normal">mins</span>
+                          </p>
+                        </div>
+                      )}
+                      {result.overduePenalty > 0 && (
+                        <div>
+                          <p className="text-[11px] font-medium text-slate-400 mb-1">Overdue Penalty</p>
+                          <p className="text-[15px] font-semibold text-red-600 tracking-tight">
+                            {fmtB(result.overduePenalty)} <span className="text-xs text-red-600/70 font-normal">฿</span>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Workers table */}
-              <span className="text-[15.5px] font-semibold text-slate-800 uppercase">Workforce Adjustment</span>
-              <div className="mt-1 rounded-xl ring-1 ring-slate-100 overflow-hidden">
-                <div className="grid grid-cols-[1fr_100px_105px] text-[13px] font-semibold text-slate-400 uppercase tracking-wider px-3 py-2 bg-slate-50">
-                  <span>Block</span>
-                  <span className="text-center">Original</span>
-                  <span className="text-center">Recommended</span>
+              <div className="pt-2">
+                <h4 className="text-[13px] font-semibold text-slate-900 mb-3 tracking-tight">
+                  Workforce Adjustments
+                </h4>
+                <div className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-sm">
+                  <div className="grid grid-cols-[1fr_70px_70px_70px] sm:grid-cols-[1fr_80px_80px_80px] items-center text-[11px] font-medium text-slate-500 bg-slate-50/50 px-4 py-2 border-b border-slate-200">
+                    <span>Department</span>
+                    <span className="text-right">Original</span>
+                    <span className="text-right">New</span>
+                    <span className="text-right">Change</span>
+                  </div>
+                  <div className="divide-y divide-slate-100 max-h-[280px] overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-track]:bg-transparent">
+                    {result.allocations.map((a) => {
+                      const changed = a.suggestedPeople !== a.originalPeople;
+                      const diff = a.suggestedPeople - a.originalPeople;
+                      return (
+                        <div
+                          key={a.block_id}
+                          className={`grid grid-cols-[1fr_70px_70px_70px] sm:grid-cols-[1fr_80px_80px_80px] items-center px-4 py-3 transition-colors ${
+                            changed ? "bg-white" : "bg-slate-50/30 text-slate-400"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="text-[11px] font-medium text-slate-400 w-4 flex-shrink-0">
+                              {a.step_order}.
+                            </span>
+                            <span
+                              className={`text-[13px] truncate ${changed ? "font-medium text-slate-700" : ""}`}
+                              title={a.name}
+                            >
+                              {a.name}
+                            </span>
+                          </div>
+                          <div className="text-right text-[13px]">
+                            {a.originalPeople}
+                          </div>
+                          <div className={`text-right text-[13px] ${changed ? "font-semibold text-slate-900" : ""}`}>
+                            {a.suggestedPeople}
+                          </div>
+                          <div className="text-right text-[13px]">
+                            {changed ? (
+                              <span
+                                className={`inline-flex items-center justify-center min-w-[32px] px-1.5 py-0.5 rounded text-[11.5px] font-medium ${
+                                  diff > 0 ? "bg-slate-100 text-slate-700" : "bg-slate-100 text-slate-500"
+                                }`}
+                              >
+                                {diff > 0 ? `+${diff}` : diff}
+                              </span>
+                            ) : (
+                              <span className="text-slate-300">-</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-                {result.allocations.map((a) => {
-                  const changed = a.suggestedPeople !== a.originalPeople;
-                  return (
-                    <div
-                      key={a.block_id}
-                      className={`grid grid-cols-[1fr_100px_105px] px-3 py-2.5 items-center border-t border-slate-50 ${
-                        changed ? "bg-slate-50/60" : ""
-                      }`}
-                    >
-                      <div>
-                        <p className="text-[13px] font-medium text-slate-700">
-                          {a.name.length > 12 ? a.name.substring(0, 12) + "..." : a.name}
-                        </p>
-                        <p className="text-[12px] text-slate-400">Step {a.step_order}</p>
-                      </div>
-                      <div className="text-center text-[13px] text-slate-400">
-                        {a.originalPeople}
-                      </div>
-                      <div className="text-center">
-                        <span className={`text-[13px] font-semibold ${changed ? "text-slate-900" : "text-slate-400"}`}>
-                          {a.suggestedPeople}
-                        </span>
-                        {changed && (
-                          <span className="text-[12px] text-emerald-600 ml-1 font-bold">
-                            {(() => {
-                              const diff = a.suggestedPeople - a.originalPeople;
-                              if (diff > 0) return `+${diff}`;
-                              return diff;
-                            })()}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
               </div>
 
               {/* Cost Breakdown */}
-              <div className="bg-slate-50 rounded-xl p-3 space-y-1.5">
-                <p className="text-[14px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                  Total Cost (Optimized)
-                </p>
-                {[
-                  { label: "Labor Costs", value: result.laborCost, color: "text-blue-600" },
-                  { label: "Electricity Costs", value: result.electricityCost, color: "text-amber-600" },
-                  { label: "Material Costs", value: result.materialCost, color: "text-slate-600" },
-                ].map(({ label, value, color }) => (
-                  <div key={label} className="flex justify-between text-[13px]">
-                    <span className="text-slate-500">{label}</span>
-                    <span className={`font-semibold ${color}`}>{fmtB(value)} ฿</span>
+              <div className="pt-2">
+                <h4 className="text-[13px] font-semibold text-slate-900 mb-3 tracking-tight">
+                  Financial Summary
+                </h4>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  {/* Left: Costs */}
+                  <div className="flex-1 bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                    <div className="space-y-3.5">
+                      <div className="flex justify-between items-center text-[13px]">
+                        <span className="text-slate-500">Labor</span>
+                        <span className="font-medium text-slate-700">{fmtB(result.laborCost)} ฿</span>
+                      </div>
+                      <div className="flex justify-between items-center text-[13px]">
+                        <span className="text-slate-500">Electricity</span>
+                        <span className="font-medium text-slate-700">{fmtB(result.electricityCost)} ฿</span>
+                      </div>
+                      <div className="flex justify-between items-center text-[13px]">
+                        <span className="text-slate-500">Materials</span>
+                        <span className="font-medium text-slate-700">{fmtB(result.materialCost)} ฿</span>
+                      </div>
+                      <div className="pt-3.5 mt-3.5 border-t border-slate-100 flex justify-between items-center">
+                        <span className="text-[13px] font-medium text-slate-900">Total Cost</span>
+                        <span className="text-[15px] font-semibold text-slate-900 tracking-tight">
+                          {fmtB(result.totalCost)} ฿
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                ))}
-                <div className="flex justify-between text-[13px] border-t border-slate-200 pt-1.5 mt-1.5">
-                  <span className="font-semibold text-slate-700">Total Cost</span>
-                  <span className="font-bold text-slate-900">{fmtB(result.totalCost)} ฿</span>
+
+                  {/* Right: Net Profit */}
+                  {Number(sellingPrice) > 0 && (
+                    <div className="flex-1 bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col justify-center relative">
+                      <p className="text-[13px] font-medium text-slate-500 mb-1.5">Net Profit</p>
+                      <div className="flex items-baseline gap-1.5">
+                        <span
+                          className={`text-[32px] font-bold tracking-tighter leading-none ${
+                            result.netProfit >= 0 ? "text-slate-900" : "text-red-600"
+                          }`}
+                        >
+                          {result.netProfit >= 0 ? "+" : ""}
+                          {fmtB(result.netProfit)}
+                        </span>
+                        <span className="text-[15px] font-semibold text-slate-400">฿</span>
+                      </div>
+                      
+                      <div className="mt-3.5 pt-3.5 border-t border-slate-100 space-y-1.5">
+                        <div className="flex justify-between items-center text-[12px]">
+                          <span className="text-slate-400">Base Revenue</span>
+                          <span className="font-medium text-slate-600">{fmtB(result.revenue)} ฿</span>
+                        </div>
+                        {result.opportunityGain > 0 && (
+                          <div className="flex justify-between items-center text-[12px]">
+                            <span className="text-emerald-600/80">Time Saved Bonus</span>
+                            <span className="font-medium text-emerald-600">+{fmtB(result.opportunityGain)} ฿</span>
+                          </div>
+                        )}
+                        {result.overduePenalty > 0 && (
+                          <div className="flex justify-between items-center text-[12px]">
+                            <span className="text-red-500/80">Delay Penalty</span>
+                            <span className="font-medium text-red-600">-{fmtB(result.overduePenalty)} ฿</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                {sellingPrice > 0 && (
-                  <>
-                    <div className="flex justify-between text-[13px]">
-                      <span className="text-slate-500">Revenue</span>
-                      <span className="font-semibold text-indigo-600">{fmtB(result.revenue)} ฿</span>
-                    </div>
-                    <div
-                      className={`flex justify-between text-[14px] font-bold border-t border-slate-200 pt-1.5 mt-1.5 ${profitColor(
-                        result.netProfit
-                      )}`}
-                    >
-                      <span>Net Profit</span>
-                      <span>
-                        {result.netProfit >= 0 ? "+" : ""}
-                        {fmtB(result.netProfit)} ฿
-                      </span>
-                    </div>
-                  </>
-                )}
               </div>
 
 
@@ -511,15 +568,17 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                 disabled={
                   running ||
                   processBlocks.length === 0 ||
-                  ((optMode === "compare" || optMode === "profit") && !sellingPrice)
+                  !targetUnits ||
+                  !timeLimitMinutes ||
+                  !sellingPrice
                 }
                 className="flex-[2] px-4 py-3 bg-slate-900 cursor-pointer hover:bg-slate-800 disabled:bg-slate-300 text-white text-[14px] font-semibold rounded-xl transition shadow-lg shadow-slate-200 active:scale-[0.98]"
               >
                 {running
                   ? "Calculating..."
                   : optMode === "compare"
-                  ? "Comparing strategies"
-                  : "Solve"}
+                    ? "Comparing strategies"
+                    : "Solve"}
               </button>
             </div>
           ) : compareResults ? (
