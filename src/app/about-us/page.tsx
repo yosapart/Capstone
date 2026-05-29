@@ -80,7 +80,7 @@
         {/* Hero */}
         <section className="relative flex flex-col items-center justify-center text-center bg-gray-900 text-white overflow-hidden py-20 sm:py-28 md:py-36 px-6">
 
-          <p className="text-xs sm:text-sm uppercase tracking-[0.25em] text-[#5d88bd] mb-3 sm:mb-4 font-semibold">
+          <p className="text-xs sm:text-sm uppercase tracking-[0.25em] text-[#ffffff] mb-3 sm:mb-4 font-semibold">
             About FacSim
           </p>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-4 max-w-xs sm:max-w-xl md:max-w-3xl">
@@ -89,7 +89,7 @@
           <p className="text-base sm:text-lg md:text-xl text-white/70 max-w-xs sm:max-w-md md:max-w-xl mb-8">
             We make industrial simulation accessible, fast, and beautiful so engineers can focus on what matters.
           </p>
-          <div className="text-2xl sm:text-3xl font-bold text-[#5d88bd] h-10 sm:h-12 flex items-center justify-center">
+          <div className="text-2xl sm:text-3xl font-bold text-[#ffffff] h-10 sm:h-12 flex items-center justify-center">
             <span style={{ opacity: fade ? 1 : 0, transform: fade ? "translateY(0)" : "translateY(-8px)", transition: "opacity 0.35s ease, transform 0.35s ease" }}>
               {words[wordIdx]}
             </span>
@@ -151,7 +151,7 @@
 
         {/* ── Team ── */}
         <section ref={teamRef.ref} className="max-w-5xl mx-auto py-14 sm:py-20 px-6 flex flex-col items-center text-center" style={fadeStyle(teamRef.visible)}>
-          <p className="text-center text-xs font-semibold uppercase tracking-widest text-[#5d88bd] mb-2">Meet the People Behind FacSim</p>
+          <p className="inline-block mb-4 text-xs font-semibold uppercase tracking-widest text-[#5d88bd] bg-[#5d88bd]/10 px-3 py-1 rounded-full">Meet the People Behind FacSim</p>
           <div className="flex items-center gap-4 mb-8 sm:mb-12 whitespace-nowrap">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 m-0">Meet the Team</h2>
           </div>
