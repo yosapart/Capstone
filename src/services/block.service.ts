@@ -46,12 +46,11 @@ export async function createBlock(data: {
     }
   ]);
   if (insertError) throw insertError;
-  // 🔥 เพิ่มตรงนี้
   await normalizeStepOrder(flow_id);
   return { message: "สร้าง Block สำเร็จ" };
 }
 
-// ========== Get Blocks by Flow ID ==========
+// Get Blocks by Flow ID
 export async function getBlocksByFlowId(flow_id: number) {
   const { data: blocks, error } = await supabase
     .from("blocks")
@@ -63,7 +62,7 @@ export async function getBlocksByFlowId(flow_id: number) {
   return blocks;
 }
 
-// ========== Update Block ==========
+// Update Block
 export async function updateBlock(block_id: number, data: {
   name?: string;
   description?: string;
@@ -89,7 +88,7 @@ export async function updateBlock(block_id: number, data: {
   return { message: "อัปเดต Block สำเร็จ" };
 }
 
-// ========== Delete Block ==========
+// Delete Block
 export async function deleteBlock(block_id: number, flow_id: number) {
   const { error: deleteError } = await supabase
     .from("blocks")
@@ -98,12 +97,12 @@ export async function deleteBlock(block_id: number, flow_id: number) {
 
   if (deleteError) throw deleteError;
 
-  // 🔥 เพิ่มตรงนี้
+  // เพิ่มตรงนี้
   await normalizeStepOrder(flow_id);
 
   return { message: "ลบ Block สำเร็จ" };
 }
-// ========== Reorder Blocks ==========
+//Reorder Blocks
 export async function reorderBlocks(
   flow_id: number,
   items: { block_id: number; step_order: number }[]
@@ -119,7 +118,6 @@ export async function reorderBlocks(
 
   await Promise.all(updates);
 
-  // 🔥 เพิ่มตรงนี้
   await normalizeStepOrder(flow_id);
 
   return { message: "อัปเดตลำดับสำเร็จ" };

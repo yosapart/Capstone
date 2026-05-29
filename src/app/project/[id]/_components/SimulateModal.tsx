@@ -182,7 +182,7 @@ export function SimulateModal({ flowId, blocks, flowName, onClose, onResult, sho
                     onChange={(e) => setSellingPrice(e.target.value === "" ? "" : Number(e.target.value))}
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[11px] font-medium pointer-events-none">
-                    THB/PC
+                    THB
                   </span>
                 </div>
               </div>

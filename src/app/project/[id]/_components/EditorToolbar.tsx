@@ -168,13 +168,13 @@ export function EditorToolbar({
           <path d="M15 9h0"></path>
           <path d="M17.8 6.2 19 5"></path>
           <path d="m3 21 9-9"></path>
-          <path d="M12.2 6.2 11 5"></path>  
+          <path d="M12.2 6.2 11 5"></path>
         </svg>
         Optimize
       </button>
 
       <div className="flex-1" />
-      
+
       <button
         onClick={onDownloadPDF}
         className="text-[14px] font-semibold text-gray-600 

@@ -248,7 +248,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                   <input
                     type="number"
                     min={1}
-                    placeholder="480 (8 hrs)"
+                    placeholder="480"
                     className="w-full bg-slate-50 mt-1 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     value={timeLimitMinutes}
                     onChange={(e) => setTimeLimitMinutes(e.target.value === "" ? "" : Number(e.target.value))}
@@ -261,7 +261,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                   <input
                     type="number"
                     min={0}
-                    placeholder="250 bath"
+                    placeholder="250"
                     className="w-full bg-slate-50 mt-1 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     value={sellingPrice}
                     onChange={(e) => setSellingPrice(e.target.value === "" ? "" : Number(e.target.value))}

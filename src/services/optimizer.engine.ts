@@ -382,7 +382,7 @@ function optimizeForProfit(
   const people = blocks.map(() => 1);
   let bestProfit = -Infinity;
   let bestPeople = [...people];
-  
+
   // 2. Walk the Pareto curve
   const MAX_ITER = 3000;
   for (let iter = 0; iter < MAX_ITER; iter++) {
@@ -418,7 +418,7 @@ function optimizeForProfit(
   const currentPeople = blocks.map((b) => Math.max(1, b.people));
   const currentSnap = computeSnapshot(blocks, currentPeople, config);
   let stopReason = "Global profit peak found via Pareto frontier search";
-  
+
   if (currentSnap.netProfit > bestProfit) {
     if (!(budget > 0 && currentSnap.totalCost > budget)) {
       bestPeople = currentPeople;
