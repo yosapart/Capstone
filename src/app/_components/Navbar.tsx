@@ -135,7 +135,7 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
                         if (onLoginClick) { onLoginClick(); return; }
                         setModeState('login');
                         setShowAuth(true);
-                    }} className='text-[15px] font-semibold text-gray-900 px-5 py-2.5 rounded-full hover:bg-gray-100 transition-all'>
+                    }} className='text-[15px] font-semibold text-gray-900 px-5 py-2.5 rounded-full hover:bg-gray-100 transition-all cursor-pointer'>
                         Login
                     </button>
                 </li>

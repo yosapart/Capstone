@@ -110,7 +110,7 @@ export function CreateProjectModal({
       ? "border-red-500 bg-red-50 text-red-900 focus:ring-red-400/20 focus:border-red-500" 
       : "border-slate-200 bg-slate-50 text-gray-800 focus:ring-[#5d88bd]/15 focus:border-[#5d88bd]"
   }`;
-  const labelClassName = "block text-[13px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide";
+
   const isFormIncomplete = !name.trim();
 
   return (
