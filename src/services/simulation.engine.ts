@@ -1,4 +1,4 @@
-// ========== Simulation Calculation Engine ==========
+// Simulation Calculation Engine
 // แยก logic คำนวณออกมาจาก route เพื่อให้ test ง่ายและ reuse ได้
 
 export interface BlockData {
@@ -88,9 +88,11 @@ export function calculateSimulation(
   const machines: Machine[] = processBlocks.map(b => {
     let cost_per_unit = Number(b.cost_per_unit) || 0;
     let electricity_per_unit = Number(b.electricity_per_unit) || 0;
-    let people = Number(b.people) || 0;
+    let people = Number(b.people) || 1;
     let cost_per_person = Number(b.cost_per_person) || 0;
-    let duration = Number(b.duration) || 0;
+    
+    // Core fix: The processing time per unit decreases proportionally to the number of workers.
+    let duration = (Number(b.duration) || 0) / people;
     let skip = false;
 
     if (cost_per_unit < 0 || electricity_per_unit < 0 || people < 0 || cost_per_person < 0 || duration < 0) {
@@ -235,8 +237,13 @@ export function calculateSimulation(
     const labor_cost = m.people * wage_per_minute * clock;
     const material_cost = m.cost_per_unit * target_output;
 
-    const block_cost = material_cost + labor_cost;
-    const block_electricity = m.electricity_per_unit * target_output;
+    // Electricity logic matching optimizer.engine.ts (using base duration, not effective duration)
+    const baseDuration = Number(m.block.duration) || 0;
+    const elecPerMinute = baseDuration > 0 ? (m.electricity_per_unit / baseDuration) : 0;
+    const block_electricity = (m.electricity_per_unit * target_output) + (elecPerMinute * clock);
+    const electricity_cost = block_electricity * 4; // 4 Baht per unit
+
+    const block_cost = material_cost + labor_cost + electricity_cost;
 
     total_cost += block_cost;
     total_electricity += block_electricity;

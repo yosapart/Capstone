@@ -1,4 +1,5 @@
-import { ProjectCard, type Project } from "@/app/_global_components/ProjectCard";
+import { CompactProjectCard } from "@/app/_global_components/CompactProjectCard";
+import { type Project } from "@/app/_global_components/ProjectCard";
 
 interface SearchResultsProps {
     loading: boolean;
@@ -20,12 +21,12 @@ export function SearchResults({
     onClearSearch,
 }: SearchResultsProps) {
     return (
-        <section className="mb-10 bg-[#ffffff] mt-10 p-6 pb-8 rounded-[10px]">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-[24px] font-bold text-[#34495e]">
+        <section className="mb-10 mt-10">
+            <div className="flex justify-between items-end mb-6 px-1">
+                <h2 className="text-2xl font-bold text-gray-900">
                     Search Results for "{searchQuery}"
                 </h2>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm font-medium text-gray-500">
                     Found {projects.length} {projects.length <= 1 ? "project" : "projects"}
                 </span>
             </div>
@@ -37,7 +38,7 @@ export function SearchResults({
             ) : projects.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {projects.map((p) => (
-                        <ProjectCard
+                        <CompactProjectCard
                         key={p.project_id}
                         project={p}
                         onEdit={onEdit}
@@ -53,7 +54,7 @@ export function SearchResults({
                     </p>
                     <button
                         onClick={onClearSearch}
-                        className="text-[14.5px] text-[#1594DD] hover:text-[#1277B5] hover:underline font-medium cursor-pointer transition-colors"
+                        className="text-[14.5px] text-[#5d88bd] hover:text-gray-900 font-medium cursor-pointer transition-colors"
                     >
                         Clear search
                     </button>

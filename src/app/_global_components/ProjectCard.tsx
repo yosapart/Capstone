@@ -7,6 +7,8 @@ export interface Project {
   description: string;
   created_at: string;
   updated_at: string;
+  flows_stats?: { name: string; block_count: number }[];
+  block_count?: number;
 }
 
 interface ProjectCardProps {
@@ -43,13 +45,13 @@ export function ProjectCard({ project, onEdit, onDelete, onView }: ProjectCardPr
   };
 
   return (
-    <div className="group bg-white rounded-xl border border-gray-200 px-5 py-4 flex flex-col justify-between hover:shadow-lg hover:border-[#1594dd]/30 hover:scale-103 transition-all duration-300">
+    <div className="group bg-white rounded-2xl border border-gray-200 px-5 py-5 flex flex-col justify-between hover:shadow-xl hover:border-[#5d88bd]/40 hover:scale-[1.02] transition-all duration-300">
       <div className="flex">
         {/* ชื่อ Project — คลิกเข้า Flow Editor */}
         <Link
           href={`/project/${project.project_id}`}
           onClick={() => onView?.(project)}
-          className="font-semibold text-[#34495e] text-[18px] truncate mr-4 hover:text-[#1594dd] transition-colors"
+          className="font-semibold text-gray-900 text-[18px] truncate mr-4 hover:text-[#5d88bd] transition-colors"
         >
           {project.name}
         </Link>
@@ -58,7 +60,7 @@ export function ProjectCard({ project, onEdit, onDelete, onView }: ProjectCardPr
         <div className="flex items-center gap-2 shrink-0 shrink-0 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 ">
           <button
             onClick={(e) => { e.stopPropagation(); onEdit?.(project); }}
-            className="text-[14px] font-semibold text-[#1594dd] bg-[#1594dd]/10 px-4 py-1.5 rounded-md cursor-pointer hover:bg-[#1594dd]/20 transition-colors"
+            className="text-[14px] font-semibold text-[#5d88bd] bg-[#5d88bd]/10 px-4 py-1.5 rounded-md cursor-pointer hover:bg-[#5d88bd]/20 transition-colors"
           >
             Edit
           </button>

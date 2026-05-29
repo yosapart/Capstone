@@ -62,13 +62,16 @@ export interface SimulationResult {
   bottleneck_step_order?: number;
   selling_price_per_unit?: number;
   total_revenue?: number;
+  time_limit_minutes?: number;
+  opportunity_gain?: number;
+  overdue_penalty?: number;
   net_profit?: number;
 }
 
 export const BLOCK_TYPES = [
-  { type: "start", label: "Start", color: "#27ae60", border: "#1e8449" },
-  { type: "process", label: "Process", color: "#e74c3c", border: "#c0392b" },
-  { type: "end", label: "End", color: "#2c3e50", border: "#1a252f" },
+  { type: "start", label: "Start", color: "#27ae60", border: "#1e8449", icon: "/icons/conveyor-belt.png" },
+  { type: "process", label: "Process", color: "#e74c3c", border: "#c0392b", icon: "/icons/factory-machine.png" },
+  { type: "end", label: "End", color: "#2c3e50", border: "#1a252f", icon: "/icons/logistics.png" },
 ];
 
 export interface MachineVisualState {
@@ -88,5 +91,7 @@ export interface PlaybackState {
   machineStates?: Record<number, MachineVisualState>;
   sourceProgress?: number; // 0→1 สำหรับจุดเหลืองเส้น Start→M1
   revenue?: number;
+  opportunityGain?: number;
+  overduePenalty?: number;
   netProfit?: number;
 }

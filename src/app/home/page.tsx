@@ -75,10 +75,10 @@ export default function HomePage() {
   })
   .slice(0, 3);
 
-  if (!isMounted || !user) return <div className="h-screen bg-[#f0f2f5]" />;
+  if (!isMounted || !user) return <div className="h-screen bg-gray-50" />;
 
   return (
-    <div className="flex flex-col h-screen bg-[#f0f2f5] overflow-hidden">
+    <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
       <Header user={user} />
 
       <div className="flex flex-1 overflow-hidden">

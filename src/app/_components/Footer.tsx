@@ -3,142 +3,82 @@ import Image from 'next/image';
 
 export function Footer(){
     return(
-        <div className='bg-[#34495e] h-[25rem] '>
-            <div className='flex pt-[3rem] h-[19rem] mr-[2rem] '>
-                <div className='ml-[6.5rem] '>
-                    <Link href="/" className='mb-[2.5rem] inline-block '>
+        <footer className='bg-white border-t border-gray-200 pt-[6rem] pb-[3rem] px-6 lg:px-12'>
+            <div className='max-w-7xl mx-auto flex flex-col md:flex-row justify-between'>
+                
+                <div className='mb-12 md:mb-0'>
+                    <Link href="/" className='flex items-center gap-2 mb-[2rem]'>
                         <Image 
-                            src="/logo-w.png" 
-                            alt="FacSim Logo" 
-                            width={90}
-                            height={18}
+                            src="/logo.png" 
+                            alt="FacSim Logo Icon" 
+                            width={40}
+                            height={40}
                             priority
+                            className="opacity-90 hover:opacity-100 transition-opacity"
                         />
+                        <span className="font-bold text-xl tracking-tight text-gray-900">FacSim</span>
                     </Link>
             
-                    <div className='mt-[1rem]'>
-                        <div className='text-xl text-white font-[500] mb-[0.5rem] '>
+                    <div>
+                        <div className='text-md text-gray-900 font-bold mb-[1.5rem]'>
                             Social   
                         </div>
                         
-                        <ul className='flex gap-[1.5rem] w-[10rem] '>
+                        <ul className='flex gap-[1.5rem]'>
                             <li>
-                                <Link href='/'>
-                                    <Image 
-                                        src="/x.png" 
-                                        alt="X Logo" 
-                                        width={200}
-                                        height={18}
-                                        priority
-                                        className="invert brightness-200"
-                                    />
+                                <Link href='/' className="opacity-50 hover:opacity-100 transition-opacity">
+                                    <Image src="/x.png" alt="X Logo" width={24} height={24} />
                                 </Link>
                             </li>
                             <li>
-                                <Link href='/'>
-                                    <Image 
-                                        src="/facebook.png" 
-                                        alt="Facebook Logo" 
-                                        width={200}
-                                        height={18}
-                                        priority
-                                        className="invert brightness-200"
-                                    />
+                                <Link href='/' className="opacity-50 hover:opacity-100 transition-opacity">
+                                    <Image src="/facebook.png" alt="Facebook Logo" width={24} height={24} />
                                 </Link>
                             </li>
                             <li>
-                                <Link href='/'>
-                                    <Image 
-                                        src="/ig.png" 
-                                        alt="Instragram Logo" 
-                                        width={200}
-                                        height={18}
-                                        priority
-                                        className="invert brightness-200"
-                                    />
+                                <Link href='/' className="opacity-50 hover:opacity-100 transition-opacity">
+                                    <Image src="/ig.png" alt="Instragram Logo" width={24} height={24} />
                                 </Link>
                             </li>
                         </ul>
                     </div>
                 </div>
                 
-                <div className='flex text-white ml-auto mr-10'>
-                    <div className='mr-[2rem]'>
-                        <h2 className='text-l text-gray-300 font-[500] mb-[1rem] '>
-                            Docs
-                        </h2>
-                        <ul className='w-[160px] '>
-                            <li className='mb-[0.25rem] hover:underline'>
-                                <Link href=''>Introduction</Link>
-                            </li>
-                            <li className='mb-[0.25rem] hover:underline'>
-                                <Link href=''>Getting Started</Link>
-                            </li>
-                            <li className='mb-[0.25rem] hover:underline'>
-                                <Link href=''>API Reference</Link>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div className='mr-[2rem]'>
-                        <h2 className='text-l text-gray-300 font-[500] mb-[1rem] '>
-                            Resources
-                        </h2>
-                        <ul className='w-[160px] '>
-                            <li className='mb-[0.25rem] hover:underline'>
-                                <Link href=''>Blog</Link>
-                            </li>
-                            <li className='mb-[0.25rem] hover:underline'>
-                                <Link href=''>Help Center</Link>
-                            </li>
-                            <li className='mb-[0.25rem] hover:underline'>
-                                <Link href=''>Community</Link>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div className='mr-[2rem]'>
-                        <h2 className='text-l text-gray-300 font-[500] mb-[1rem] '>
-                            Legal
-                        </h2>
-                        <ul className='w-[160px] '>
-                            <li className='mb-[0.25rem] hover:underline'>
-                                <Link href=''>Privacy Policy</Link>
-                            </li>
-                            <li className='mb-[0.25rem] hover:underline'>
-                                <Link href=''>Terms of Service</Link>
-                            </li>
-                            <li className='mb-[0.25rem] hover:underline'>
-                                <Link href=''>Security</Link>
-                            </li>
+                <div className='flex flex-wrap md:flex-nowrap gap-12 md:gap-24'>
+                    <div>
+                        <h2 className='text-md text-gray-900 font-bold mb-[1.5rem]'>Docs</h2>
+                        <ul className='flex flex-col gap-4 text-gray-500 font-medium'>
+                            <li className='hover:text-[#5d88bd] transition-colors'><Link href=''>Introduction</Link></li>
+                            <li className='hover:text-[#5d88bd] transition-colors'><Link href=''>Getting Started</Link></li>
+                            <li className='hover:text-[#5d88bd] transition-colors'><Link href=''>API Reference</Link></li>
                         </ul>
                     </div>
 
                     <div>
-                        <h2 className='text-l text-gray-300 font-[500] mb-[1rem] '>
-                            About Us
-                        </h2>
-                        <ul className='w-[160px] '>
-                            <li className='mb-[0.25rem] hover:underline'>
-                                <Link href=''>Our Story</Link>
-                            </li>
-                            <li className='mb-[0.25rem] hover:underline'>
-                                <Link href=''>The Team</Link>
-                            </li>
-                            <li className='mb-[0.25rem] hover:underline'>
-                                <Link href=''>Contact Us</Link>
-                            </li>
+                        <h2 className='text-md text-gray-900 font-bold mb-[1.5rem]'>Resources</h2>
+                        <ul className='flex flex-col gap-4 text-gray-500 font-medium'>
+                            <li className='hover:text-[#5d88bd] transition-colors'><Link href=''>Blog</Link></li>
+                            <li className='hover:text-[#5d88bd] transition-colors'><Link href=''>Help Center</Link></li>
+                            <li className='hover:text-[#5d88bd] transition-colors'><Link href=''>Community</Link></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h2 className='text-md text-gray-900 font-bold mb-[1.5rem]'>Legal</h2>
+                        <ul className='flex flex-col gap-4 text-gray-500 font-medium'>
+                            <li className='hover:text-[#5d88bd] transition-colors'><Link href=''>Privacy Policy</Link></li>
+                            <li className='hover:text-[#5d88bd] transition-colors'><Link href=''>Terms of Service</Link></li>
+                            <li className='hover:text-[#5d88bd] transition-colors'><Link href=''>Security</Link></li>
                         </ul>
                     </div>
                 </div> 
             </div>
             
-            <span className='block mx-auto w-[94%] h-[1px] bg-white opacity-50 ' />
-
-            <p className='mt-[2rem] text-white text-l text-center w-full'>
-                ©2026 FacSim. All rights reserved.
-            </p>
-        
-        </div>
+            <div className='border-t border-gray-200 mt-[5rem] pt-[2rem] flex flex-col md:flex-row justify-between items-center'>
+                <p className='text-gray-400 text-sm font-medium'>
+                    ©2026 FacSim. All rights reserved.
+                </p>
+            </div>
+        </footer>
     )
 }

@@ -85,7 +85,7 @@ export default function HomePage() {
   );
 
   return (
-    <div className="flex flex-col h-screen bg-[#f0f2f5] overflow-hidden">
+    <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
       <Header user={user} />
 
       {/* ═══════ BODY (Sidebar + Content) ═══════ */}
@@ -103,7 +103,7 @@ export default function HomePage() {
           {/* Top actions row */}
           <div className="flex items-center justify-between mb-10 gap-4">
             {/* Search */}
-            <div className="flex items-center w-full max-w-[500px] bg-white border border-gray-200 rounded-xl px-4 py-2.5 gap-2 shadow-sm focus-within:ring-2 focus-within:ring-[#1594dd]/20 focus-within:border-[#1594dd] transition-all">
+            <div className="flex items-center w-full max-w-[500px] bg-white border border-gray-200 rounded-xl px-4 py-2.5 gap-2 shadow-sm focus-within:ring-2 focus-within:ring-[#5d88bd]/20 focus-within:border-[#5d88bd] transition-all">
               <div className="text-gray-400">
                 <IconSearch />
               </div>
@@ -120,10 +120,10 @@ export default function HomePage() {
               {/* Create Project */}
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-2 bg-[#1594dd] text-white font-semibold text-sm px-5 py-2.5 cursor-pointer rounded-lg hover:bg-[#1277b5] transition-all shadow-sm hover:shadow-md"
+                className="flex items-center justify-center gap-2 bg-gray-900 text-white font-semibold text-sm px-6 py-2.5 cursor-pointer rounded-full hover:bg-gray-800 transition-all shadow-md hover:shadow-lg"
               >
                 <IconPlus />
-                Create Project
+                <span className="leading-none -mt-[3px]">Create Project</span>
               </button>
             </div>
           </div>

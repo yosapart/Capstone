@@ -34,13 +34,13 @@ export default function Welcome({ user, loadingProjects, userProjects }: Welcome
     return (
         <section className="flex justify-between items-start ">
             <div>
-                <h2 className="font-bold text-[#34495e] text-[30px] " >Welcome, {displayName}</h2>
+                <h2 className="font-bold text-gray-900 text-[30px] " >Welcome, {displayName}</h2>
                 <p className="text-[18px] text-gray-600 mt-2.5">{randomSubtitle}</p>   
             </div>
             
-            <div className="bg-[#ffffff] text-[#34495e] p-3 pt-3 pl-4 rounded-[10px] w-50 text-[20px] font-semibold ">
+            <div className="bg-white border border-gray-200 shadow-sm p-4 pt-3 pl-5 rounded-2xl w-52 text-gray-500 text-sm font-medium">
                 Total Projects 
-                <p className="mt-1.75 text-[35px] text-[#34495e] font-medium ">
+                <p className="mt-1 text-[36px] text-gray-900 font-bold tracking-tight">
                     {loadingProjects ? "..." : userProjects.length}
                 </p>
             </div>

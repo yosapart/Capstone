@@ -1,4 +1,5 @@
-import { ProjectCard, type Project } from "@/app/_global_components/ProjectCard";
+import { CompactProjectCard } from "@/app/_global_components/CompactProjectCard";
+import { type Project } from "@/app/_global_components/ProjectCard";
 
 interface YourProjectsProps {
     loading: boolean;
@@ -10,8 +11,8 @@ interface YourProjectsProps {
 
 export function YourProjects({ loading, projects, onEdit, onDelete, onView }: YourProjectsProps) {
     return (
-        <section className="mb-10 bg-[#ffffff] mt-10 p-6 pb-8 rounded-[10px]">
-            <h2 className="text-[24px] font-bold text-[#34495e] mb-4">Your Project</h2>
+        <section className="mb-10 mt-10">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 px-1">Your Project</h2>
             {loading ? (
                 <div className="flex items-center justify-center py-16">
                     <p className="text-gray-400 text-base text-[17px] font-normal">Loading...</p>
@@ -19,7 +20,7 @@ export function YourProjects({ loading, projects, onEdit, onDelete, onView }: Yo
             ) : projects.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {projects.map((p) => (
-                        <ProjectCard 
+                        <CompactProjectCard 
                             key={p.project_id} 
                             project={p} 
                             onEdit={onEdit}

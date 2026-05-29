@@ -28,18 +28,17 @@ export function Header({ user, projectName = "Project Name" }: HeaderProps){
         ? nameStr.substring(0, Math.max(0, emailLen - 3)) + "..." 
         : nameStr;
 
-    return(
-        <header className="flex items-center h-[65px] bg-[#34495e] pl-6 pr-9 shrink-0 z-50 shadow-md">
-            <div className="flex items-center gap-4 shrink-0">
-                <Link href="/project">
-                    <button className="text-white cursor-pointer hover:opacity-80 transition-opacity">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                        </svg>
-                    </button>
+    return (
+        <header className="flex items-center h-[65px] bg-white border-b border-gray-200 pl-6 pr-9 shrink-0 z-50">
+            <div className="flex items-center shrink-0">
+                <Link href="/project" className="flex items-center gap-1.5 text-slate-400 hover:text-slate-700 transition-colors group">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="transform group-hover:-translate-x-0.5 transition-transform">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    <span className="text-[13.5px] font-medium tracking-wide">Back</span>
                 </Link>
-                <span className="text-white font-semibold text-[18px] ml-5 truncate max-w-[200px]">
+                <span className="text-slate-300 mx-3.5 font-light">|</span>
+                <span className="text-slate-800 font-bold text-[15px] truncate max-w-[200px]">
                     {projectName}
                 </span>
             </div>
@@ -47,18 +46,20 @@ export function Header({ user, projectName = "Project Name" }: HeaderProps){
             <div className="flex-1" />
 
             <div className="flex items-center gap-3 shrink-0">
-                <div className="w-10 h-10 rounded-full bg-[#1594dd] flex items-center justify-center text-white font-bold text-sm uppercase shadow-sm border border-white/10">
-                    {user?.name ? user.name.charAt(0) : "U"}
+                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 overflow-hidden shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-gray-500">
+                        <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd" />
+                    </svg>
                 </div>
 
-                <div className="flex flex-col justify-center">
+                <div className="flex flex-col">
                     {user?.name && (
-                        <span className="text-white text-[14px] font-medium leading-tight">
+                        <span className="text-gray-900 text-sm font-bold leading-tight">
                             {displayName}
                         </span>
                     )}
                     {user?.email && (
-                        <span className="text-white/80 text-[12px] font-normal leading-tight mt-0.5">
+                        <span className="text-gray-500 text-[12px] font-medium leading-tight mt-0.5">
                             {displayEmail}
                         </span>
                     )}

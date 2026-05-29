@@ -1,5 +1,5 @@
 import { SimulationResult } from "./editorTypes";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface ReportModalProps {
   projectName: string;
@@ -10,6 +10,9 @@ interface ReportModalProps {
 }
 
 export function ReportModal({ projectName, flowName, simulationResult, authorName, onClose }: ReportModalProps) {
+  // Snapshot the result so it doesn't update in real-time while printing
+  const [frozenResult] = useState<SimulationResult>(simulationResult);
+  const [generatedDate] = useState(() => new Date().toLocaleString());
 
   const fmt = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -123,7 +126,7 @@ export function ReportModal({ projectName, flowName, simulationResult, authorNam
         </button>
         <button 
           onClick={handlePrint}
-          className="px-7 py-2.5 cursor-pointer bg-[#1594dd] text-white font-bold rounded-full shadow-xl hover:bg-[#1277b5] transition-all flex items-center gap-2 active:scale-95"
+          className="px-7 py-2.5 cursor-pointer bg-[#5d88bd] text-white font-bold rounded-full shadow-xl hover:bg-[#4a729e] transition-all flex items-center gap-2 active:scale-95"
         >
           Save PDF
         </button>
@@ -175,12 +178,12 @@ export function ReportModal({ projectName, flowName, simulationResult, authorNam
                         </tr>
                         <tr>
                           <td className="py-1 font-semibold w-1/3">Date Generated:</td>
-                          <td className="py-1">{new Date().toLocaleString()}</td>
+                          <td className="py-1">{generatedDate}</td>
                         </tr>
                         <tr>
                           <td className="py-1 font-semibold w-1/3">Testcase Applied:</td>
                           <td className="py-1">
-                            {simulationResult.testcase !== "none" ? simulationResult.testcase : "Standard Operation"}
+                            {frozenResult.testcase !== "none" ? frozenResult.testcase : "Standard Operation"}
                           </td>
                         </tr>
                       </tbody>
@@ -193,46 +196,58 @@ export function ReportModal({ projectName, flowName, simulationResult, authorNam
                       <tbody>
                         <tr className="border-b border-gray-800">
                           <td className="py-2 px-3 border-r border-gray-800 font-semibold w-1/2">Target Output</td>
-                          <td className="py-2 px-3">{simulationResult.target_output} units</td>
+                          <td className="py-2 px-3">{frozenResult.target_output} units</td>
                         </tr>
                         <tr className="border-b border-gray-800">
                           <td className="py-2 px-3 border-r border-gray-800 font-semibold w-1/2">Total Cost</td>
-                          <td className="py-2 px-3">{fmt(simulationResult.total_cost)} Baht</td>
+                          <td className="py-2 px-3">{fmt(frozenResult.total_cost)} Baht</td>
                         </tr>
-                        {simulationResult.selling_price_per_unit && (
+                        {frozenResult.selling_price_per_unit && (
                           <>
                             <tr className="border-b border-gray-800">
                               <td className="py-2 px-3 border-r border-gray-800 font-semibold w-1/2">Selling Price</td>
-                              <td className="py-2 px-3">{fmt(simulationResult.selling_price_per_unit)} Baht / unit</td>
+                              <td className="py-2 px-3">{fmt(frozenResult.selling_price_per_unit)} Baht / unit</td>
                             </tr>
                             <tr className="border-b border-gray-800">
                               <td className="py-2 px-3 border-r border-gray-800 font-semibold w-1/2">Total Revenue</td>
-                              <td className="py-2 px-3">{fmt(simulationResult.total_revenue || 0)} Baht</td>
+                              <td className="py-2 px-3">{fmt(frozenResult.total_revenue || 0)} Baht</td>
                             </tr>
+                            {frozenResult.time_limit_minutes && frozenResult.time_limit_minutes > 0 ? (
+                              <>
+                                <tr className="border-b border-gray-800">
+                                  <td className="py-2 px-3 border-r border-gray-800 font-semibold w-1/2">Opportunity Value</td>
+                                  <td className="py-2 px-3">{fmt(frozenResult.opportunity_gain || 0)} Baht</td>
+                                </tr>
+                                <tr className="border-b border-gray-800">
+                                  <td className="py-2 px-3 border-r border-gray-800 font-semibold w-1/2">Late Penalty</td>
+                                  <td className="py-2 px-3">{fmt(frozenResult.overdue_penalty || 0)} Baht</td>
+                                </tr>
+                              </>
+                            ) : null}
                             <tr className="border-b border-gray-800">
                               <td className="py-2 px-3 border-r border-gray-800 font-semibold w-1/2">Net Profit</td>
-                              <td className="py-2 px-3">{fmt(simulationResult.net_profit || 0)} Baht</td>
+                              <td className="py-2 px-3">{fmt(frozenResult.net_profit || 0)} Baht</td>
                             </tr>
                           </>
                         )}
                         <tr className="border-b border-gray-800">
                           <td className="py-2 px-3 border-r border-gray-800 font-semibold w-1/2">Total Electricity</td>
-                          <td className="py-2 px-3">{fmt(simulationResult.total_electricity || 0)} Units</td>
+                          <td className="py-2 px-3">{fmt(frozenResult.total_electricity || 0)} Units</td>
                         </tr>
                         <tr className="border-b border-gray-800">
                           <td className="py-2 px-3 border-r border-gray-800 font-semibold w-1/2">Total Duration</td>
-                          <td className="py-2 px-3">{formatTime(simulationResult.total_duration)}</td>
+                          <td className="py-2 px-3">{formatTime(frozenResult.total_duration)}</td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
 
-                  {simulationResult.bottleneck_step_order && (
+                  {frozenResult.bottleneck_step_order && (
                     <div className="mb-6">
                       <h2 className="text-lg font-bold border-b border-gray-400 mb-3 pb-1">3. Bottleneck Identification</h2>
                       <div className="p-4 border border-black bg-gray-50 text-sm">
                         <p className="font-bold mb-1">Alert: Process Bottleneck Detected</p>
-                        <p>The simulation engine identified <strong>Step {simulationResult.bottleneck_step_order}</strong> as the primary bottleneck.</p>
+                        <p>The simulation engine identified <strong>Step {frozenResult.bottleneck_step_order}</strong> as the primary bottleneck.</p>
                       </div>
                     </div>
                   )}

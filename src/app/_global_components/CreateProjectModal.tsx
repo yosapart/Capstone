@@ -104,13 +104,13 @@ export function CreateProjectModal({
     }
   };
 
-  const inputClassName = "w-full bg-[#fbfbf9] border border-[#e8e8e3] rounded-xl px-4 py-2.5 text-[15px] text-gray-800 outline-none focus:bg-white focus:ring-4 focus:ring-[#8F9E8B]/15 focus:border-[#8F9E8B] transition-all duration-300";
+  const inputClassName = "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[15px] text-gray-800 outline-none focus:bg-white focus:ring-4 focus:ring-[#5d88bd]/15 focus:border-[#5d88bd] transition-all duration-300";
   const nameInputClassName = `w-full rounded-xl px-4 py-2.5 text-[15px] outline-none focus:bg-white focus:ring-4 transition-all duration-300 border ${
     errors.name
       ? "border-red-500 bg-red-50 text-red-900 focus:ring-red-400/20 focus:border-red-500" 
-      : "border-[#e8e8e3] bg-[#fbfbf9] text-gray-800 focus:ring-[#8F9E8B]/15 focus:border-[#8F9E8B]"
+      : "border-slate-200 bg-slate-50 text-gray-800 focus:ring-[#5d88bd]/15 focus:border-[#5d88bd]"
   }`;
-  const labelClassName = "block text-[13px] font-medium text-gray-500 mb-1.5";
+
   const isFormIncomplete = !name.trim();
 
   return (
@@ -123,19 +123,31 @@ export function CreateProjectModal({
         {/* Loading Overlay */}
         {loading && (
           <div className="absolute inset-0 bg-white/60 backdrop-blur-md flex flex-col items-center justify-center z-10">
-            <div className="w-8 h-8 rounded-full border-4 border-gray-100 border-t-[#8F9E8B] animate-spin" />
+            <div className="w-8 h-8 rounded-full border-4 border-gray-100 border-t-[#5d88bd] animate-spin" />
             <p className="text-sm text-gray-500 mt-3 font-medium">Processing...</p>
           </div>
         )}
 
         {/* Header */}
-        <div className="px-8 pt-8 pb-2 shrink-0">
-          <h2 className="text-[22px] font-medium text-gray-800 tracking-tight">
-            {isEditMode ? "Edit Project" : "Create New Project"}
-          </h2>
-          <p className="text-[14px] text-gray-400 mt-1 font-light">
-            {isEditMode ? "Edit your project details" : "Enter details to create a new project"}
-          </p>
+        <div className="px-8 pt-8 pb-4 shrink-0 flex items-start justify-between relative">
+          <div>
+            <div className="w-12 h-12 rounded-2xl bg-[#5d88bd]/10 flex items-center justify-center text-[#5d88bd] mb-4">
+              {isEditMode ? (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              ) : (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              )}
+            </div>
+            <h2 className="text-[24px] font-bold text-gray-900 tracking-tight">
+              {isEditMode ? "Edit Project" : "Create New Project"}
+            </h2>
+            <p className="text-[14px] text-slate-500 mt-1 font-medium">
+              {isEditMode ? "Update the details of your factory simulation." : "Set up a new factory simulation project."}
+            </p>
+          </div>
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
 
         {/* Body */}
@@ -154,12 +166,17 @@ export function CreateProjectModal({
 
           {/* Project Name */}
           <div>
-            <label className={labelClassName}>
-              Project Name <span className="text-[#d97777]">*</span>
-            </label>
+            <div className="flex justify-between items-center mb-1.5">
+              <label className="text-[13px] font-bold text-slate-500 uppercase tracking-wide">
+                Project Name
+              </label>
+              <span className="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                Required
+              </span>
+            </div>
             <input
               type="text"
-              placeholder="e.g., Factory Layout A"
+              placeholder="Factory Layout A"
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
@@ -179,9 +196,14 @@ export function CreateProjectModal({
 
           {/* Description */}
           <div>
-            <label className={labelClassName}>
-              Description <span className="text-gray-400 font-normal">(optional)</span>
-            </label>
+            <div className="flex justify-between items-center mb-1.5">
+              <label className="text-[13px] font-bold text-slate-500 uppercase tracking-wide">
+                Description
+              </label>
+              <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                Optional
+              </span>
+            </div>
             <textarea
               placeholder="Project description..."
               value={description}
@@ -193,21 +215,21 @@ export function CreateProjectModal({
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-5 flex items-center justify-end shrink-0 bg-white border-t border-[#f4f4f4] gap-3">
+        <div className="px-8 py-5 flex items-center justify-end shrink-0 bg-slate-50/80 border-t border-slate-100 gap-3">
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-5 py-2.5 text-[14px] font-medium text-gray-500 cursor-pointer hover:text-gray-800 hover:bg-gray-50 rounded-xl transition-colors"
+            className="px-5 py-2.5 text-[14px] font-bold text-slate-600 cursor-pointer hover:text-gray-900 hover:bg-slate-200/50 rounded-xl transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading || isFormIncomplete}
-            className={`px-7 py-2.5 text-[14px] font-semibold text-white rounded-xl transition-all ${
+            className={`px-7 py-2.5 text-[14px] font-bold text-white rounded-xl transition-all ${
               loading || isFormIncomplete
-                ? "bg-gray-300 cursor-not-allowed opacity-70"
-                : "bg-[#4CAF50] cursor-pointer hover:bg-[#43A047] shadow-[0_4px_12px_rgba(76,175,80,0.3)]"
+                ? "bg-slate-300 cursor-not-allowed opacity-70"
+                : "bg-[#5d88bd] cursor-pointer hover:bg-[#4a729e] shadow-[0_4px_12px_rgba(93,136,189,0.3)]"
             }`}
           >
             {isEditMode ? "Save Changes" : "Create Project"}

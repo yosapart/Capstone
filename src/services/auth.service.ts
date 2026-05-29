@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { signToken } from "@/lib/authTokens";
 import { sendOtpEmail } from "@/lib/mailer";
 
-// ========== Login ==========
+// Login
 export async function loginUser(email: string, password: string) {
   const { data: rows, error } = await supabase
     .from("users")
@@ -33,7 +33,7 @@ export async function loginUser(email: string, password: string) {
   };
 }
 
-// ========== Register ==========
+// Register
 export async function registerUser(data: {
   name: string;
   email: string;
@@ -53,10 +53,10 @@ export async function registerUser(data: {
     throw new Error("EMAIL_EXISTS");
   }
 
-  // 🔐 hash password
+ 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // 📧 แทนที่จะ insert ทันที ให้ส่ง OTP และเก็บข้อมูลไว้ใน metadata แทน
+  //  แทนที่จะ insert ทันที ให้ส่ง OTP และเก็บข้อมูลไว้ใน metadata แทน
   await generateAndSendOtp(email, { name, hashedPassword });
 
   return {
@@ -66,7 +66,7 @@ export async function registerUser(data: {
   };
 }
 
-// ========== Generate & Send OTP ==========
+// Generate & Send OTP 
 export async function generateAndSendOtp(email: string, metadata: any = null) {
   // 1. ลบ OTP เก่าของอีเมลนี้ทิ้งก่อน (ป้องกันการนำ OTP เก่ามาใช้หากกดสมัครซ้ำ)
   await supabase.from("otps").delete().eq("email", email);

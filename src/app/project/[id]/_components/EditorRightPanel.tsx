@@ -88,7 +88,7 @@ export function EditorRightPanel({
         <button
           onClick={() => setRightTab("your")}
           className={`flex-1 py-2.5 text-[14px] cursor-pointer font-semibold transition-colors ${rightTab === "your"
-            ? "text-[#1594dd] border-b-2 border-[#1594dd]"
+            ? "text-[#5d88bd] border-b-2 border-[#5d88bd]"
             : "text-gray-400 hover:text-gray-600"
             }`}
         >
@@ -97,7 +97,7 @@ export function EditorRightPanel({
         <button
           onClick={() => setRightTab("result")}
           className={`flex-1 py-2.5 text-[14px] cursor-pointer font-semibold transition-colors ${rightTab === "result"
-            ? "text-[#1594dd] border-b-2 border-[#1594dd]"
+            ? "text-[#5d88bd] border-b-2 border-[#5d88bd]"
             : "text-gray-400 hover:text-gray-600"
             }`}
         >
@@ -137,11 +137,14 @@ export function EditorRightPanel({
                       }}
                     >
                       <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3 rounded-sm border"
-                          style={{ borderColor: bt?.border, backgroundColor: `${bt?.color}30` }}
-                        />
-                        <span className={`text-[14px] font-semibold text-[#34495e] truncate whitespace-nowrap block min-w-0 ${block.type === "process" ? "hover:text-[#1594dd] transition-colors" : ""}`}>
+                        <div className="w-5 h-5 shrink-0 flex items-center justify-center overflow-hidden">
+                          {bt?.icon ? (
+                            <img src={bt.icon} alt={block.name} className="w-full h-full object-contain" />
+                          ) : (
+                            <div className="w-full h-full rounded-sm border" style={{ borderColor: bt?.border || "#999", backgroundColor: `${bt?.color || "#666"}30` }} />
+                          )}
+                        </div>
+                        <span className={`text-[14px] font-semibold text-[#34495e] truncate whitespace-nowrap block min-w-0 ${block.type === "process" ? "hover:text-[#5d88bd] transition-colors" : ""}`}>
                           {block.name.length > 15 ? block.name.substring(0, 15) + "..." : block.name}
                         </span>
                       </div>
@@ -184,140 +187,175 @@ export function EditorRightPanel({
                 <p className="text-gray-300 text-[12px] mt-1">Press Play to run the simulation.</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {/* Summary Cards */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-lg p-2.5 border border-blue-200/50">
-                    <p className="text-[12.5px] text-blue-500 font-medium">Total Cost</p>
-                    <p className={`text-[16px] font-bold mt-0.5 ${playbackState ? "text-blue-600 transition-all duration-300" : "text-[#34495e]"}`}>
-                      {fmtCompact(playbackState ? playbackState.cost : simulationResult.total_cost)}
-                    </p>
-                    <p className="text-[11px] text-gray-400">THB</p>
-                  </div>
-                  <div className="bg-gradient-to-br from-amber-50 to-amber-100/50 rounded-lg p-2.5 border border-amber-200/50">
-                    <p className="text-[12.5px] text-amber-600 font-medium">Power Cost</p>
-                    <p className={`text-[16px] font-bold mt-0.5 ${playbackState ? "text-amber-600 transition-all duration-300" : "text-[#34495e]"}`}>
-                      {fmtCompact(playbackState ? playbackState.electricity : simulationResult.total_electricity)}
-                    </p>
-                    <p className="text-[11px] text-gray-400">Units</p>
-                  </div>
-                  <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-lg p-2.5 border border-green-200/50 flex flex-col">
-                    <p className="text-[12.5px] text-green-600 font-medium">Total Time</p>
+              <div className="space-y-5">
+
+                {/* ── Production Stats ── */}
+                <div>
+                  <p className="text-[9px] font-bold text-slate-300 uppercase tracking-[0.14em] mb-3">Production</p>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+                    <div>
+                      <p className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">Output</p>
+                      <p className="text-[20px] font-bold text-slate-800 leading-none tabular-nums">
+                        {playbackState ? (
+                          <span className="text-violet-600">{fmtCompact(playbackState.currentProduce)}</span>
+                        ) : fmtCompact(simulationResult.target_output)}
+                      </p>
+                      <p className="text-[9px] text-slate-400 mt-1">
+                        {playbackState ? `/ ${fmtCompact(simulationResult.target_output)} ` : ""}PCS
+                      </p>
+                    </div>
                     {(() => {
-                      const timeData = formatTime(playbackState ? playbackState.duration : simulationResult.total_duration);
+                      const t = formatTime(playbackState ? playbackState.duration : simulationResult.total_duration);
                       return (
-                        <>
-                          <p className={`text-[16px] font-bold mt-0.5 ${playbackState ? "text-green-600 transition-all duration-300" : "text-[#34495e]"}`}>
-                            {timeData.value}
-                          </p>
-                          <p className="text-[11px] text-gray-400">{timeData.unit}</p>
-                        </>
+                        <div>
+                          <p className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">Time</p>
+                          <p className="text-[20px] font-bold text-slate-800 leading-none tabular-nums">{t.value}</p>
+                          <p className="text-[9px] text-slate-400 mt-1">{t.unit}</p>
+                        </div>
                       );
                     })()}
-                  </div>
-                  <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-lg p-2.5 border border-purple-200/50">
-                    <p className="text-[12.5px] text-purple-600 font-medium">Output</p>
-                    <p className="text-[16px] font-bold text-[#34495e] mt-0.5 flex items-end gap-1">
-                      {playbackState ? (
-                        <span className="text-purple-600 transition-all">{fmtCompact(playbackState.currentProduce)}</span>
-                      ) : (
-                        <span>{fmtCompact(simulationResult.target_output)}</span>
-                      )}
-
-                      {playbackState && (
-                        <span className="text-[11px] text-gray-500 font-normal mb-0.5">/ {fmtCompact(simulationResult.target_output)}</span>
-                      )}
-                    </p>
-                    <p className="text-[11px] text-gray-400">PCS</p>
+                    <div>
+                      <p className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">Total Cost</p>
+                      <p className="text-[20px] font-bold text-slate-800 leading-none tabular-nums">
+                        {fmtCompact(playbackState ? playbackState.cost : simulationResult.total_cost)}
+                      </p>
+                      <p className="text-[9px] text-slate-400 mt-1">THB</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">Power</p>
+                      <p className="text-[20px] font-bold text-slate-800 leading-none tabular-nums">
+                        {fmtCompact(playbackState ? playbackState.electricity : simulationResult.total_electricity)}
+                      </p>
+                      <p className="text-[9px] text-slate-400 mt-1">Units</p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Financial Summary Cards (If selling price is set) */}
-                {simulationResult.selling_price_per_unit && (
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/50 rounded-lg p-2.5 border border-indigo-200/50">
-                      <p className="text-[12.5px] text-indigo-500 font-medium">Total Rev.</p>
-                      <p className={`text-[16px] font-bold mt-0.5 ${playbackState ? "text-indigo-600 transition-all duration-300" : "text-[#34495e]"}`}>
-                        {fmtCompact(playbackState ? (playbackState.revenue || 0) : (simulationResult.total_revenue || 0))}
-                      </p>
-                      <p className="text-[11px] text-gray-400">THB</p>
-                    </div>
-                    <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-lg p-2.5 border border-emerald-200/50">
-                      <p className="text-[12.5px] text-emerald-600 font-medium">Net Profit</p>
-                      <p className={`text-[16px] font-bold mt-0.5 ${playbackState ? "text-emerald-600 transition-all duration-300" : "text-[#34495e]"}`}>
-                        {fmtCompact(playbackState ? (playbackState.netProfit || 0) : (simulationResult.net_profit || 0))}
-                      </p>
-                      <p className="text-[11px] text-gray-400">THB</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Steps Breakdown */}
-                <div className="space-y-3 mt-2">
-                  {simulationResult.steps.map((step, i) => {
-                    const isStartEnd = step.type === "start" || step.type === "end";
-                    const bt = BLOCK_TYPES.find((b) => b.type === step.type);
-
-                    return (
-                      <div
-                        key={i}
-                        className={`relative rounded-lg p-2 border text-xs transition-all ${step.skipped
-                            ? "bg-red-50 border-red-200"
-                            : isStartEnd
-                              ? "bg-gray-50 border-gray-200"
-                              : "bg-white border-gray-200 hover:shadow-sm"
-                          }`}
-                      >
-                        {!isStartEnd && !step.skipped && step.isBottleneck && (
-                          <span className="absolute top-2 right-2 flex items-center gap-1 px-1.5 py-0.5 bg-red-100 text-red-600 rounded text-[11px] font-bold shadow-sm animate-pulse border border-red-200 z-10">
-                            ⚠️ Bottleneck
-                          </span>
-                        )}
-
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1.5">
-                            <div
-                              className="w-2.5 h-2.5 rounded-sm border"
-                              style={{
-                                borderColor: bt?.border || "#999",
-                                backgroundColor: `${bt?.color || "#666"}30`,
-                              }}
-                            />
-                             <span className="text-[14px] font-semibold text-[#34495e] truncate whitespace-nowrap block min-w-0 w-[90px] ">
-                               {step.name.length > 15 ? step.name.substring(0, 15) + "..." : step.name}
-                             </span>
+                {/* ── Financials ── */}
+                {simulationResult.selling_price_per_unit && (() => {
+                  const currentNetProfit = playbackState ? (playbackState.netProfit || 0) : (simulationResult.net_profit || 0);
+                  const isProfit = currentNetProfit >= 0;
+                  return (
+                    <div>
+                      <p className="text-[9px] font-bold text-slate-300 uppercase tracking-[0.14em] mb-3">Financials</p>
+                      <div className="space-y-0">
+                        <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
+                          <div>
+                            <p className="text-[11px] font-medium text-slate-600 leading-none">Revenue</p>
+                            <p className="text-[9px] text-slate-400 mt-0.5">รายได้ยอดขาย</p>
                           </div>
+                          <p className="text-[12px] font-bold text-slate-700 tabular-nums">
+                            {fmtCompact(playbackState ? (playbackState.revenue || 0) : (simulationResult.total_revenue || 0))}
+                            <span className="text-[8.5px] font-normal text-slate-400 ml-1">THB</span>
+                          </p>
                         </div>
-
-                        {!isStartEnd && !step.skipped && (
-                          <div className="mt-2.5 grid grid-cols-3 gap-1 text-[10px] text-gray-500">
+                        {(simulationResult.time_limit_minutes || 0) > 0 && (
+                          <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
                             <div>
-                              <span className="text-[12px] text-gray-400">Cost</span>
-                              <p className="text-[12px] font-semibold text-[#34495e]">{fmt(step.cost || 0)}</p>
+                              <p className="text-[11px] font-medium text-slate-600 leading-none">Opp. Value</p>
+                              <p className="text-[9px] text-slate-400 mt-0.5">ผลประโยชน์เชิงโอกาส</p>
                             </div>
-                            <div>
-                              <span className="text-[12px] text-gray-400">Electricity</span>
-                              <p className="text-[12px] font-semibold text-[#34495e]">{fmt(step.electricity || 0)}</p>
-                            </div>
-                            <div>
-                              <span className="text-[12px] text-gray-400">Time</span>
-                              <p className="text-[12px] font-semibold text-[#34495e]">{fmt(step.duration || 0)}</p>
-                            </div>
+                            <p className="text-[12px] font-bold text-emerald-600 tabular-nums">
+                              +{fmtCompact(playbackState ? (playbackState.opportunityGain || 0) : (simulationResult.opportunity_gain || 0))}
+                              <span className="text-[8.5px] font-normal text-slate-400 ml-1">THB</span>
+                            </p>
                           </div>
                         )}
-
-                        {!isStartEnd && !step.skipped && step.maxQueue !== undefined && (
-                          <div className="mt-1.5 pt-1.5 border-t border-gray-100 flex items-center justify-between">
-                            <div className="flex gap-3 text-[10px]">
-                              <span className="text-[12px] text-gray-500">Queue Max: <b className="text-[12px] text-[#34495e]">{step.maxQueue}</b></span>
-                              <span className="text-[12px] text-gray-500">Idle: <b className="text-[#34495e]">{fmt(step.idleTime || 0)}</b></span>
+                        <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
+                          <div>
+                            <p className="text-[11px] font-medium text-slate-600 leading-none">Total Cost</p>
+                            <p className="text-[9px] text-slate-400 mt-0.5">ต้นทุนรวมทั้งหมด</p>
+                          </div>
+                          <p className="text-[12px] font-bold text-slate-500 tabular-nums">
+                            −{fmtCompact(playbackState ? playbackState.cost : simulationResult.total_cost)}
+                            <span className="text-[8.5px] font-normal text-slate-400 ml-1">THB</span>
+                          </p>
+                        </div>
+                        {(simulationResult.time_limit_minutes || 0) > 0 && (
+                          <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
+                            <div>
+                              <p className="text-[11px] font-medium text-slate-600 leading-none">Late Penalty</p>
+                              <p className="text-[9px] text-slate-400 mt-0.5">ค่าปรับส่งมอบล่าช้า</p>
                             </div>
+                            <p className="text-[12px] font-bold text-rose-500 tabular-nums">
+                              −{fmtCompact(playbackState ? (playbackState.overduePenalty || 0) : (simulationResult.overdue_penalty || 0))}
+                              <span className="text-[8.5px] font-normal text-slate-400 ml-1">THB</span>
+                            </p>
                           </div>
                         )}
                       </div>
-                    );
-                  })}
+                      <div className={`mt-2.5 flex items-center justify-between px-3 py-2.5 rounded-lg ${
+                        isProfit ? "bg-emerald-50 border border-emerald-100" : "bg-rose-50 border border-rose-100"
+                      }`}>
+                        <div>
+                          <p className={`text-[10px] font-black uppercase tracking-widest ${isProfit ? "text-emerald-700" : "text-rose-700"}`}>Net Profit</p>
+                          <p className="text-[8.5px] text-slate-400 mt-0.5">กำไรสุทธิรับจริง</p>
+                        </div>
+                        <div className="text-right">
+                          <p className={`text-[18px] font-black tabular-nums leading-none ${isProfit ? "text-emerald-600" : "text-rose-600"}`}>
+                            {isProfit ? "+" : "−"}{fmtCompact(Math.abs(currentNetProfit))}
+                          </p>
+                          <p className="text-[8.5px] text-slate-400 font-semibold mt-0.5">THB</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* ── Steps ── */}
+                <div>
+                  <p className="text-[9px] font-bold text-slate-300 uppercase tracking-[0.14em] mb-3">Steps</p>
+                  <div className="space-y-2">
+                    {simulationResult.steps.map((step, i) => {
+                      const isStartEnd = step.type === "start" || step.type === "end";
+                      const bt = BLOCK_TYPES.find((b) => b.type === step.type);
+                      return (
+                        <div key={i} className={`rounded-lg border overflow-hidden ${
+                          step.skipped ? "border-red-100 bg-red-50/60" : isStartEnd ? "border-slate-100 bg-slate-50/40" : "border-slate-100 bg-white"
+                        }`}>
+                          <div className="flex items-center gap-2 px-2.5 py-2">
+                            <div className="w-3 h-3 shrink-0">
+                              {bt?.icon ? (
+                                <img src={bt.icon} alt={step.name} className="w-full h-full object-contain" />
+                              ) : (
+                                <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: `${bt?.color || "#aaa"}30`, border: `1.5px solid ${bt?.border || "#ccc"}` }} />
+                              )}
+                            </div>
+                            <span className="text-[11px] font-semibold text-slate-700 flex-1 truncate">{step.name}</span>
+                            {step.skipped && <span className="text-[8px] font-bold text-red-400 uppercase bg-red-100 px-1.5 py-0.5 rounded shrink-0">Skip</span>}
+                            {!isStartEnd && !step.skipped && step.isBottleneck && (
+                              <span className="text-[8px] font-bold text-rose-500 uppercase bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded shrink-0">BN</span>
+                            )}
+                          </div>
+                          {!isStartEnd && !step.skipped && (
+                            <div className="grid grid-cols-3 gap-px border-t border-slate-100">
+                              {[
+                                { label: "Cost", value: fmt(step.cost || 0) },
+                                { label: "Power", value: fmt(step.electricity || 0) },
+                                { label: "Time", value: fmt(step.duration || 0) },
+                                ...(step.maxQueue !== undefined ? [
+                                  { label: "Max Q", value: String(step.maxQueue) },
+                                  { label: "Idle", value: fmt(step.idleTime || 0) },
+                                ] : [])
+                              ].map(({ label, value }) => (
+                                <div key={label} className="px-2 py-1.5 bg-slate-50/60">
+                                  <p className="text-[8px] text-slate-400 uppercase tracking-wide">{label}</p>
+                                  <p className="text-[10px] font-semibold text-slate-700 tabular-nums mt-0.5">{value}</p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {!isStartEnd && !step.skipped && step.isBottleneck && (
+                            <div className="px-2.5 py-1.5 bg-rose-50/80 border-t border-rose-100">
+                              <p className="text-[8.5px] text-rose-500">สะสมคิวสูงสุด — หน่วงความเร็วการผลิตทั้งสาย</p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
+
               </div>
             )}
           </div>

@@ -18,10 +18,13 @@ export function EditorLeftPanel({ onAddBlock }: EditorLeftPanelProps) {
             style={{ borderColor: bt.border, backgroundColor: `${bt.color}15` }}
             title={bt.label}
           >
-            <div
-              className="w-8 h-8 rounded-md border-2"
-              style={{ borderColor: bt.border, backgroundColor: `${bt.color}30` }}
-            />
+            <div className="w-8 h-8 flex items-center justify-center overflow-hidden">
+              {bt.icon ? (
+                <img src={bt.icon} alt={bt.label} className="w-full h-full object-contain" />
+              ) : (
+                <div className="w-full h-full rounded-md border-2" style={{ borderColor: bt.border, backgroundColor: `${bt.color}30` }} />
+              )}
+            </div>
             <span className="text-[11px] font-semibold mt-1 text-gray-600 truncate w-full text-center">
               {bt.label}
             </span>

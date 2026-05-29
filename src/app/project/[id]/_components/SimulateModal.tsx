@@ -4,16 +4,19 @@ import { TestcaseData, SimulationResult } from "./editorTypes";
 
 interface SimulateModalProps {
   flowId: number;
+  blocks: any[];
   flowName: string;
   onClose: () => void;
   onResult: (result: SimulationResult) => void;
   showToast: (message: string) => void;
 }
 
-export function SimulateModal({ flowId, flowName, onClose, onResult, showToast }: SimulateModalProps) {
+export function SimulateModal({ flowId, blocks, flowName, onClose, onResult, showToast }: SimulateModalProps) {
   const [testcases, setTestcases] = useState<TestcaseData[]>([]);
-  const [targetOutput, setTargetOutput] = useState<number>(100);
-  const [sellingPrice, setSellingPrice] = useState<number>(0);
+  const [targetOutput, setTargetOutput] = useState<number | "">("");
+  const [sellingPrice, setSellingPrice] = useState<number | "">("");
+  const [timeLimitMinutes, setTimeLimitMinutes] = useState<number | "">("");
+  const [errorTargetOutput, setErrorTargetOutput] = useState(false);
   const [selectedCaseId, setSelectedCaseId] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"instant" | "realtime">("realtime");
@@ -36,8 +39,12 @@ export function SimulateModal({ flowId, flowName, onClose, onResult, showToast }
   }, []);
 
   const handleSimulate = async () => {
-    if (targetOutput <= 0) {
-      showToast("Target output must be greater than 0");
+    const finalTargetOutput = Number(targetOutput) || 0;
+    const finalTimeLimit = Number(timeLimitMinutes) || 0;
+    const finalSellingPrice = Number(sellingPrice) || 0;
+
+    if (finalTargetOutput <= 0) {
+      setErrorTargetOutput(true);
       return;
     }
     setLoading(true);
@@ -47,7 +54,7 @@ export function SimulateModal({ flowId, flowName, onClose, onResult, showToast }
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           flow_id: flowId,
-          target_output: targetOutput,
+          target_output: finalTargetOutput,
           testcase_id: selectedCaseId || null
         })
       });
@@ -55,11 +62,33 @@ export function SimulateModal({ flowId, flowName, onClose, onResult, showToast }
       const result: SimulationResult = resData.data;
       result.mode = mode;
       
-      // Calculate Revenue and Profit
-      if (sellingPrice > 0) {
-        result.selling_price_per_unit = sellingPrice;
-        result.total_revenue = sellingPrice * targetOutput;
-        result.net_profit = result.total_revenue - result.total_cost;
+      // Calculate Revenue, Opportunity Gain, Penalty, and Net Profit
+      if (finalSellingPrice > 0) {
+        result.selling_price_per_unit = finalSellingPrice;
+        result.total_revenue = finalSellingPrice * finalTargetOutput;
+        
+        // Exact formula matching optimizer.engine.ts
+        const timeSaved = Math.max(0, finalTimeLimit - result.total_duration);
+        const throughputRate = result.total_duration > 0 ? finalTargetOutput / result.total_duration : 0;
+        
+        const totalMaterialCostPerUnit = blocks.reduce((sum, b) => sum + (Number(b.cost_per_unit) || 0), 0);
+        const marginalProfitPerUnit = finalSellingPrice - totalMaterialCostPerUnit;
+        const rawOpportunityGain = finalSellingPrice > 0 && marginalProfitPerUnit > 0
+          ? timeSaved * throughputRate * marginalProfitPerUnit
+          : 0;
+        const maxOpportunityGain = finalTimeLimit > 0
+          ? (timeSaved / finalTimeLimit) * result.total_revenue
+          : 0;
+        const opportunityGain = Math.min(rawOpportunityGain, maxOpportunityGain);
+        
+        const overdueMinutes = Math.max(0, result.total_duration - finalTimeLimit);
+        const overdueHours = overdueMinutes / 60;
+        const overduePenalty = overdueHours * 0.005 * result.total_revenue; // 0.5% per hour default
+        
+        result.net_profit = result.total_revenue + opportunityGain - result.total_cost - overduePenalty;
+        result.time_limit_minutes = finalTimeLimit;
+        result.opportunity_gain = opportunityGain;
+        result.overdue_penalty = overduePenalty;
       }
 
       onResult(result);
@@ -80,7 +109,7 @@ export function SimulateModal({ flowId, flowName, onClose, onResult, showToast }
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/20 backdrop-blur-[2px]" onClick={onClose}>
       <div
-        className="bg-white w-full max-w-sm mx-4 rounded-2xl shadow-2xl border border-slate-100 relative"
+        className="bg-white w-full max-w-md mx-4 rounded-2xl shadow-2xl border border-slate-100 relative"
         onClick={(e) => e.stopPropagation()}
       >
 
@@ -92,27 +121,71 @@ export function SimulateModal({ flowId, flowName, onClose, onResult, showToast }
 
         <div className="px-6 py-2 space-y-5">
           {/* Input Group */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-4">
+            {/* Target Output - Primary Setting */}
             <div className="space-y-1.5">
-              <label className="text-[14px] font-medium text-slate-600 ml-0.5">Target Output</label>
-              <input
-                type="number"
-                min={1}
-                className="w-full bg-slate-50 mt-2 border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 rounded-xl p-3 text-sm transition-all outline-none"
-                value={targetOutput}
-                onChange={(e) => setTargetOutput(Number(e.target.value))}
-              />
+              <label className="text-[13px] font-semibold text-slate-700 ml-0.5 flex items-center justify-between">
+                Target Output
+                <span className="text-[11px] text-slate-400 font-normal">Amount to produce</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min={1}
+                  placeholder="100"
+                  className={`w-full bg-white border ${errorTargetOutput ? "border-red-400 focus:border-red-500 focus:ring-red-500/20" : "border-slate-200 focus:border-[#5d88bd] focus:ring-[#5d88bd]/20"} focus:ring-2 rounded-xl p-3.5 pl-4 text-[15px] font-semibold text-slate-800 transition-all outline-none shadow-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder-slate-300`}
+                  value={targetOutput}
+                  onChange={(e) => {
+                    setTargetOutput(e.target.value === "" ? "" : Number(e.target.value));
+                    if (errorTargetOutput) setErrorTargetOutput(false);
+                  }}
+                />
+                <span className={`absolute right-4 top-1/2 -translate-y-1/2 text-[13px] font-medium pointer-events-none ${errorTargetOutput ? "text-red-400" : "text-slate-400"}`}>
+                  PCS
+                </span>
+              </div>
+              {errorTargetOutput && (
+                <p className="text-red-500 text-[12px] font-medium ml-1 mt-1.5 flex items-center gap-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                  กรุณากรอกจำนวนการผลิต (Target Output)
+                </p>
+              )}
             </div>
-            <div className="space-y-1.5">
-              <label className="text-[14px] font-medium text-slate-600 ml-0.5">Selling Price / Unit</label>
-              <input
-                type="number"
-                min={0}
-                placeholder="Optional"
-                className="w-full bg-slate-50 mt-2 border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 rounded-xl p-3 text-sm transition-all outline-none"
-                value={sellingPrice || ""}
-                onChange={(e) => setSellingPrice(Number(e.target.value))}
-              />
+
+            {/* Business Constraints - Secondary Settings */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-[12.5px] font-medium text-slate-600 ml-0.5">Time Limit</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min={1}
+                    placeholder="480"
+                    className="w-full bg-white border border-slate-200 focus:border-[#5d88bd] focus:ring-2 focus:ring-[#5d88bd]/20 rounded-xl p-3.5 pl-4 text-[15px] font-semibold text-slate-800 transition-all outline-none shadow-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder-slate-300"
+                    value={timeLimitMinutes}
+                    onChange={(e) => setTimeLimitMinutes(e.target.value === "" ? "" : Number(e.target.value))}
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[11px] font-medium pointer-events-none">
+                    MIN
+                  </span>
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[12.5px] font-medium text-slate-600 ml-0.5">Selling Price</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="150"
+                    className="w-full bg-white border border-slate-200 focus:border-[#5d88bd] focus:ring-2 focus:ring-[#5d88bd]/20 rounded-xl p-3.5 pl-4 text-[15px] font-semibold text-slate-800 transition-all outline-none shadow-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder-slate-300"
+                    value={sellingPrice}
+                    onChange={(e) => setSellingPrice(e.target.value === "" ? "" : Number(e.target.value))}
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[11px] font-medium pointer-events-none">
+                    THB
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
