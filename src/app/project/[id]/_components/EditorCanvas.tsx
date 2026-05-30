@@ -106,7 +106,7 @@ export function EditorCanvas({
                     <div className="flex justify-between items-center text-[12.5px]">
                       <span className="text-gray-400">Status</span>
                       <span
-                        className={`inline-flex items-center justify-center font-semibold uppercase px-2 py-0.5 min-w-[45px] rounded text-[8.5px] text-center ${machineState.status === "working" ? "bg-green-100 text-green-700" :
+                        className={`inline-flex items-center justify-center font-semibold uppercase px-2 py-0.5 min-w-11.25 rounded text-[8.5px] text-center ${machineState.status === "working" ? "bg-green-100 text-green-700" :
                             machineState.status === "blocked" ? "bg-red-100 text-red-600 animate-pulse" :
                               "bg-gray-100 text-gray-500"
                           }`}
@@ -230,7 +230,7 @@ export function EditorCanvas({
           (() => {
             const style = getTestcaseStyle(activeTestcase.type);
             return (
-              <Panel position="top-right" className={`bg-white border ${style.boxBorder} shadow-lg rounded-xl overflow-hidden min-w-[200px] m-4 animate-in fade-in slide-in-from-top-4 duration-300 z-50`}>
+              <Panel position="top-right" className={`bg-white border ${style.boxBorder} shadow-lg rounded-xl overflow-hidden min-w-50 m-4 animate-in fade-in slide-in-from-top-4 duration-300 z-50`}>
                 <div className={`${style.bg} px-3 py-2 border-b ${style.border} flex items-center gap-2`}>
                   <span className={style.textIcon}>
                     {style.icon}
