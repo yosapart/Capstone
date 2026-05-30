@@ -12,9 +12,8 @@ interface ProjectCardProps {
 }
 
 export function RecentProjectCard({ project, onEdit, onDelete, onView }: ProjectCardProps) {
-  // Deterministic mock data based on project_id
   return (
-    <div className="group bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col hover:shadow-xl hover:border-[#5d88bd]/40 hover:-translate-y-1 transition-all duration-300 h-48 relative">
+    <div className="group cursor-pointer bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col hover:shadow-xl hover:border-[#5d88bd]/40 hover:-translate-y-1 transition-all duration-300 h-48 relative">
       
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #5d88bd 1px, transparent 0)', backgroundSize: '20px 20px' }}></div>
@@ -24,7 +23,7 @@ export function RecentProjectCard({ project, onEdit, onDelete, onView }: Project
           <Link
             href={`/project/${project.project_id}`}
             onClick={() => onView?.(project)}
-            className="font-bold text-gray-900 text-[20px] truncate pr-4 hover:text-[#5d88bd] transition-colors"
+            className="font-bold text-gray-900 text-[20px] truncate pr-4 hover:text-[#5d88bd] transition-colors before:absolute before:inset-0"
           >
             {project.name}
           </Link>
@@ -46,7 +45,7 @@ export function RecentProjectCard({ project, onEdit, onDelete, onView }: Project
             <p className="text-slate-400">Created: <span className="text-slate-600 font-bold">{formatShortDate(project.created_at)}</span></p>
           </div>
             
-            <div className="flex items-center gap-2 shrink-0 invisible opacity-0 translate-x-2 group-hover:translate-x-0 group-hover:visible group-hover:opacity-100 transition-all duration-300">
+            <div className="relative z-10 flex items-center gap-2 shrink-0 invisible opacity-0 translate-x-2 group-hover:translate-x-0 group-hover:visible group-hover:opacity-100 transition-all duration-300">
                 <button
                     onClick={(e) => { e.stopPropagation(); onEdit?.(project); }}
                     className="text-[13px] font-bold text-[#5d88bd] bg-[#5d88bd]/10 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-[#5d88bd]/20 transition-colors"

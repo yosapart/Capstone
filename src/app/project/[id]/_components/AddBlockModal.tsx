@@ -94,30 +94,6 @@ export function AddBlockModal({
     }
   };
 
-  const handleDelete = async () => {
-    if (!isEditMode) return;
-    if (!confirm("Are you sure you want to delete this block?")) return;
-
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/blocks?block_id=${existingBlock.block_id}`, {
-        method: "DELETE",
-      });
-
-      if (res.ok) {
-        onSuccess();
-        onClose();
-      } else {
-        const data = await res.json();
-        showToast(data.message || "Failed to delete block.");
-        console.error("Delete Error details:", data);
-      }
-    } catch (err) {
-      showToast("A server connection error occurred.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const inputClassName = "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[15px] text-gray-800 outline-none focus:bg-white focus:ring-4 focus:ring-[#5d88bd]/15 focus:border-[#5d88bd] transition-all duration-300";
   const labelClassName = "text-[13px] font-bold text-slate-500 uppercase tracking-wide";
@@ -137,9 +113,9 @@ export function AddBlockModal({
   const iconPath = getIconPath();
 
   return (
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-[2000]" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-2000" onClick={onClose}>
       <div
-        className="bg-white rounded-[24px] w-[520px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-white rounded-3xl w-130 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: "modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)" }}
       >

@@ -56,9 +56,9 @@ export function DeleteProjectModal({ project, onClose, onDeleted }: DeleteProjec
   };
 
   return (
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-[2001]" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-2001" onClick={onClose}>
       <div
-        className="bg-white rounded-[24px] w-full max-w-[420px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col p-8 mx-4"
+        className="bg-white rounded-3xl w-full max-w-105 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col p-8 mx-4"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: "modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)" }}
       >
@@ -105,7 +105,7 @@ export function DeleteProjectModal({ project, onClose, onDeleted }: DeleteProjec
               <button
                 onClick={onClose}
                 disabled={loading}
-                className="px-5 py-2.5 text-[14px] font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-all duration-200"
+                className="px-5 py-2.5 text-[14px] cursor-pointer font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-all duration-200"
               >
                 Cancel
               </button>
