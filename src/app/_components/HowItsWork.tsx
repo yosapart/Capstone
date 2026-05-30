@@ -43,7 +43,7 @@ export function HowItsWorks(){
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8 }}
             id="how-it-works" 
-            className='flex flex-col text-gray-900 w-full max-w-7xl mx-auto my-[5rem] rounded-[2rem] bg-gray-50 border border-gray-200 p-8 lg:p-14 gap-[3rem] scroll-mt-[130px] shadow-sm'
+            className='flex flex-col text-gray-900 w-full max-w-7xl mx-auto my-20 rounded-4xl bg-gray-50 border border-gray-200 p-8 lg:p-14 gap-12 scroll-mt-32.5 shadow-sm'
         >
             <div className="text-center">
                 <h1 className='text-4xl lg:text-5xl font-bold mb-4 tracking-tight'>How it Works</h1>
@@ -51,7 +51,7 @@ export function HowItsWorks(){
             </div>
 
             <div className='flex justify-center items-center w-full'>
-                <div className='relative w-full h-[380px] rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-white'>
+                <div className='relative w-full h-95 rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-white'>
                 
                 {STEPS.map((step, index) => {
                     const isActive = index === activeIndex;
@@ -88,7 +88,7 @@ export function HowItsWorks(){
                         >
                             <div 
                                 key={`line-${activeIndex}-${index}`} 
-                                className="w-full h-[6px] bg-gray-200 rounded-full overflow-hidden relative"
+                                className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden relative"
                             >
                                 {isActive ? (
                                     <div 

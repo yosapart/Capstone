@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { TestcaseData, SimulationResult } from "./editorTypes";
 
-
 interface SimulateModalProps {
   flowId: number;
   blocks: any[];
@@ -16,13 +15,16 @@ export function SimulateModal({ flowId, blocks, flowName, onClose, onResult, sho
   const [targetOutput, setTargetOutput] = useState<number | "">("");
   const [sellingPrice, setSellingPrice] = useState<number | "">("");
   const [timeLimitMinutes, setTimeLimitMinutes] = useState<number | "">("");
-  const [errorTargetOutput, setErrorTargetOutput] = useState(false);
   const [selectedCaseId, setSelectedCaseId] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"instant" | "realtime">("realtime");
 
   const [isScenarioOpen, setIsScenarioOpen] = useState(false);
   const scenarioRef = useRef<HTMLDivElement>(null);
+
+  const labelClassName = "text-[13px] font-bold text-slate-500 uppercase tracking-wide ml-0.5";
+
+  const isFormIncomplete = targetOutput === "" || Number(targetOutput) <= 0;
 
   useEffect(() => {
     fetch("/api/testcases").then(res => res.json()).then(setTestcases).catch(console.error);
@@ -39,14 +41,12 @@ export function SimulateModal({ flowId, blocks, flowName, onClose, onResult, sho
   }, []);
 
   const handleSimulate = async () => {
-    const finalTargetOutput = Number(targetOutput) || 0;
+    if (isFormIncomplete) return;
+
+    const finalTargetOutput = Number(targetOutput);
     const finalTimeLimit = Number(timeLimitMinutes) || 0;
     const finalSellingPrice = Number(sellingPrice) || 0;
 
-    if (finalTargetOutput <= 0) {
-      setErrorTargetOutput(true);
-      return;
-    }
     setLoading(true);
     try {
       const res = await fetch("/api/simulations/run", {
@@ -107,7 +107,7 @@ export function SimulateModal({ flowId, blocks, flowName, onClose, onResult, sho
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/20 backdrop-blur-[2px]" onClick={onClose}>
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-slate-900/20 backdrop-blur-[2px]" onClick={onClose}>
       <div
         className="bg-white w-full max-w-md mx-4 rounded-2xl shadow-2xl border border-slate-100 relative"
         onClick={(e) => e.stopPropagation()}
@@ -123,39 +123,37 @@ export function SimulateModal({ flowId, blocks, flowName, onClose, onResult, sho
           {/* Input Group */}
           <div className="space-y-4">
             {/* Target Output - Primary Setting */}
-            <div className="space-y-1.5">
-              <label className="text-[13px] font-semibold text-slate-700 ml-0.5 flex items-center justify-between">
-                Target Output
-                <span className="text-[11px] text-slate-400 font-normal">Amount to produce</span>
-              </label>
+            <div>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className={labelClassName}>Target Output</label>
+                <span className="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                  Required
+                </span>
+              </div>
               <div className="relative">
                 <input
                   type="number"
                   min={1}
                   placeholder="100"
-                  className={`w-full bg-white border ${errorTargetOutput ? "border-red-400 focus:border-red-500 focus:ring-red-500/20" : "border-slate-200 focus:border-[#5d88bd] focus:ring-[#5d88bd]/20"} focus:ring-2 rounded-xl p-3.5 pl-4 text-[15px] font-semibold text-slate-800 transition-all outline-none shadow-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder-slate-300`}
+                  className={`w-full bg-white border border-slate-200 focus:border-[#5d88bd] focus:ring-2 focus:ring-[#5d88bd]/20 rounded-xl p-3.5 pl-4 text-[15px] font-semibold text-slate-800 transition-all outline-none shadow-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder-slate-300`}
                   value={targetOutput}
-                  onChange={(e) => {
-                    setTargetOutput(e.target.value === "" ? "" : Number(e.target.value));
-                    if (errorTargetOutput) setErrorTargetOutput(false);
-                  }}
+                  onChange={(e) => setTargetOutput(e.target.value === "" ? "" : Number(e.target.value))}
                 />
-                <span className={`absolute right-4 top-1/2 -translate-y-1/2 text-[13px] font-medium pointer-events-none ${errorTargetOutput ? "text-red-400" : "text-slate-400"}`}>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[13px] font-medium pointer-events-none text-slate-400">
                   PCS
                 </span>
               </div>
-              {errorTargetOutput && (
-                <p className="text-red-500 text-[12px] font-medium ml-1 mt-1.5 flex items-center gap-1.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                  กรุณากรอกจำนวนการผลิต (Target Output)
-                </p>
-              )}
             </div>
 
             {/* Business Constraints - Secondary Settings */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-[12.5px] font-medium text-slate-600 ml-0.5">Time Limit</label>
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className={labelClassName}>Time Limit</label>
+                  <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                    Optional
+                  </span>
+                </div>
                 <div className="relative">
                   <input
                     type="number"
@@ -170,8 +168,13 @@ export function SimulateModal({ flowId, blocks, flowName, onClose, onResult, sho
                   </span>
                 </div>
               </div>
-              <div className="space-y-1.5">
-                <label className="text-[12.5px] font-medium text-slate-600 ml-0.5">Selling Price</label>
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className={labelClassName}>Selling Price</label>
+                  <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                    Optional
+                  </span>
+                </div>
                 <div className="relative">
                   <input
                     type="number"
@@ -191,7 +194,7 @@ export function SimulateModal({ flowId, blocks, flowName, onClose, onResult, sho
 
           {/* Mode Switcher - Segmented Control style */}
           <div className="space-y-1.5">
-            <label className="text-[14px] font-medium text-slate-600 ml-0.5">Visualization</label>
+            <label className={labelClassName}>Visualization</label>
             <div className="flex p-1 mt-1.5 bg-slate-100 rounded-xl">
               <button
                 onClick={() => setMode("realtime")}
@@ -210,7 +213,7 @@ export function SimulateModal({ flowId, blocks, flowName, onClose, onResult, sho
 
           {/* Custom Test Case Select */}
           <div className="space-y-1.5 relative" ref={scenarioRef}>
-            <label className="text-[14px] font-medium text-slate-600 ml-0.5">Scenario</label>
+            <label className={labelClassName}>Scenario</label>
             <button
               onClick={() => setIsScenarioOpen(!isScenarioOpen)}
               className={`w-full mt-2 flex items-center justify-between bg-slate-50 border-none ring-1 transition-all rounded-xl p-3 text-sm outline-none cursor-pointer ${isScenarioOpen ? "ring-2 ring-slate-900 bg-white" : "ring-slate-200 hover:ring-slate-300"
@@ -221,7 +224,7 @@ export function SimulateModal({ flowId, blocks, flowName, onClose, onResult, sho
             </button>
 
             {isScenarioOpen && (
-              <div className="absolute top-[calc(100%+6px)] left-0 w-full bg-white border border-slate-100 rounded-[14px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] p-1.5 z-[50] max-h-[200px] overflow-y-auto">
+              <div className="absolute top-[calc(100%+6px)] left-0 w-full bg-white border border-slate-100 rounded-[14px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] p-1.5 z-50 max-h-50 overflow-y-auto">
                 <button
                   onClick={() => {
                     setSelectedCaseId(0);
@@ -262,10 +265,15 @@ export function SimulateModal({ flowId, blocks, flowName, onClose, onResult, sho
           >
             Cancel
           </button>
+          
           <button
             onClick={handleSimulate}
-            disabled={loading}
-            className="flex-[2] px-4 py-3 bg-slate-900 cursor-pointer hover:bg-slate-800 disabled:bg-slate-300 text-white text-sm font-semibold rounded-xl transition shadow-lg shadow-slate-200 active:scale-[0.98]"
+            disabled={isFormIncomplete || loading}
+            className={`flex-2 px-4 py-3 text-white text-sm font-semibold rounded-xl transition-all ${
+              isFormIncomplete || loading
+                ? "bg-slate-300 cursor-not-allowed opacity-70"
+                : "bg-slate-900 cursor-pointer hover:bg-slate-800 shadow-lg shadow-slate-200 active:scale-[0.98]"
+            }`}
           >
             {loading ? "Processing..." : "Start Simulation"}
           </button>

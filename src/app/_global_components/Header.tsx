@@ -28,7 +28,7 @@ export function Header({ user }: HeaderProps){
     : nameStr;
 
   return(
-    <header className="flex items-center h-[65px] bg-white border-b border-gray-200 pl-6 pr-9 shrink-0 z-50">
+    <header className="flex items-center h-16.25 bg-white border-b border-gray-200 pl-6 pr-9 shrink-0 z-50">
       <Link href="/home" className="shrink-0 mr-6 flex items-center gap-2">
         <Image src="/logo.png" alt="FacSim Logo" width={36} height={36} priority className="opacity-90 hover:opacity-100 transition-opacity" />
         <span className="font-bold text-xl tracking-tight text-gray-900">FacSim</span>

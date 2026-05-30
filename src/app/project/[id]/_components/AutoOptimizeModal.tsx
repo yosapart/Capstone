@@ -9,7 +9,6 @@ import {
   ProcessBlock,
 } from "@/services/optimizer.engine";
 
-import styles from './scrollbar.module.css';
 
 interface AutoOptimizeModalProps {
   blocks: BlockData[];
@@ -80,8 +79,17 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
   const fmtB = (n: number) =>
     new Intl.NumberFormat("th-TH", { maximumFractionDigits: 0 }).format(n);
 
+  const labelClassName = "text-[13px] font-bold text-slate-500 uppercase tracking-wide";
+
+  const isFormIncomplete = 
+    processBlocks.length === 0 || 
+    targetUnits === "" || 
+    timeLimitMinutes === "" || 
+    sellingPrice === "";
+
   const handleSolve = () => {
-    if (processBlocks.length === 0) return;
+    if (isFormIncomplete) return;
+    
     setRunning(true);
     setTimeout(() => {
       const cfg = {
@@ -133,11 +141,11 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/20 backdrop-blur-[2px]"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-slate-900/20 backdrop-blur-[2px]"
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-[470px] mx-4 rounded-2xl shadow-2xl border border-slate-100 relative max-h-[92vh] overflow-y-auto"
+        className="bg-white w-full max-w-117.5 mx-4 rounded-2xl shadow-2xl border border-slate-100 relative max-h-[92vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -160,7 +168,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
             <>
               {/* Mode Selector */}
               <div className="space-y-3 pt-3 border-t border-slate-100 relative">
-                <label className="text-[16px] font-medium text-slate-600">
+                <label className={labelClassName}>
                   Optimization Goal
                 </label>
                 <div className="relative mt-2">
@@ -195,7 +203,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                       {/* Backdrop เล็กๆ ป้องกันการกดซ้อนและใช้ปิดเมื่อคลิกข้างนอกกล่อง */}
                       <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
 
-                      <div className="absolute left-0 right-0 mt-1.5 bg-white border border-slate-100 rounded-xl shadow-xl p-1 z-20 max-h-[200px] overflow-y-auto animate-in fade-in slide-in-from-top-1 duration-150">
+                      <div className="absolute left-0 right-0 mt-1.5 bg-white border border-slate-100 rounded-xl shadow-xl p-1 z-20 max-h-50 overflow-y-auto animate-in fade-in slide-in-from-top-1 duration-150">
                         {MODES.map(({ mode, label }) => {
                           const isSelected = optMode === mode;
                           return (
@@ -221,7 +229,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                 </div>
 
                 {/* คำอธิบายของโหมดที่เลือก */}
-                <p className="text-[13px] h-[50px] text-slate-400 ml-1 mt-1.5 leading-relaxed">
+                <p className="text-[13px] h-12.5 text-slate-400 ml-1 mt-1.5 leading-relaxed">
                   {MODES.find((m) => m.mode === optMode)?.desc}
                 </p>
               </div>
@@ -229,46 +237,53 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
               {/* Inputs */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-[14px] font-medium text-slate-600">
-                    Target Units
-                  </label>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label className={labelClassName}>Target Units</label>
+                    <span className="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                      Required
+                    </span>
+                  </div>
                   <input
                     type="number"
                     min={1}
                     placeholder="100"
-                    className="w-full bg-slate-50 mt-1 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    className="w-full bg-slate-50 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     value={targetUnits}
                     onChange={(e) => setTargetUnits(e.target.value === "" ? "" : Number(e.target.value))}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[14px] font-medium text-slate-600">
-                    Time Limit (min)
-                  </label>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label className={labelClassName}>Time Limit (min)</label>
+                    <span className="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                      Required
+                    </span>
+                  </div>
                   <input
                     type="number"
                     min={1}
                     placeholder="480"
-                    className="w-full bg-slate-50 mt-1 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    className="w-full bg-slate-50 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     value={timeLimitMinutes}
                     onChange={(e) => setTimeLimitMinutes(e.target.value === "" ? "" : Number(e.target.value))}
                   />
                 </div>
                 <div className={'space-y-1.5 col-span-2'}>
-                  <label className="text-[14px] font-medium text-slate-600">
-                    Selling Price / Unit
-                  </label>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label className={labelClassName}>Selling Price / Unit</label>
+                    <span className="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                      Required
+                    </span>
+                  </div>
                   <input
                     type="number"
                     min={0}
                     placeholder="250"
-                    className="w-full bg-slate-50 mt-1 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    className="w-full bg-slate-50 border border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 rounded-xl p-2.5 text-sm outline-none transition-all [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     value={sellingPrice}
                     onChange={(e) => setSellingPrice(e.target.value === "" ? "" : Number(e.target.value))}
                   />
                 </div>
-
-
               </div>
             </>
           )}
@@ -369,7 +384,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
               <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
                 <div className="flex items-start gap-4">
                   <div
-                    className={`mt-1.5 w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                    className={`mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 ${
                       result.withinTimeLimit
                         ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"
                         : result.earlyStop
@@ -431,7 +446,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                     <span className="text-right">New</span>
                     <span className="text-right">Change</span>
                   </div>
-                  <div className="divide-y divide-slate-100 max-h-[280px] overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-track]:bg-transparent">
+                  <div className="divide-y divide-slate-100 max-h-70 overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-track]:bg-transparent">
                     {result.allocations.map((a) => {
                       const changed = a.suggestedPeople !== a.originalPeople;
                       const diff = a.suggestedPeople - a.originalPeople;
@@ -443,7 +458,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                           }`}
                         >
                           <div className="flex items-center gap-3 min-w-0">
-                            <span className="text-[11px] font-medium text-slate-400 w-4 flex-shrink-0">
+                            <span className="text-[11px] font-medium text-slate-400 w-4 shrink-0">
                               {a.step_order}.
                             </span>
                             <span
@@ -462,7 +477,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                           <div className="text-right text-[13px]">
                             {changed ? (
                               <span
-                                className={`inline-flex items-center justify-center min-w-[32px] px-1.5 py-0.5 rounded text-[11.5px] font-medium ${
+                                className={`inline-flex items-center justify-center min-w-8 px-1.5 py-0.5 rounded text-[11.5px] font-medium ${
                                   diff > 0 ? "bg-slate-100 text-slate-700" : "bg-slate-100 text-slate-500"
                                 }`}
                               >
@@ -565,14 +580,12 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
               </button>
               <button
                 onClick={handleSolve}
-                disabled={
-                  running ||
-                  processBlocks.length === 0 ||
-                  !targetUnits ||
-                  !timeLimitMinutes ||
-                  !sellingPrice
-                }
-                className="flex-[2] px-4 py-3 bg-slate-900 cursor-pointer hover:bg-slate-800 disabled:bg-slate-300 text-white text-[14px] font-semibold rounded-xl transition shadow-lg shadow-slate-200 active:scale-[0.98]"
+                disabled={running || isFormIncomplete}
+                className={`flex-2 px-4 py-3 text-[14px] text-white font-semibold rounded-xl transition-all ${
+                  running || isFormIncomplete
+                    ? "bg-slate-300 cursor-not-allowed opacity-70"
+                    : "bg-slate-900 cursor-pointer hover:bg-slate-800 shadow-lg shadow-slate-200 active:scale-[0.98]"
+                }`}
               >
                 {running
                   ? "Calculating..."
@@ -599,7 +612,11 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
               <button
                 onClick={handleApply}
                 disabled={applying || !hasChanges}
-                className="flex-[2] px-4 py-3 bg-slate-900 cursor-pointer hover:bg-slate-800 disabled:bg-slate-300 text-white text-sm font-semibold rounded-xl transition shadow-lg shadow-slate-200 active:scale-[0.98]"
+                className={`flex-2 px-4 py-3 text-white text-[14px] font-semibold rounded-xl transition-all ${
+                  applying || !hasChanges
+                    ? "bg-slate-300 cursor-not-allowed opacity-70"
+                    : "bg-slate-900 cursor-pointer hover:bg-slate-800 shadow-lg shadow-slate-200 active:scale-[0.98]"
+                }`}
               >
                 {applying ? "Applying changes..." : "Apply Changes"}
               </button>
