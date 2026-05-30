@@ -140,7 +140,7 @@ export default function FlowEditorPage() {
 
   const handleAddBlockClick = async (type: string, label: string) => {
     if (isSimulating) {
-      showToast("กรุณากดหยุดก่อนทำการแก้ไขโครงสร้างโรงงาน");
+      showToast("Please stop simulation before editing factory layout.");
       return;
     }
     if (!selectedFlowId) {
@@ -169,7 +169,7 @@ export default function FlowEditorPage() {
   // Node click handler for Editing
   const handleNodeClick = (nodeId: string) => {
     if (isSimulating) {
-      showToast("กรุณากดหยุดก่อนทำการแก้ไข block");
+      showToast("Please stop simulation to edit this block.");
       return;
     }
     const block = blocks.find((b) => b.block_id === Number(nodeId));
@@ -181,7 +181,7 @@ export default function FlowEditorPage() {
   // Direct Delete Block from Panel
   const handleDeleteBlock = async (blockId: number) => {
     if (isSimulating) {
-      showToast("กรุณากดหยุดก่อนทำการแก้ไขโครงสร้างโรงงาน");
+      showToast("Please stop simulation before editing factory layout.");
       return;
     }
     const success = await deleteBlock(blockId);
@@ -288,7 +288,7 @@ export default function FlowEditorPage() {
       {showCreateFlow && (
         <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-2000 p-4" onClick={() => setShowCreateFlow(false)}>
           <div
-            className="bg-white rounded-3xl w-full max-w-[400px] shadow-[0_20px_60px_rgba(0,0,0,0.06)] border border-[#e8e8e3] relative overflow-hidden"
+            className="bg-white rounded-3xl w-full max-w-100 shadow-[0_20px_60px_rgba(0,0,0,0.06)] border border-[#e8e8e3] relative overflow-hidden"
             onClick={(e) => e.stopPropagation()}
             style={{ animation: "modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)" }}
           >

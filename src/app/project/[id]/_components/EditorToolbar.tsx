@@ -47,13 +47,13 @@ export function EditorToolbar({
   }, []);
 
   return (
-    <div className="flex items-center h-[52px] bg-white border-b border-[#f0f0f0] px-5 gap-4 shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.02)] relative z-20">
+    <div className="flex items-center h-13 bg-white border-b border-[#f0f0f0] px-5 gap-4 shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.02)] relative z-20">
 
       {/* Custom Flow Selector */}
-      <div className="relative min-w-[140px]" ref={flowRef}>
+      <div className="relative min-w-35" ref={flowRef}>
         <button
           onClick={() => setIsFlowOpen(!isFlowOpen)}
-          className={`w-full flex items-center justify-between bg-white border rounded-[8px] px-3 py-1.5 text-[13px] font-medium text-gray-700 outline-none transition-all cursor-pointer ${isFlowOpen ? "border-[#5d88bd] ring-[3px] ring-[#5d88bd]/10" : "border-gray-200 hover:border-gray-300"
+          className={`w-full flex items-center justify-between bg-white border rounded-lg px-3 py-1.5 text-[13px] font-medium text-gray-700 outline-none transition-all cursor-pointer ${isFlowOpen ? "border-[#5d88bd] ring-[3px] ring-[#5d88bd]/10" : "border-gray-200 hover:border-gray-300"
             }`}
         >
           <span className="truncate">
@@ -68,7 +68,7 @@ export function EditorToolbar({
         </button>
 
         {isFlowOpen && (
-          <div className="absolute top-[calc(100%+6px)] left-0 w-full bg-white border border-gray-100 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] p-1.5 z-50 max-h-[240px] overflow-y-auto">
+          <div className="absolute top-[calc(100%+6px)] left-0 w-full bg-white border border-gray-100 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] p-1.5 z-50 max-h-60 overflow-y-auto">
             {flows.length === 0 && (
               <div className="px-3 py-2 text-[13px] text-gray-400 text-center">-- No Flow --</div>
             )}
@@ -99,7 +99,7 @@ export function EditorToolbar({
       </button>
 
       {/* Divider */}
-      <div className="w-[1px] h-7 bg-gray-200" />
+      <div className="w-px h-7 bg-gray-200" />
 
 
 
@@ -121,7 +121,7 @@ export function EditorToolbar({
         <div className="relative" ref={speedRef}>
           <button
             onClick={() => setIsSpeedOpen(!isSpeedOpen)}
-            className={`w-[70px] flex items-center justify-between bg-white border rounded-[8px] px-2.5 py-1 text-[13px] font-medium text-gray-600 outline-none transition-all cursor-pointer ${isSpeedOpen ? "border-[#5d88bd] ring-[3px] ring-[#5d88bd]/10" : "border-gray-200 hover:border-gray-300"
+            className={`w-17.5 flex items-center justify-between bg-white border rounded-lg px-2.5 py-1 text-[13px] font-medium text-gray-600 outline-none transition-all cursor-pointer ${isSpeedOpen ? "border-[#5d88bd] ring-[3px] ring-[#5d88bd]/10" : "border-gray-200 hover:border-gray-300"
               }`}
           >
             <span>{speed}x</span>
@@ -151,7 +151,7 @@ export function EditorToolbar({
       </div>
 
       {/* Divider */}
-      <div className="w-[1px] h-7 bg-gray-200" />
+      <div className="w-px h-7 bg-gray-200" />
 
       {/* Auto-Optimize Button */}
       <button
