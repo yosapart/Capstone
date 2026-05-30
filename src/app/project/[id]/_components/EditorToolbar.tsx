@@ -14,6 +14,7 @@ interface EditorToolbarProps {
   setSpeed: (speed: number) => void;
   onDownloadPDF?: () => void;
   onAutoOptimize?: () => void;
+  onHelp?: () => void;
 }
 
 export function EditorToolbar({
@@ -27,6 +28,7 @@ export function EditorToolbar({
   setSpeed,
   onDownloadPDF,
   onAutoOptimize,
+  onHelp,
 }: EditorToolbarProps) {
   const [isFlowOpen, setIsFlowOpen] = useState(false);
   const [isSpeedOpen, setIsSpeedOpen] = useState(false);
@@ -171,6 +173,15 @@ export function EditorToolbar({
           <path d="M12.2 6.2 11 5"></path>
         </svg>
         Optimize
+      </button>
+
+      {/* Help Button */}
+      <button
+        onClick={onHelp || (() => {})}
+        title="Guide"
+        className="flex items-center gap-1.5 text-[14px] font-medium cursor-pointer text-slate-400 hover:text-slate-600 hover:bg-slate-50 px-3 py-1.5 rounded-xl transition-all ml-1"
+      >
+        How it works
       </button>
 
       <div className="flex-1" />

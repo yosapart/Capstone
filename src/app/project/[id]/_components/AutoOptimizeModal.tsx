@@ -4,7 +4,6 @@ import { useState } from "react";
 import { BlockData } from "./editorTypes";
 import {
   runProfitOptimizer,
-  compareAllStrategies,
   OptimizerResult,
   ProcessBlock,
 } from "@/services/optimizer.engine";
@@ -30,40 +29,14 @@ function toProcessBlock(b: BlockData): ProcessBlock {
   };
 }
 
-type OptMode = "time" | "cost" | "profit" | "compare";
-
-const MODES: { mode: OptMode; label: string; desc: string }[] = [
-  {
-    mode: "time",
-    label: "Fastest Time",
-    desc: "Increases staff from current levels, prioritizing meeting the set deadline.",
-  },
-  {
-    mode: "cost",
-    label: "Lowest Cost",
-    desc: "Starts from current staff, can both reduce excess workers and hire at bottlenecks to find the cheapest plan that meets your deadline.",
-  },
-  {
-    mode: "profit",
-    label: "Max Profit",
-    desc: "Starts from current staff and evaluates adding or reducing workers using marginal profit + opportunity gain analysis to find the most profitable point.",
-  },
-  {
-    mode: "compare",
-    label: "Comparison",
-    desc: "Runs all three strategies simultaneously, displaying real data for each to help you choose (Selling Price required).",
-  },
-];
 
 export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModalProps) {
   const [targetUnits, setTargetUnits] = useState<number | "">("");
   const [isOpen, setIsOpen] = useState(false);
   const [timeLimitMinutes, setTimeLimitMinutes] = useState<number | "">("");
   const [sellingPrice, setSellingPrice] = useState<number | "">("");
-  const [optMode, setOptMode] = useState<OptMode>("profit");
 
   const [result, setResult] = useState<OptimizerResult | null>(null);
-  const [compareResults, setCompareResults] = useState<Record<string, OptimizerResult> | null>(null);
   const [running, setRunning] = useState(false);
   const [applying, setApplying] = useState(false);
 
@@ -96,28 +69,15 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
         targetUnits: Number(targetUnits) || 0,
         timeLimitMinutes: Number(timeLimitMinutes) || 0,
         sellingPricePerUnit: Number(sellingPrice) || 0,
+        mode: "profit" as const,
         // electricity cost is already encoded in each block's electricity_per_unit field
         // budget is not constrained here — optimizer finds the profit-optimal point
       };
 
-      if (optMode === "compare") {
-        const cmp = compareAllStrategies(processBlocks, cfg);
-        setCompareResults({
-          "Fastest Time": cmp.time,
-          "Lowest Cost": cmp.cost,
-          "Max Profit": cmp.profit,
-        });
-      } else {
-        const res = runProfitOptimizer(processBlocks, { ...cfg, mode: optMode });
-        setResult(res);
-      }
+      const res = runProfitOptimizer(processBlocks, cfg);
+      setResult(res);
       setRunning(false);
     }, 20);
-  };
-
-  const handleChooseCompare = (res: OptimizerResult) => {
-    setResult(res);
-    setCompareResults(null);
   };
 
   const handleApply = async () => {
@@ -133,7 +93,6 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
 
   const resetAll = () => {
     setResult(null);
-    setCompareResults(null);
   };
 
   const profitColor = (n: number) =>
@@ -154,87 +113,33 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
             Auto-Optimize
           </h2>
           <p className="text-[16px] text-slate-400 mt-0.4">
-            {compareResults
-              ? "Select preferred strategy"
-              : result
-                ? "Analysis Results"
-                : "Optimize workforce based on targets."}
+            {result
+              ? "Analysis Results"
+              : "Optimize workforce based on targets."}
           </p>
         </div>
 
         <div className="px-6 pb-2 space-y-4.5">
           {/* ──── FORM ──── */}
-          {!result && !compareResults && (
+          {!result && (
             <>
-              {/* Mode Selector */}
-              <div className="space-y-3 pt-3 border-t border-slate-100 relative">
-                <label className={labelClassName}>
-                  Optimization Goal
-                </label>
-                <div className="relative mt-2">
-                  {/* หัวข้อ Dropdown หลัก */}
-                  <button
-                    type="button"
-                    onClick={() => setIsOpen(!isOpen)}
-                    className={`w-full flex items-center justify-between bg-slate-50 border ${isOpen ? "border-slate-400 ring-2 ring-slate-900/5" : "border-slate-200"
-                      } rounded-xl p-2.5 text-sm font-medium text-slate-800 outline-none cursor-pointer transition-all`}
-                  >
-                    <span>{MODES.find((m) => m.mode === optMode)?.label}</span>
-                    {/* ลูกศรที่สามารถหมุน ขึ้น-ลง ได้ด้วย transition */}
-                    <svg
-                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : "rotate-0"
-                        }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </button>
-
-                  {/* รายการตัวเลือกแบบลอยตัว (Custom Menu เหมือนรูปขวา) */}
-                  {isOpen && (
-                    <>
-                      {/* Backdrop เล็กๆ ป้องกันการกดซ้อนและใช้ปิดเมื่อคลิกข้างนอกกล่อง */}
-                      <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-
-                      <div className="absolute left-0 right-0 mt-1.5 bg-white border border-slate-100 rounded-xl shadow-xl p-1 z-20 max-h-50 overflow-y-auto animate-in fade-in slide-in-from-top-1 duration-150">
-                        {MODES.map(({ mode, label }) => {
-                          const isSelected = optMode === mode;
-                          return (
-                            <button
-                              key={mode}
-                              type="button"
-                              onClick={() => {
-                                setOptMode(mode);
-                                setIsOpen(false);
-                              }}
-                              className={`w-full text-left px-3 py-2.5 text-sm rounded-lg cursor-pointer transition-colors flex items-center justify-between ${isSelected
-                                  ? "bg-slate-100 text-slate-900 font-semibold"
-                                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium"
-                                }`}
-                            >
-                              <span>{label}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </>
-                  )}
+              {/* Static Mode Indicator */}
+              <div className="space-y-2 pt-3 border-t border-slate-100 mb-4">
+                <label className={labelClassName}>Optimization Goal</label>
+                <div className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-slate-800">Max Profit</span>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full uppercase tracking-wider">Active</span>
+                  </div>
+                  <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
                 </div>
-
-                {/* คำอธิบายของโหมดที่เลือก */}
-                <p className="text-[13px] h-12.5 text-slate-400 ml-1 mt-1.5 leading-relaxed">
-                  {MODES.find((m) => m.mode === optMode)?.desc}
+                <p className="text-[12.5px] text-slate-500 ml-1 leading-relaxed">
+                  Evaluates adding or reducing workers using marginal profit + opportunity gain analysis to find the most profitable point.
                 </p>
               </div>
 
-              {/* Inputs */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center mb-1.5">
@@ -288,94 +193,6 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
             </>
           )}
 
-          {/* ──── COMPARE CARDS ──── */}
-          {compareResults && (
-            <div className="space-y-2.5 pt-2 border-t border-slate-100">
-              <p className="text-[13px] font-semibold text-slate-500 uppercase tracking-wider">
-                Select the optimal strategy.
-              </p>
-              {Object.entries(compareResults)
-                .sort(([, a], [, b]) => b.netProfit - a.netProfit)
-                .map(([label, res], i) => {
-                  const isBest = i === 0;
-                  return (
-                    <button
-                      key={label}
-                      onClick={() => handleChooseCompare(res)}
-                      className={`w-full text-left rounded-xl border p-3.5 cursor-pointer transition-all hover:shadow-md ${isBest
-                          ? "border-emerald-300 bg-emerald-50 ring-2 ring-emerald-100"
-                          : "border-slate-200 bg-white hover:border-slate-300"
-                        }`}
-                    >
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="text-left">
-                          <span
-                            className={`text-base font-bold tracking-tight ${isBest ? "text-emerald-800" : "text-slate-800"
-                              }`}
-                          >
-                            {label}
-                          </span>
-                          <p className="text-[12px] text-slate-500 mt-0.5 leading-tight">
-                            {label === "Fastest Time" && "Completes production as fast as possible"}
-                            {label === "Lowest Cost" && "Minimizes overall operational expenses"}
-                            {label === "Max Profit" && "Maximizes total net profit"}
-                          </p>
-                        </div>
-                        {isBest && (
-                          <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 shadow-sm rounded-full uppercase tracking-wide">
-                            Recommended
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex justify-between items-center bg-white/60 rounded-xl p-3 shadow-sm border border-slate-100/50">
-                        <div className="text-center flex-1 border-r border-slate-200/60">
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Time</p>
-                          <p className="text-[15px] font-bold text-slate-700">
-                            {res.totalTime.toFixed(0)}<span className="text-xs font-medium text-slate-500 ml-0.5">m</span>
-                          </p>
-                        </div>
-                        <div className="text-center flex-1 border-r border-slate-200/60">
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Cost</p>
-                          <p className="text-[15px] font-bold text-slate-700">
-                            {fmtB(res.totalCost)}<span className="text-xs font-medium text-slate-500 ml-0.5">฿</span>
-                          </p>
-                        </div>
-                        <div className="text-center flex-1">
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Profit</p>
-                          <p
-                            className={`text-[15px] font-bold ${profitColor(
-                              res.netProfit
-                            )}`}
-                          >
-                            {res.netProfit >= 0 ? "+" : ""}
-                            {fmtB(res.netProfit)}<span className="text-xs font-medium opacity-70 ml-0.5">฿</span>
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Worker change summary */}
-                      {(() => {
-                        const changed = res.allocations.filter((a) => a.suggestedPeople !== a.originalPeople).length;
-                        return (
-                          <div className="mt-3.5 text-center">
-                            {changed > 0 ? (
-                              <span className="text-[12px] font-medium text-slate-500 bg-slate-100/80 px-3 py-1 rounded-full">
-                                Requires adjustment in {changed} department{changed > 1 ? "s" : ""}
-                              </span>
-                            ) : (
-                              <span className="text-[12px] font-medium text-slate-400">
-                                No workforce changes needed
-                              </span>
-                            )}
-                          </div>
-                        );
-                      })()}
-                    </button>
-                  );
-                })}
-            </div>
-          )}
 
           {/* ──── RESULT ──── */}
           {result && (
@@ -570,7 +387,7 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
 
         {/* Footer */}
         <div className="p-6 pt-3 space-y-2">
-          {!result && !compareResults ? (
+          {!result ? (
             <div className="flex gap-3">
               <button
                 onClick={onClose}
@@ -587,20 +404,9 @@ export function AutoOptimizeModal({ blocks, onClose, onApply }: AutoOptimizeModa
                     : "bg-slate-900 cursor-pointer hover:bg-slate-800 shadow-lg shadow-slate-200 active:scale-[0.98]"
                 }`}
               >
-                {running
-                  ? "Calculating..."
-                  : optMode === "compare"
-                    ? "Comparing strategies"
-                    : "Solve"}
+                {running ? "Calculating..." : "Solve"}
               </button>
             </div>
-          ) : compareResults ? (
-            <button
-              onClick={resetAll}
-              className="w-full px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition border border-slate-200"
-            >
-              ← Return
-            </button>
           ) : (
             <div className="flex gap-3">
               <button
