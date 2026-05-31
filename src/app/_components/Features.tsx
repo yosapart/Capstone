@@ -29,7 +29,7 @@ export function Features(){
                 <div className='w-full md:w-[55%] aspect-video bg-gray-50 rounded-4xl overflow-hidden shadow-2xl relative border border-gray-200 group'>
                     <div className="absolute inset-0 bg-gray-900/5 group-hover:bg-transparent transition-colors z-10 pointer-events-none"></div>
                     <video 
-                        src="/videos/start.mp4" 
+                        src="/videos/landingPage/start.mp4" 
                         autoPlay 
                         loop 
                         muted 
@@ -59,7 +59,7 @@ export function Features(){
                 <div className='w-full md:w-[55%] aspect-video bg-gray-50 rounded-4xl overflow-hidden shadow-2xl relative border border-gray-200 group'>
                     <div className="absolute inset-0 bg-gray-900/5 group-hover:bg-transparent transition-colors z-10 pointer-events-none"></div>
                     <video 
-                        src="/videos/optimize.mp4" 
+                        src="/videos/landingPage/optimize.mp4" 
                         autoPlay 
                         loop 
                         muted 
@@ -89,7 +89,7 @@ export function Features(){
                 <div className='w-full md:w-[55%] aspect-video bg-gray-50 rounded-4xl overflow-hidden shadow-2xl relative border border-gray-200 group'>
                     <div className="absolute inset-0 bg-gray-900/5 group-hover:bg-transparent transition-colors z-10 pointer-events-none"></div>
                     <video 
-                        src="/videos/pdf.mp4" 
+                        src="/videos/landingPage/pdf.mp4" 
                         autoPlay 
                         loop 
                         muted 
