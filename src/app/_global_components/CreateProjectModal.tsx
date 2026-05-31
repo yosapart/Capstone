@@ -144,9 +144,6 @@ export function CreateProjectModal({
               {isEditMode ? "Update the details of your factory simulation." : "Set up a new factory simulation project."}
             </p>
           </div>
-          <button onClick={onClose} className="p-2 cursor-pointer text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
         </div>
 
         {/* Body */}
