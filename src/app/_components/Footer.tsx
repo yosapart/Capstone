@@ -74,7 +74,7 @@ export function Footer(){
                 </div> 
             </div>
             
-            <div className='max-w-7xl mx-auto border-t border-gray-200 mt-20 pt-8 flex flex-col md:flex-row justify-between items-center'>
+            <div className='border-t border-gray-200 mt-[5rem] pt-[2rem] flex flex-col md:flex-row justify-between items-center'>
                 <p className='text-gray-400 text-sm font-medium'>
                     ©2026 FacSim. All rights reserved.
                 </p>

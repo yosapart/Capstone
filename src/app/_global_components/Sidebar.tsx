@@ -57,10 +57,10 @@ export function Sidebar({ onMenuChange, onLogout }: SidebarProps) {
           </button>
           
           {showLogout && (
-            <div className="absolute left-0 bottom-full mb-2 w-full bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50">
+            <div className="absolute left-0 bottom-full mb-2 w-full bg-[#ffffff] border border-white/10 rounded-xl shadow-lg overflow-hidden z-50">
               <button 
                 onClick={onLogout} 
-                className="w-full flex items-center gap-3 px-4 py-3 text-rose-500 hover:bg-rose-500/10 text-[14px] font-bold transition-colors cursor-pointer"
+                className="w-full flex items-center gap-3 px-4 py-3 text-rose-500 hover:bg-rose-500/10 text-[14px] font-bold transition-colors cursor-pointer  rounded-xl border border-black/5"
               >
                 <LogOut size={16} /> Logout
               </button>
