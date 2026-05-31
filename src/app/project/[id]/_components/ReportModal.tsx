@@ -1,5 +1,5 @@
 import { SimulationResult } from "./editorTypes";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface ReportModalProps {
   projectName: string;
@@ -114,10 +114,10 @@ export function ReportModal({ projectName, flowName, simulationResult, authorNam
   }
 
   return (
-    <div className="fixed inset-0 z-[3000] flex flex-col items-center bg-slate-900/60 backdrop-blur-sm overflow-y-auto print:bg-white print:block">
+    <div className="fixed inset-0 z-3000 flex flex-col items-center bg-slate-900/60 backdrop-blur-sm overflow-y-auto print:bg-white print:block">
       
       {/* ─── Web Controls (Fixed Top Right) ─── */}
-      <div className="fixed top-20 right-10 flex gap-5 z-[3100] print:hidden">
+      <div className="fixed top-20 right-10 flex gap-5 z-3100 print:hidden">
         <button 
           onClick={onClose}
           className="px-7 py-2.5 cursor-pointer bg-white text-slate-700 font-semibold rounded-full shadow-xl border border-slate-200 hover:bg-slate-50 transition-all active:scale-95"
@@ -289,7 +289,7 @@ export function ReportModal({ projectName, flowName, simulationResult, authorNam
             </div>
 
             {/* Spacer to push footer to bottom */}
-            <div className="flex-grow"></div>
+            <div className="grow"></div>
 
             {/* Footer Area (Now part of normal flow, pushed by flex-grow) */}
             <div className="mt-8 pt-4 border-t border-gray-100 flex justify-between items-end">

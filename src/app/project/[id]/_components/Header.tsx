@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 
 interface UserInfo {
     name?: string;
@@ -29,7 +28,7 @@ export function Header({ user, projectName = "Project Name" }: HeaderProps){
         : nameStr;
 
     return (
-        <header className="flex items-center h-[65px] bg-white border-b border-gray-200 pl-6 pr-9 shrink-0 z-50">
+        <header className="flex items-center h-16.25 bg-white border-b border-gray-200 pl-6 pr-9 shrink-0 z-50">
             <div className="flex items-center shrink-0">
                 <Link href="/project" className="flex items-center gap-1.5 text-slate-400 hover:text-slate-700 transition-colors group">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="transform group-hover:-translate-x-0.5 transition-transform">
@@ -38,7 +37,7 @@ export function Header({ user, projectName = "Project Name" }: HeaderProps){
                     <span className="text-[13.5px] font-medium tracking-wide">Back</span>
                 </Link>
                 <span className="text-slate-300 mx-3.5 font-light">|</span>
-                <span className="text-slate-800 font-bold text-[15px] truncate max-w-[200px]">
+                <span className="text-slate-800 font-bold text-[15px] truncate max-w-50">
                     {projectName}
                 </span>
             </div>

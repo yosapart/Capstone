@@ -17,7 +17,7 @@ interface UserInfo {
 }
 
 export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
-    const [user, setUser] = useState<UserInfo | null>(null);
+    const [, setUser] = useState<UserInfo | null>(null);
     const [showAuth, setShowAuth] = useState(false);
     const [modeState, setModeState] = useState<'login' | 'register'>('login');
 
@@ -47,16 +47,6 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
         };
     }, []);
 
-    const handleLogout = async () => {
-        try {
-            await fetch("/api/auth/logout", { method: "POST" });
-        } catch (e) {
-            console.error("Logout failed", e);
-        }
-        sessionStorage.removeItem("user");
-        setUser(null);
-        window.dispatchEvent(new Event("user-changed"));
-    };
 
     const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
         if (pathname === "/") {
@@ -83,7 +73,7 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.5 }}
-            className='flex items-center text-[15px] font-semibold max-w-full h-[70px] bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-[1000] px-[5%] lg:px-[10%]'
+            className='flex items-center text-[15px] font-semibold max-w-full h-17.5 bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-1000 px-[5%] lg:px-[10%]'
         >
             <Link href="/" className='flex items-center gap-2'>
                 <Image
@@ -97,7 +87,7 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
                 <span className="font-bold text-xl tracking-tight text-gray-900">FacSim</span>
             </Link>
 
-            <ul className="flex gap-[32px] ml-auto mr-[40px]">
+            <ul className="flex gap-8 ml-auto mr-10">
                 <li>
                     <Link 
                         href="/#features" 
@@ -105,7 +95,7 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
                         className="text-gray-600 hover:text-[#5d88bd] transition-colors py-2 relative group font-medium"
                     >
                         Features
-                        <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-[#5d88bd] transition-all duration-300 group-hover:w-full"></span>
+                        <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-[#5d88bd] transition-all duration-300 group-hover:w-full"></span>
                     </Link>
                 </li>
                 <li>
@@ -115,7 +105,7 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
                         className="text-gray-600 hover:text-[#5d88bd] transition-colors py-2 relative group font-medium"
                     >
                         How it Works
-                        <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-[#5d88bd] transition-all duration-300 group-hover:w-full"></span>
+                        <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-[#5d88bd] transition-all duration-300 group-hover:w-full"></span>
                     </Link>
                 </li>
                 <li>
@@ -124,12 +114,12 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
                         className="text-gray-600 hover:text-[#5d88bd] transition-colors py-2 relative group font-medium"
                     >
                         About Us
-                        <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-[#5d88bd] transition-all duration-300 group-hover:w-full"></span>
+                        <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-[#5d88bd] transition-all duration-300 group-hover:w-full"></span>
                     </Link>
                 </li>
             </ul>
 
-            <ul className='flex items-center gap-[12px]'>
+            <ul className='flex items-center gap-3'>
                 <li>
                     <button onClick={() => {
                         if (onLoginClick) { onLoginClick(); return; }

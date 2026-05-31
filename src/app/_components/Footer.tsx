@@ -3,11 +3,11 @@ import Image from 'next/image';
 
 export function Footer(){
     return(
-        <footer className='bg-white border-t border-gray-200 pt-[6rem] pb-[3rem] px-6 lg:px-12'>
+        <footer className='bg-white border-t border-gray-200 pt-24 pb-12 px-6 lg:px-12'>
             <div className='max-w-7xl mx-auto flex flex-col md:flex-row justify-between'>
                 
                 <div className='mb-12 md:mb-0'>
-                    <Link href="/" className='flex items-center gap-2 mb-[2rem]'>
+                    <Link href="/" className='flex items-center gap-2 mb-8'>
                         <Image 
                             src="/logo.png" 
                             alt="FacSim Logo Icon" 
@@ -20,11 +20,11 @@ export function Footer(){
                     </Link>
             
                     <div>
-                        <div className='text-md text-gray-900 font-bold mb-[1.5rem]'>
+                        <div className='text-md text-gray-900 font-bold mb-6'>
                             Social   
                         </div>
                         
-                        <ul className='flex gap-[1.5rem]'>
+                        <ul className='flex gap-6'>
                             <li>
                                 <Link href='/' className="opacity-50 hover:opacity-100 transition-opacity">
                                     <Image src="/x.png" alt="X Logo" width={24} height={24} />
@@ -46,7 +46,7 @@ export function Footer(){
                 
                 <div className='flex flex-wrap md:flex-nowrap gap-12 md:gap-24'>
                     <div>
-                        <h2 className='text-md text-gray-900 font-bold mb-[1.5rem]'>Docs</h2>
+                        <h2 className='text-md text-gray-900 font-bold mb-6'>Docs</h2>
                         <ul className='flex flex-col gap-4 text-gray-500 font-medium'>
                             <li className='hover:text-[#5d88bd] transition-colors'><Link href=''>Introduction</Link></li>
                             <li className='hover:text-[#5d88bd] transition-colors'><Link href=''>Getting Started</Link></li>
@@ -55,7 +55,7 @@ export function Footer(){
                     </div>
 
                     <div>
-                        <h2 className='text-md text-gray-900 font-bold mb-[1.5rem]'>Resources</h2>
+                        <h2 className='text-md text-gray-900 font-bold mb-6'>Resources</h2>
                         <ul className='flex flex-col gap-4 text-gray-500 font-medium'>
                             <li className='hover:text-[#5d88bd] transition-colors'><Link href=''>Blog</Link></li>
                             <li className='hover:text-[#5d88bd] transition-colors'><Link href=''>Help Center</Link></li>
@@ -64,7 +64,7 @@ export function Footer(){
                     </div>
 
                     <div>
-                        <h2 className='text-md text-gray-900 font-bold mb-[1.5rem]'>Legal</h2>
+                        <h2 className='text-md text-gray-900 font-bold mb-6'>Legal</h2>
                         <ul className='flex flex-col gap-4 text-gray-500 font-medium'>
                             <li className='hover:text-[#5d88bd] transition-colors'><Link href=''>Privacy Policy</Link></li>
                             <li className='hover:text-[#5d88bd] transition-colors'><Link href=''>Terms of Service</Link></li>

@@ -140,7 +140,7 @@ export default function FlowEditorPage() {
 
   const handleAddBlockClick = async (type: string, label: string) => {
     if (isSimulating) {
-      showToast("กรุณากดหยุดก่อนทำการแก้ไขโครงสร้างโรงงาน");
+      showToast("Please stop simulation before editing factory layout.");
       return;
     }
     if (!selectedFlowId) {
@@ -158,20 +158,18 @@ export default function FlowEditorPage() {
       return;
     }
 
-    // สำหรับ start และ end ให้ส่งไปสร้างเลยโดยไม่ต้องเปิด Modal ถามผู้ใช้
     if (type === "start" || type === "end") {
       await createStartEndBlock(type, label);
       return;
     }
 
-    // สำหรับประเภทอื่นๆ (เช่น process) ค่อยเปิด Modal ถามรายละเอียด
     setBlockTypeToAdd({ type, label });
   };
 
   // Node click handler for Editing
   const handleNodeClick = (nodeId: string) => {
     if (isSimulating) {
-      showToast("กรุณากดหยุดก่อนทำการแก้ไข block");
+      showToast("Please stop simulation to edit this block.");
       return;
     }
     const block = blocks.find((b) => b.block_id === Number(nodeId));
@@ -183,7 +181,7 @@ export default function FlowEditorPage() {
   // Direct Delete Block from Panel
   const handleDeleteBlock = async (blockId: number) => {
     if (isSimulating) {
-      showToast("กรุณากดหยุดก่อนทำการแก้ไขโครงสร้างโรงงาน");
+      showToast("Please stop simulation before editing factory layout.");
       return;
     }
     const success = await deleteBlock(blockId);
@@ -215,6 +213,8 @@ export default function FlowEditorPage() {
       </div>
     );
   }
+
+  const isFlowFormIncomplete = !newFlowName.trim();
 
   return (
     <div className="flex flex-col h-screen bg-[#f0f2f5] overflow-hidden">
@@ -286,9 +286,9 @@ export default function FlowEditorPage() {
 
       {/* ═══════ CREATE FLOW MODAL ═══════ */}
       {showCreateFlow && (
-        <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-[2000] p-4" onClick={() => setShowCreateFlow(false)}>
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-2000 p-4" onClick={() => setShowCreateFlow(false)}>
           <div
-            className="bg-white rounded-[24px] w-full max-w-[400px] shadow-[0_20px_60px_rgba(0,0,0,0.06)] border border-[#e8e8e3] relative overflow-hidden"
+            className="bg-white rounded-3xl w-full max-w-100 shadow-[0_20px_60px_rgba(0,0,0,0.06)] border border-[#e8e8e3] relative overflow-hidden"
             onClick={(e) => e.stopPropagation()}
             style={{ animation: "modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)" }}
           >
@@ -305,9 +305,12 @@ export default function FlowEditorPage() {
               </p>
 
               <div className="space-y-2">
-                <label className="block text-[13px] font-medium text-[#7A8B76]">
-                  Flow Name <span className="text-red-400">*</span>
-                </label>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="text-[13px] font-bold text-slate-500 uppercase tracking-wide">Flow Name</label>
+                  <span className="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                    Required
+                  </span>
+                </div>
                 <input
                   type="text"
                   placeholder="e.g. Main Factory Flow"
@@ -330,10 +333,14 @@ export default function FlowEditorPage() {
                 </button>
                 <button
                   onClick={handleCreateFlowSubmit}
-                  disabled={!newFlowName.trim()}
-                  className="flex-1 py-3 text-[15px] cursor-pointer font-bold text-white bg-[#4CAF50] hover:bg-[#388E3C] rounded-[14px] shadow-[0_4px_16px_rgba(76,175,80,0.3)] hover:shadow-[0_6px_20px_rgba(76,175,80,0.4)] hover:-translate-y-[1px] active:translate-y-0 transition-all disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0 disabled:cursor-not-allowed"
+                  disabled={isFlowFormIncomplete || creatingFlow}
+                  className={`flex-1 py-3 text-[15px] font-bold text-white rounded-[14px] transition-all ${
+                    isFlowFormIncomplete || creatingFlow
+                      ? "bg-slate-300 cursor-not-allowed opacity-70"
+                      : "bg-[#4CAF50] cursor-pointer hover:bg-[#388E3C] shadow-[0_4px_16px_rgba(76,175,80,0.3)] hover:shadow-[0_6px_20px_rgba(76,175,80,0.4)] hover:-translate-y-px active:translate-y-0"
+                  }`}
                 >
-                  Create Flow
+                  {creatingFlow ? "Creating..." : "Create Flow"}
                 </button>
               </div>
             </div>

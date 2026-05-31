@@ -22,7 +22,7 @@ export const ToastContainer = ({ toasts }: { toasts: ToastItem[] }) => {
                     key={toast.id} 
                     className={styles.toastItem}
                 >
-                    <div className="bg-[#1e293b] text-white shadow-2xl border border-slate-700/50 rounded-2xl px-5 py-3 flex items-center gap-3 w-[375px]">
+                    <div className="bg-[#1e293b] text-white shadow-2xl border border-slate-700/50 rounded-2xl px-5 py-3 flex items-center gap-3 w-93.75">
                         <svg 
                             xmlns="http://www.w3.org/2000/svg" 
                             width="18" height="18" 
