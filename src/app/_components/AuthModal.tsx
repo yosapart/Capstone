@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -309,14 +309,14 @@ export default function AuthModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-[2000] p-4"
+        className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-2000 p-4"
         onClick={onClose}
       >
         <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
-          className="bg-white/95 backdrop-blur-xl border border-white p-8 sm:p-10 rounded-3xl w-full max-w-[420px] shadow-2xl relative overflow-hidden"
+          className="bg-white/95 backdrop-blur-xl border border-white p-8 sm:p-10 rounded-3xl w-full max-w-105 shadow-2xl relative overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close button */}
@@ -436,7 +436,7 @@ export default function AuthModal({
 
                 <button
                   onClick={handleSubmit}
-                  className="w-full mt-4 bg-gray-900 text-white font-bold py-3.5 rounded-xl hover:bg-gray-800 shadow-md hover:shadow-lg transition-all"
+                  className="w-full mt-4 bg-gray-900 text-white font-bold py-3.5 rounded-xl hover:bg-gray-800 shadow-md hover:shadow-lg transition-all cursor-pointer"
                 >
                   {mode === 'login' ? 'Login' : 'Create account'}
                 </button>

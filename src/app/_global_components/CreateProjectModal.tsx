@@ -110,13 +110,12 @@ export function CreateProjectModal({
       ? "border-red-500 bg-red-50 text-red-900 focus:ring-red-400/20 focus:border-red-500" 
       : "border-slate-200 bg-slate-50 text-gray-800 focus:ring-[#5d88bd]/15 focus:border-[#5d88bd]"
   }`;
-
   const isFormIncomplete = !name.trim();
 
   return (
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-[2000]" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-2000" onClick={onClose}>
       <div
-        className="bg-white rounded-[24px] w-[500px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-white rounded-3xl w-125 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: "modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)" }}
       >
@@ -145,7 +144,7 @@ export function CreateProjectModal({
               {isEditMode ? "Update the details of your factory simulation." : "Set up a new factory simulation project."}
             </p>
           </div>
-          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+          <button onClick={onClose} className="p-2 cursor-pointer text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
@@ -187,7 +186,7 @@ export function CreateProjectModal({
               className={nameInputClassName}
               autoFocus
             />
-            <div className="min-h-[20px] mt-1 mb-2">
+            <div className="min-h-5 mt-1 mb-2">
               {errors.name && (
                 <p className="text-red-500 text-[13px]">{errors.name}</p>
               )}

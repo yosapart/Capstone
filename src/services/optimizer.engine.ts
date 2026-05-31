@@ -37,7 +37,6 @@ export interface OptimizerConfig {
   budget?: number;            // optional max spend budget (0 = unlimited)
   electricityCostPerUnit?: number; // baht per electricity unit (default 4)
   overduePenaltyRate?: number; // penalty rate per hour overdue (default 0.005 = 0.5%/hr of revenue)
-  mode: "time" | "cost" | "profit";
 }
 
 export interface BlockAllocation {
@@ -222,145 +221,6 @@ function computeSnapshot(
 // Strategy Implementations
 // ─────────────────────────────────────────────
 
-/**
- * MODE: time — Minimize total production time (greedy bottleneck elimination)
- * Starts from current worker counts, adds to slowest machine until target time met.
- */
-function optimizeForTime(
-  blocks: ProcessBlock[],
-  config: OptimizerConfig,
-  budget: number
-): { people: number[]; earlyStop: boolean; stopReason: string } {
-  const people = blocks.map((b) => Math.max(1, b.people));
-  let earlyStop = false;
-  let stopReason = "Time target met";
-  const MAX_ITER = 3000;
-
-  for (let iter = 0; iter < MAX_ITER; iter++) {
-    const effDurs = blocks.map((b, i) => effectiveDuration(b, people[i]));
-    const bottleneck = Math.max(...effDurs);
-    const totalTime = computeTotalTime(blocks, people, config.targetUnits);
-
-    if (totalTime <= config.timeLimitMinutes) break;
-
-    // Find bottleneck index (slowest machine)
-    const bottleneckIdx = effDurs.indexOf(bottleneck);
-
-    // Budget check
-    const extraCost = blocks[bottleneckIdx].cost_per_person / WORKDAY_MINUTES;
-    if (budget > 0) {
-      const snap = computeSnapshot(blocks, people, config);
-      if (snap.totalCost + extraCost > budget) {
-        earlyStop = true;
-        stopReason = "Budget limit reached";
-        break;
-      }
-    }
-
-    people[bottleneckIdx] += 1;
-
-    if (iter === MAX_ITER - 1) {
-      earlyStop = true;
-      stopReason = "Max iterations reached — time target unachievable";
-    }
-  }
-
-  return { people, earlyStop, stopReason };
-}
-
-/**
- * MODE: cost — Minimize total cost while meeting time target (Bidirectional)
- * Starts from current staff levels.
- * Phase 1: Reduce excess workers where savings exist and deadline is still met.
- * Phase 2: If over deadline, add cheapest workers to bottleneck.
- */
-function optimizeForCost(
-  blocks: ProcessBlock[],
-  config: OptimizerConfig,
-  budget: number
-): { people: number[]; earlyStop: boolean; stopReason: string } {
-  const people = blocks.map((b) => Math.max(1, b.people));
-  let earlyStop = false;
-  let stopReason = "Optimal cost found within time target";
-  const MAX_ITER = 3000;
-
-  // ── Phase 1: Reduce excess workers ──
-  // Try removing the most expensive workers while still meeting deadline.
-  for (let iter = 0; iter < MAX_ITER; iter++) {
-    const totalTime = computeTotalTime(blocks, people, config.targetUnits);
-    if (totalTime > config.timeLimitMinutes) break; // already over → skip to Phase 2
-
-    let bestSaving = 0;
-    let bestIdx = -1;
-
-    for (let i = 0; i < blocks.length; i++) {
-      if (people[i] <= 1) continue; // floor at 1 person
-
-      const trialPeople = [...people];
-      trialPeople[i] -= 1;
-      const trialTime = computeTotalTime(blocks, trialPeople, config.targetUnits);
-
-      // Only consider if still within time limit
-      if (trialTime > config.timeLimitMinutes) continue;
-
-      const currentSnap = computeSnapshot(blocks, people, config);
-      const trialSnap = computeSnapshot(blocks, trialPeople, config);
-      const saving = currentSnap.totalCost - trialSnap.totalCost;
-
-      if (saving > bestSaving) {
-        bestSaving = saving;
-        bestIdx = i;
-      }
-    }
-
-    if (bestIdx === -1) break; // no more reductions possible
-    people[bestIdx] -= 1;
-  }
-
-  // ── Phase 2: Add workers to bottleneck if still over deadline ──
-  for (let iter = 0; iter < MAX_ITER; iter++) {
-    const effDurs = blocks.map((b, i) => effectiveDuration(b, people[i]));
-    const bottleneck = Math.max(...effDurs);
-    const totalTime = computeTotalTime(blocks, people, config.targetUnits);
-
-    if (totalTime <= config.timeLimitMinutes) break;
-
-    // Find all tied bottleneck machines
-    const bottlenecks = effDurs
-      .map((d, i) => ({ i, d, cost: blocks[i].cost_per_person }))
-      .filter(({ d }) => d >= bottleneck - 0.001);
-
-    // Among bottlenecks, choose cheapest worker to hire
-    const cheapest = bottlenecks.sort((a, b) => a.cost - b.cost)[0];
-
-    // Budget check
-    if (budget > 0) {
-      const snap = computeSnapshot(blocks, people, config);
-      if (snap.totalCost + cheapest.cost / WORKDAY_MINUTES > budget) {
-        earlyStop = true;
-        stopReason = "Budget limit reached before time target";
-        break;
-      }
-    }
-
-    people[cheapest.i] += 1;
-
-    if (iter === MAX_ITER - 1) {
-      earlyStop = true;
-      stopReason = "Max iterations reached";
-    }
-  }
-
-  // Check final state
-  const finalTime = computeTotalTime(blocks, people, config.targetUnits);
-  if (finalTime <= config.timeLimitMinutes && !earlyStop) {
-    stopReason = "Optimal cost found within time target";
-  } else if (!earlyStop) {
-    stopReason = "Time target could not be met — showing best effort";
-  }
-
-  return { people, earlyStop, stopReason };
-}
 
 /**
  * MODE: profit — Maximize net profit via Pareto Frontier Search (Global Optimization)
@@ -455,18 +315,8 @@ export function runProfitOptimizer(
   const budget = config.budget ?? 0;
   const electricityCostPerUnit = config.electricityCostPerUnit ?? DEFAULT_ELEC_COST_PER_UNIT;
 
-  // Run selected strategy
-  let people: number[];
-  let earlyStop: boolean;
-  let stopReason: string;
-
-  if (config.mode === "time") {
-    ({ people, earlyStop, stopReason } = optimizeForTime(blocks, config, budget));
-  } else if (config.mode === "cost") {
-    ({ people, earlyStop, stopReason } = optimizeForCost(blocks, config, budget));
-  } else {
-    ({ people, earlyStop, stopReason } = optimizeForProfit(blocks, config, budget));
-  }
+  // Run profit strategy
+  const { people, earlyStop, stopReason } = optimizeForProfit(blocks, config, budget);
 
   // Build final snapshot
   const snap = computeSnapshot(blocks, people, config);
@@ -508,17 +358,3 @@ export function runProfitOptimizer(
   };
 }
 
-/**
- * Compare all 3 strategies simultaneously.
- * Useful for the "profit" comparison UI.
- */
-export function compareAllStrategies(
-  blocks: ProcessBlock[],
-  config: Omit<OptimizerConfig, "mode">
-): { time: OptimizerResult; cost: OptimizerResult; profit: OptimizerResult } {
-  return {
-    time: runProfitOptimizer(blocks, { ...config, mode: "time" }),
-    cost: runProfitOptimizer(blocks, { ...config, mode: "cost" }),
-    profit: runProfitOptimizer(blocks, { ...config, mode: "profit" }),
-  };
-}

@@ -10,12 +10,12 @@ interface SidebarProps {
   onLogout: () => void;
 }
 
-export function Sidebar({ activeMenu, onMenuChange, onLogout }: SidebarProps) {
+export function Sidebar({ onMenuChange, onLogout }: SidebarProps) {
   const pathname = usePathname();
   const [showLogout, setShowLogout] = useState(false);
 
   return (
-    <aside className="w-[240px] bg-white border-r border-gray-200 flex flex-col shrink-0">
+    <aside className="w-60 bg-white border-r border-gray-200 flex flex-col shrink-0">
 
       <nav className="flex flex-col px-4 pt-6">
         <span className="text-[12px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-3">Menu</span>
