@@ -322,7 +322,7 @@ export default function AuthModal({
           {/* Close button */}
           <button 
             onClick={onClose}
-            className="absolute top-5 right-5 text-gray-400 hover:text-red-500 hover:bg-gray-500/10 rounded-full transition-all duration-300 z-50 p-2"
+            className="absolute top-5 right-5 cursor-pointer text-gray-400 hover:text-red-500 hover:bg-gray-500/10 rounded-full transition-all duration-300 z-50 p-2"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
