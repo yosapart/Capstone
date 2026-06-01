@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { FlowData } from "./editorTypes";
 
 interface EditorToolbarProps {
@@ -30,6 +31,7 @@ export function EditorToolbar({
   onAutoOptimize,
   onHelp,
 }: EditorToolbarProps) {
+  const router = useRouter();
   const [isFlowOpen, setIsFlowOpen] = useState(false);
   const [isSpeedOpen, setIsSpeedOpen] = useState(false);
   const flowRef = useRef<HTMLDivElement>(null);
@@ -177,7 +179,7 @@ export function EditorToolbar({
 
       {/* Help Button */}
       <button
-        onClick={onHelp || (() => {})}
+        onClick={() => router.push('/project/help')}
         title="Guide"
         className="flex items-center gap-1.5 text-[14px] font-medium cursor-pointer text-slate-400 hover:text-slate-600 hover:bg-slate-50 px-3 py-1.5 rounded-xl transition-all ml-1"
       >
