@@ -60,9 +60,22 @@ const HELP_SECTIONS: HelpSection[] = [
         lightBg: "#0d12147f",
         midBg: "rgba(28, 33, 37, 0.1)",
     },
+    /* ตัวอย่าง
+    {
+        id: "view",
+        num: "04",
+        title: "How to view my project?", 
+        body: "To view a project, click on the project card from your list. This opens the editor where you can see your flow. You can also share the project with others by sharing the project link.",
+        image: "/code.png",
+        imageLeft: true,
+        color: "#ffffff",
+        lightBg: "#0d12147f",
+        midBg: "rgba(28, 33, 37, 0.1)",
+    }
+        */
 ];
 
-/* ─── Search Index ───────────────────────────────────────────────────────────── */
+/*Search*/
 
 const SEARCH_INDEX = HELP_SECTIONS.map((s) => ({
     id: s.id,
@@ -124,7 +137,7 @@ const SearchIcon = () => (
 );
 
 
-/* ─── Main Page ──────────────────────────────────────────────────────────────── */
+/* Main Page */
 
 export default function HelpPage() {
     const router = useRouter();
@@ -185,7 +198,7 @@ export default function HelpPage() {
 
                 <main className="flex-1 overflow-y-auto">
 
-                    {/* ── Hero Image + Search ──────────────────────────────────── */}
+                    {/* Hero Section */}
                     <div className="relative bg-white">
                         <div
                             className="absolute inset-0"
@@ -205,7 +218,7 @@ export default function HelpPage() {
                             }}
                         />
 
-                        {/* ── Search bar ── */}
+                        {/* Search bar  */}
                         <div className="relative px-4 pb-10 pt-4 flex flex-col items-center">
 
                             <div className="relative w-full max-w-lg">
@@ -244,7 +257,7 @@ export default function HelpPage() {
                         </p>
                     </div>
 
-                    {/* ── Content Sections (Feature Page Styling) ────────────────── */}
+                    {/* Content Sections */}
                     <div className="flex flex-col w-full max-w-7xl mx-auto mb-40 px-6 lg:px-12 gap-32">
                         {HELP_SECTIONS.map((section) => {
                             const isMatch = matchSet.has(section.id);
@@ -278,7 +291,7 @@ export default function HelpPage() {
                                         </p>
                                     </div>
 
-                                    {/* ── Image side (Styled like feature videos) ── */}
+                                    {/* Image side*/}
                                     <div 
                                         className="w-full md:w-[55%] aspect-video bg-gray-50 rounded-4xl overflow-hidden shadow-2xl relative border border-gray-200 group flex items-center justify-center"
                                         style={{ backgroundColor: section.lightBg }}
