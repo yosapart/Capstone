@@ -120,7 +120,7 @@ export function HeroSection({ onCreateClick }: HeroSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="mb-[2rem] font-bold text-6xl md:text-7xl leading-[1.1] text-gray-900 tracking-tight"
+            className="mb-8 font-bold text-6xl md:text-7xl leading-[1.1] text-gray-900 tracking-tight"
           >
             Optimize, <br />
             Outperform
@@ -130,7 +130,7 @@ export function HeroSection({ onCreateClick }: HeroSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
-            className="text-lg md:text-xl mb-[4rem] text-gray-500 max-w-[40rem] font-medium"
+            className="text-lg md:text-xl mb-16 text-gray-500 max-w-160 font-medium"
           >
             Design, simulate, and optimize your production lines effortlessly.
             Bridge the gap between planning and reality.
@@ -143,7 +143,7 @@ export function HeroSection({ onCreateClick }: HeroSectionProps) {
             whileTap={{ scale: 0.95 }}
             transition={{ duration: 0.5, delay: 0.4 }}
             onClick={onCreateClick}
-            className="text-lg text-white font-semibold bg-gray-900 px-[3rem] py-[1.25rem] rounded-full cursor-pointer hover:bg-gray-800 shadow-xl hover:shadow-2xl transition-all"
+            className="text-lg text-white font-semibold bg-gray-900 px-12 py-5 rounded-full cursor-pointer hover:bg-gray-800 shadow-xl hover:shadow-2xl transition-all"
           >
             Get Started
           </motion.button>
