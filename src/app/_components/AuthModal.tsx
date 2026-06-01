@@ -156,13 +156,9 @@ export default function AuthModal({
         setShowOtp(true);
       } else {
         sessionStorage.setItem('user', JSON.stringify(data.user));
-
         window.dispatchEvent(new Event('user-changed'));
-
         await new Promise((r) => setTimeout(r, 800));
-
         setSuccess(true);
-
         setTimeout(() => {
           onClose();
           router.push('/home');
@@ -189,18 +185,13 @@ export default function AuthModal({
           ...p,
           otp: 'Invalid OTP. Please try again.',
         }));
-
         return;
       }
 
       sessionStorage.setItem('user', JSON.stringify(data.user));
-
       window.dispatchEvent(new Event('user-changed'));
-
       await new Promise((r) => setTimeout(r, 800));
-
       setSuccess(true);
-
       setTimeout(() => {
         onClose();
         router.push('/home');
@@ -226,32 +217,21 @@ export default function AuthModal({
       if (!res.ok) {
         if (data.errors && data.errors.fieldErrors) {
           const f = data.errors.fieldErrors;
-
           setErrors({
             name: f.name ? f.name[0] : '',
             email: f.email ? f.email[0] : '',
             password: f.password ? f.password[0] : '',
-            confirmPassword: f.confirmPassword
-              ? f.confirmPassword[0]
-              : '',
+            confirmPassword: f.confirmPassword ? f.confirmPassword[0] : '',
             otp: '',
           });
         } else if (data.message) {
           const lm = data.message.toLowerCase();
-
           if (lm.includes('email') || lm.includes('gmail')) {
-            setErrors((p) => ({
-              ...p,
-              email: data.message,
-            }));
+            setErrors((p) => ({ ...p, email: data.message }));
           } else {
-            setErrors((p) => ({
-              ...p,
-              password: data.message,
-            }));
+            setErrors((p) => ({ ...p, password: data.message }));
           }
         }
-
         return;
       }
 
@@ -263,41 +243,23 @@ export default function AuthModal({
 
   const handleResendOtp = async () => {
     if (resendTimer > 0) return;
-
     setLoading(true);
-
     try {
       const res = await fetch('/api/auth/resend-otp', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       });
-
       if (res.ok) {
         setResendTimer(10);
         setOtp('');
-
-        setErrors((p) => ({
-          ...p,
-          otp: '',
-        }));
+        setErrors((p) => ({ ...p, otp: '' }));
       } else {
         const data = await res.json();
-
-        setErrors((p) => ({
-          ...p,
-          otp: data.message || 'Failed to resend OTP.',
-        }));
+        setErrors((p) => ({ ...p, otp: data.message || 'Failed to resend OTP.' }));
       }
     } catch {
-      setErrors((p) => ({
-        ...p,
-        otp: 'An error occurred. Please try again.',
-      }));
+      setErrors((p) => ({ ...p, otp: 'An error occurred. Please try again.' }));
     } finally {
       setLoading(false);
     }
@@ -383,53 +345,81 @@ export default function AuthModal({
             {!showOtp ? (
               <div className="flex flex-col gap-4">
                 {mode === 'register' && (
-                  <div>
+                  <div className="relative">
                     <input
+                      id="name"
                       type="text"
                       placeholder="Full Name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       onBlur={() => setErrors((p) => ({ ...p, name: getNameErrorMessage(name) }))}
-                      className={`w-full px-4 py-3.5 bg-gray-50 border rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all focus:bg-white ${errors.name ? 'border-red-300 focus:ring-red-400 bg-red-50/30' : 'border-gray-200 focus:ring-[#5d88bd] focus:border-transparent'}`}
+                      className={`peer w-full px-4 pt-6 pb-2 bg-gray-50 border rounded-xl text-gray-900 placeholder-transparent focus:outline-none focus:ring-2 transition-all focus:bg-white ${errors.name ? 'border-red-300 focus:ring-red-400 bg-red-50/30' : 'border-gray-200 focus:ring-[#5d88bd] focus:border-transparent'}`}
                     />
+                    <label 
+                      htmlFor="name" 
+                      className={`absolute left-4 top-2 text-xs font-medium transition-all pointer-events-none peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-xs ${errors.name ? 'text-red-500 peer-placeholder-shown:text-red-400 peer-focus:text-red-500' : 'text-gray-500 peer-placeholder-shown:text-gray-400 peer-focus:text-[#5d88bd]'}`}
+                    >
+                      Full Name
+                    </label>
                     {errors.name && <p className="text-xs text-red-500 mt-1.5 ml-1 font-medium">{errors.name}</p>}
                   </div>
                 )}
 
-                <div>
+                <div className="relative">
                   <input
+                    id="email"
                     type="email"
-                    placeholder="Email (@gmail.com)"
+                    placeholder="Email Address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onBlur={() => setErrors((p) => ({ ...p, email: getEmailErrorMessage(email) }))}
-                    className={`w-full px-4 py-3.5 bg-gray-50 border rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all focus:bg-white ${errors.email ? 'border-red-300 focus:ring-red-400 bg-red-50/30' : 'border-gray-200 focus:ring-[#5d88bd] focus:border-transparent'}`}
+                    className={`peer w-full px-4 pt-6 pb-2 bg-gray-50 border rounded-xl text-gray-900 placeholder-transparent focus:outline-none focus:ring-2 transition-all focus:bg-white ${errors.email ? 'border-red-300 focus:ring-red-400 bg-red-50/30' : 'border-gray-200 focus:ring-[#5d88bd] focus:border-transparent'}`}
                   />
+                  <label 
+                    htmlFor="email" 
+                    className={`absolute left-4 top-2 text-xs font-medium transition-all pointer-events-none peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-xs ${errors.email ? 'text-red-500 peer-placeholder-shown:text-red-400 peer-focus:text-red-500' : 'text-gray-500 peer-placeholder-shown:text-gray-400 peer-focus:text-[#5d88bd]'}`}
+                  >
+                    Email Address
+                  </label>
                   {errors.email && <p className="text-xs text-red-500 mt-1.5 ml-1 font-medium">{errors.email}</p>}
                 </div>
 
-                <div>
+                <div className="relative">
                   <input
+                    id="password"
                     type="password"
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     onBlur={() => setErrors((p) => ({ ...p, password: getPasswordErrorMessage(password) }))}
-                    className={`w-full px-4 py-3.5 bg-gray-50 border rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all focus:bg-white ${errors.password ? 'border-red-300 focus:ring-red-400 bg-red-50/30' : 'border-gray-200 focus:ring-[#5d88bd] focus:border-transparent'}`}
+                    className={`peer w-full px-4 pt-6 pb-2 bg-gray-50 border rounded-xl text-gray-900 placeholder-transparent focus:outline-none focus:ring-2 transition-all focus:bg-white ${errors.password ? 'border-red-300 focus:ring-red-400 bg-red-50/30' : 'border-gray-200 focus:ring-[#5d88bd] focus:border-transparent'}`}
                   />
+                  <label 
+                    htmlFor="password" 
+                    className={`absolute left-4 top-2 text-xs font-medium transition-all pointer-events-none peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-xs ${errors.password ? 'text-red-500 peer-placeholder-shown:text-red-400 peer-focus:text-red-500' : 'text-gray-500 peer-placeholder-shown:text-gray-400 peer-focus:text-[#5d88bd]'}`}
+                  >
+                    Password
+                  </label>
                   {errors.password && <p className="text-xs text-red-500 mt-1.5 ml-1 font-medium">{errors.password}</p>}
                 </div>
 
                 {mode === 'register' && (
-                  <div>
+                  <div className="relative">
                     <input
+                      id="confirmPassword"
                       type="password"
                       placeholder="Confirm Password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       onBlur={() => setErrors((p) => ({ ...p, confirmPassword: getConfirmPasswordErrorMessage(confirmPassword) }))}
-                      className={`w-full px-4 py-3.5 bg-gray-50 border rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all focus:bg-white ${errors.confirmPassword ? 'border-red-300 focus:ring-red-400 bg-red-50/30' : 'border-gray-200 focus:ring-[#5d88bd] focus:border-transparent'}`}
+                      className={`peer w-full px-4 pt-6 pb-2 bg-gray-50 border rounded-xl text-gray-900 placeholder-transparent focus:outline-none focus:ring-2 transition-all focus:bg-white ${errors.confirmPassword ? 'border-red-300 focus:ring-red-400 bg-red-50/30' : 'border-gray-200 focus:ring-[#5d88bd] focus:border-transparent'}`}
                     />
+                    <label 
+                      htmlFor="confirmPassword" 
+                      className={`absolute left-4 top-2 text-xs font-medium transition-all pointer-events-none peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-xs ${errors.confirmPassword ? 'text-red-500 peer-placeholder-shown:text-red-400 peer-focus:text-red-500' : 'text-gray-500 peer-placeholder-shown:text-gray-400 peer-focus:text-[#5d88bd]'}`}
+                    >
+                      Confirm Password
+                    </label>
                     {errors.confirmPassword && <p className="text-xs text-red-500 mt-1.5 ml-1 font-medium">{errors.confirmPassword}</p>}
                   </div>
                 )}
@@ -453,15 +443,23 @@ export default function AuthModal({
                     placeholder="Enter 6-digit OTP"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    className={`w-full px-4 py-4 bg-gray-50 border rounded-xl text-center text-2xl tracking-[0.5em] font-bold text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 transition-all focus:bg-white ${errors.otp ? 'border-red-300 focus:ring-red-400 bg-red-50/30' : 'border-gray-200 focus:ring-[#5d88bd] focus:border-transparent'}`}
+                    className={`w-full px-4 py-4 bg-gray-50 border rounded-xl text-center text-2xl tracking-[0.5em] font-bold text-gray-900 placeholder-gray-300 placeholder:tracking-normal placeholder:text-[0.9em] focus:outline-none focus:ring-2 transition-all focus:bg-white ${
+                      errors.otp
+                        ? 'border-red-300 focus:ring-red-400 bg-red-50/30'
+                        : 'border-gray-200 focus:ring-[#5d88bd] focus:border-transparent'
+                    }`}
                     maxLength={6}
                   />
-                  {errors.otp && <p className="text-xs text-red-500 mt-2 text-center font-medium">{errors.otp}</p>}
+                  {errors.otp && (
+                    <p className="text-xs text-red-500 mt-2 text-center font-medium">
+                      {errors.otp}
+                    </p>
+                  )}
                 </div>
 
                 <button
                   onClick={handleSubmit}
-                  className="w-full mt-2 bg-[#5d88bd] text-white font-bold py-3.5 rounded-xl hover:bg-[#4a72a4] shadow-md hover:shadow-lg transition-all"
+                  className="w-full mt-2 bg-[#5d88bd] text-white font-bold py-3.5 rounded-xl hover:bg-[#4a72a4] shadow-md hover:shadow-lg transition-all cursor-pointer"
                 >
                   Verify Code
                 </button>
@@ -470,7 +468,7 @@ export default function AuthModal({
                   <button
                     onClick={handleResendOtp}
                     disabled={resendTimer > 0}
-                    className={`text-sm font-medium transition-colors ${resendTimer > 0 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-600 hover:text-[#5d88bd]'}`}
+                    className={`text-sm font-medium transition-colors cursor-pointer ${resendTimer > 0 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-600 hover:text-[#5d88bd]'}`}
                   >
                     {resendTimer > 0 ? `Resend code in ${resendTimer}s` : 'Resend code'}
                   </button>
