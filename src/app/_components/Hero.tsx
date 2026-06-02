@@ -112,15 +112,15 @@ export function HeroSection({ onCreateClick }: HeroSectionProps) {
       <div className="absolute" />
 
       {/* Split layout*/}
-      <div className="relative flex items-center max-w-7xl mx-auto px-8 min-h-screen gap-16">
+      <div className="relative flex flex-col lg:flex-row items-center max-w-7xl mx-auto px-8 min-h-screen pt-24 pb-12 lg:pt-0 gap-10 lg:gap-16">
 
         {/*Left side*/}
-        <div className="flex-[0_0_44%] z-10">
+        <div className="w-full lg:flex-[0_0_44%] z-10 flex flex-col items-start text-left">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="mb-8 font-bold text-6xl md:text-7xl leading-[1.1] text-gray-900 tracking-tight"
+            className="mb-6 lg:mb-8 font-bold text-5xl md:text-6xl lg:text-7xl leading-[1.1] text-gray-900 tracking-tight"
           >
             Optimize, <br />
             Outperform
@@ -130,7 +130,7 @@ export function HeroSection({ onCreateClick }: HeroSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
-            className="text-lg md:text-xl mb-16 text-gray-500 max-w-160 font-medium"
+            className="text-base md:text-lg lg:text-xl mb-10 lg:mb-16 text-gray-500 max-w-160 font-medium"
           >
             Design, simulate, and optimize your production lines effortlessly.
             Bridge the gap between planning and reality.
@@ -143,7 +143,7 @@ export function HeroSection({ onCreateClick }: HeroSectionProps) {
             whileTap={{ scale: 0.95 }}
             transition={{ duration: 0.5, delay: 0.4 }}
             onClick={onCreateClick}
-            className="text-lg text-white font-semibold bg-gray-900 px-12 py-5 rounded-full cursor-pointer hover:bg-gray-800 shadow-xl hover:shadow-2xl transition-all"
+            className="text-base lg:text-lg text-white font-semibold bg-gray-900 px-8 py-4 lg:px-12 lg:py-5 rounded-full cursor-pointer hover:bg-gray-800 shadow-xl hover:shadow-2xl transition-all"
           >
             Get Started
           </motion.button>
@@ -154,7 +154,7 @@ export function HeroSection({ onCreateClick }: HeroSectionProps) {
           initial={{ opacity: 0, x: 48 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.9, delay: 0.3, ease: 'easeOut' }}
-          className="flex-1 relative rounded-2xl overflow-hidden border border-gray-200 shadow-lg"
+          className="w-full lg:flex-1 relative rounded-2xl overflow-hidden border border-gray-200 shadow-lg mt-8 lg:mt-0"
           style={{ height: 520 }}
         >
           {/* Soft blue */}

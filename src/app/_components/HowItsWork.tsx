@@ -46,8 +46,8 @@ export function HowItsWorks(){
             className='flex flex-col text-gray-900 w-full max-w-7xl mx-auto my-20 rounded-4xl bg-gray-50 border border-gray-200 p-8 lg:p-14 gap-12 scroll-mt-32.5 shadow-sm'
         >
             <div className="text-center">
-                <h1 className='text-4xl lg:text-5xl font-bold mb-4 tracking-tight'>How it Works</h1>
-                <h2 className='text-lg lg:text-xl text-gray-500 font-medium'>Start simulating and improving your factory in 3 easy steps.</h2>
+                <h1 className='text-3xl md:text-4xl xl:text-[2.5rem] 2xl:text-5xl font-bold mb-3 md:mb-4 tracking-tight'>How it Works</h1>
+                <h2 className='text-base md:text-lg lg:text-xl text-gray-500 font-medium'>Start simulating and improving your factory in 3 easy steps.</h2>
             </div>
 
             <div className='flex justify-center items-center w-full'>

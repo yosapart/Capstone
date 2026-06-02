@@ -366,7 +366,7 @@ export default function HelpPage() {
                                     {/* ── Text side ── */}
                                     <div className={`w-full md:w-[45%] ${section.imageLeft ? 'md:pl-12' : ''}`}>
                                         
-                                        <h1 className="mb-6 font-bold text-4xl lg:text-5xl max-w-120 leading-tight text-gray-900 tracking-tight">
+                                        <h1 className="mb-4 lg:mb-6 font-bold text-3xl md:text-4xl xl:text-[2.5rem] 2xl:text-5xl max-w-120 leading-tight text-gray-900 tracking-tight">
                                             {highlight(section.title, query)}
                                         </h1>
                                         

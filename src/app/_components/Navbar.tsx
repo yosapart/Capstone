@@ -73,72 +73,74 @@ export function Navbar({ onLoginClick, onSignUpClick }: NavbarProps) {
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.5 }}
-            className='flex items-center text-[15px] font-semibold max-w-full h-17.5 bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-1000 px-[5%] lg:px-[10%]'
+            className='flex justify-center w-full bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-[1000]'
         >
-            <Link href="/" className='flex items-center gap-2'>
-                <Image
-                    src="/logo.png"
-                    alt="FacSim Logo Icon"
-                    width={36}
-                    height={36}
-                    priority
-                    className="opacity-90 hover:opacity-100 transition-opacity" 
-                />
-                <span className="font-bold text-xl tracking-tight text-gray-900">FacSim</span>
-            </Link>
+            <div className='flex items-center w-full max-w-7xl px-8 h-[70px]'>
+                <Link href="/" className='flex items-center gap-2'>
+                    <Image
+                        src="/logo.png"
+                        alt="FacSim Logo Icon"
+                        width={36}
+                        height={36}
+                        priority
+                        className="opacity-90 hover:opacity-100 transition-opacity" 
+                    />
+                    <span className="font-bold text-xl tracking-tight text-gray-900">FacSim</span>
+                </Link>
 
-            <ul className="flex gap-8 ml-auto mr-10">
-                <li>
-                    <Link 
-                        href="/#features" 
-                        onClick={(e) => handleNavClick(e, 'features')}
-                        className="text-gray-600 hover:text-[#5d88bd] transition-colors py-2 relative group font-medium"
-                    >
-                        Features
-                        <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-[#5d88bd] transition-all duration-300 group-hover:w-full"></span>
-                    </Link>
-                </li>
-                <li>
-                    <Link 
-                        href="/#how-it-works" 
-                        onClick={(e) => handleNavClick(e, 'how-it-works')}
-                        className="text-gray-600 hover:text-[#5d88bd] transition-colors py-2 relative group font-medium"
-                    >
-                        How it Works
-                        <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-[#5d88bd] transition-all duration-300 group-hover:w-full"></span>
-                    </Link>
-                </li>
-                <li>
-                    <Link 
-                        href="/about-us" 
-                        className="text-gray-600 hover:text-[#5d88bd] transition-colors py-2 relative group font-medium"
-                    >
-                        About Us
-                        <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-[#5d88bd] transition-all duration-300 group-hover:w-full"></span>
-                    </Link>
-                </li>
-            </ul>
+                <ul className="hidden md:flex gap-8 ml-auto mr-10">
+                    <li>
+                        <Link 
+                            href="/#features" 
+                            onClick={(e) => handleNavClick(e, 'features')}
+                            className="text-gray-600 hover:text-[#5d88bd] transition-colors py-2 relative group font-medium"
+                        >
+                            Features
+                            <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-[#5d88bd] transition-all duration-300 group-hover:w-full"></span>
+                        </Link>
+                    </li>
+                    <li>
+                        <Link 
+                            href="/#how-it-works" 
+                            onClick={(e) => handleNavClick(e, 'how-it-works')}
+                            className="text-gray-600 hover:text-[#5d88bd] transition-colors py-2 relative group font-medium"
+                        >
+                            How it Works
+                            <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-[#5d88bd] transition-all duration-300 group-hover:w-full"></span>
+                        </Link>
+                    </li>
+                    <li>
+                        <Link 
+                            href="/about-us" 
+                            className="text-gray-600 hover:text-[#5d88bd] transition-colors py-2 relative group font-medium"
+                        >
+                            About Us
+                            <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-[#5d88bd] transition-all duration-300 group-hover:w-full"></span>
+                        </Link>
+                    </li>
+                </ul>
 
-            <ul className='flex items-center gap-3'>
-                <li>
-                    <button onClick={() => {
-                        if (onLoginClick) { onLoginClick(); return; }
-                        setModeState('login');
-                        setShowAuth(true);
-                    }} className='text-[15px] font-semibold text-gray-900 px-5 py-2.5 rounded-full hover:bg-gray-100 transition-all cursor-pointer'>
-                        Login
-                    </button>
-                </li>
-                <li>
-                    <button onClick={() => {
-                        if (onSignUpClick) { onSignUpClick(); return; }
-                        setModeState('register');
-                        setShowAuth(true);
-                    }} className='text-[15px] font-semibold text-white bg-gray-900 px-6 py-2.5 rounded-full cursor-pointer hover:bg-gray-800 transition-all shadow-md hover:shadow-lg'>
-                        Sign up
-                    </button>
-                </li>
-            </ul>
+                <ul className='flex items-center gap-3 ml-auto md:ml-0'>
+                    <li>
+                        <button onClick={() => {
+                            if (onLoginClick) { onLoginClick(); return; }
+                            setModeState('login');
+                            setShowAuth(true);
+                        }} className='text-[15px] font-semibold text-gray-900 px-5 py-2.5 rounded-full hover:bg-gray-100 transition-all cursor-pointer'>
+                            Login
+                        </button>
+                    </li>
+                    <li>
+                        <button onClick={() => {
+                            if (onSignUpClick) { onSignUpClick(); return; }
+                            setModeState('register');
+                            setShowAuth(true);
+                        }} className='text-[15px] font-semibold text-white bg-gray-900 px-6 py-2.5 rounded-full cursor-pointer hover:bg-gray-800 transition-all shadow-md hover:shadow-lg'>
+                            Sign up
+                        </button>
+                    </li>
+                </ul>
+            </div>
         </motion.nav>
 
         <AnimatePresence>
